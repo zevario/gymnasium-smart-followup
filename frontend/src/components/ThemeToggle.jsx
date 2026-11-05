@@ -1,8 +1,10 @@
+import '../assets/styles/ThemeToggle.css';
 import { Sun, Moon } from 'lucide-react';
 
 function ThemeToggle({ isDarkMode, onToggleTheme }) {
   return (
     <button
+      type="button"
       className="theme-toggle"
       onClick={onToggleTheme}
       aria-label="Toggle theme"

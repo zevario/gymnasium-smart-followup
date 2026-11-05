@@ -13,7 +13,7 @@ function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProf
 
           <div>
             <h2>gymnasyum</h2>
-            <span>MEMBER RELATIONS</span>
+            <span>ADMINISTRATOR</span>
           </div>
         </div>
 

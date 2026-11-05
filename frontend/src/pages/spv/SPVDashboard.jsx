@@ -1,100 +1,109 @@
+
+import { useEffect, useState } from 'react';
+import { getAttendance } from '../../utils/attendance-storage';
 import '../../assets/styles/spv/SPVDashboard.css';
 
-const summaryData = [
-  {
-    title: 'Total Follow-up',
-    value: '48',
-    description: 'Seluruh follow-up hari ini',
-    icon: '📋',
-  },
-  {
-    title: 'Prioritas Tinggi',
-    value: '12',
-    description: 'Perlu segera ditangani',
-    icon: '🔥',
-  },
-  {
-    title: 'Menunggu Balasan',
-    value: '18',
-    description: 'Sudah dikirim ke pelanggan',
-    icon: '⏳',
-  },
-  {
-    title: 'Selesai',
-    value: '18',
-    description: 'Follow-up telah ditangani',
-    icon: '✓',
-  },
-];
+const getToday = () => {
+  const now = new Date();
 
-const priorityMembers = [
-  {
-    id: 1,
-    name: 'Rina Amelia',
-    phone: '0812-xxxx-1234',
-    absences: 5,
-    priority: 'High',
-    pic: 'Andi',
-    status: 'Belum ditangani',
-  },
-  {
-    id: 2,
-    name: 'Budi Santoso',
-    phone: '0813-xxxx-2345',
-    absences: 3,
-    priority: 'Medium',
-    pic: 'Sinta',
-    status: 'Menunggu balasan',
-  },
-  {
-    id: 3,
-    name: 'Dewi Lestari',
-    phone: '0856-xxxx-3456',
-    absences: 2,
-    priority: 'Medium',
-    pic: 'Andi',
-    status: 'Belum ditangani',
-  },
-  {
-    id: 4,
-    name: 'Agus Pratama',
-    phone: '0819-xxxx-4567',
-    absences: 1,
-    priority: 'Low',
-    pic: 'Rizky',
-    status: 'Selesai',
-  },
-];
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
 
-const teamActivities = [
-  {
-    id: 1,
-    name: 'Andi',
-    activity: 'Menangani follow-up Rina Amelia',
-    time: '10 menit lalu',
-  },
-  {
-    id: 2,
-    name: 'Sinta',
-    activity: 'Mengirim pesan kepada Budi Santoso',
-    time: '25 menit lalu',
-  },
-  {
-    id: 3,
-    name: 'Rizky',
-    activity: 'Menyelesaikan follow-up Agus Pratama',
-    time: '40 menit lalu',
-  },
-];
+  return `${year}-${month}-${day}`;
+};
+
+const formatDateTime = (date) => {
+  return new Date(date).toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 function Dashboard() {
+  const [customers, setCustomers] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+
+  useEffect(() => {
+    try {
+      const savedCustomers = localStorage.getItem('gymnasyum_customers');
+
+      setCustomers(
+        savedCustomers ? JSON.parse(savedCustomers) : []
+      );
+    } catch (error) {
+      console.error('Gagal membaca data member:', error);
+      setCustomers([]);
+    }
+
+    setAttendance(getAttendance());
+  }, []);
+
+  const today = getToday();
+
+  const todayAttendance = attendance.filter((item) => {
+    if (!item.visitAt) return false;
+
+    return new Date(item.visitAt).toLocaleDateString('en-CA') === today;
+  });
+
+  const uniqueMembersToday = new Set(
+    todayAttendance.map((item) => item.customerId)
+  );
+
+  const uniqueStaffToday = new Set(
+    todayAttendance.map((item) => item.recordedBy)
+  );
+
+  const reviewCustomers = customers.filter(
+    (customer) => customer.status === 'Perlu ditinjau'
+  );
+
+  const summaryData = [
+    {
+      title: 'Total Member',
+      value: customers.length,
+      description: 'Seluruh member terdaftar',
+      icon: '👥',
+    },
+    {
+      title: 'Kunjungan Hari Ini',
+      value: todayAttendance.length,
+      description: 'Total kunjungan tercatat hari ini',
+      icon: '📋',
+    },
+    {
+      title: 'Member Berkunjung',
+      value: uniqueMembersToday.size,
+      description: 'Member unik yang berkunjung hari ini',
+      icon: '🏋️',
+    },
+    {
+      title: 'Staff Bertugas',
+      value: uniqueStaffToday.size,
+      description: 'Staff yang mencatat kunjungan hari ini',
+      icon: '👤',
+    },
+  ];
+
+  const recentAttendance = [...attendance]
+    .sort(
+      (a, b) => new Date(b.visitAt) - new Date(a.visitAt)
+    )
+    .slice(0, 5);
+
+  const recentActivities = recentAttendance;
+
   return (
     <div className="spv-dashboard">
       <div className="spv-dashboard-heading">
         <div>
           <h1>Dashboard</h1>
           <p>
-            Pantau aktivitas tim dan perkembangan follow-up pelanggan.
+            Pantau aktivitas kunjungan member dan perkembangan operasional.
           </p>
         </div>
 
@@ -121,50 +130,43 @@ function Dashboard() {
         <section className="spv-panel spv-priority-panel">
           <div className="spv-panel-heading">
             <div>
-              <h2>Prioritas Follow-up</h2>
-              <p>Anggota yang membutuhkan perhatian tim</p>
+              <h2>Kunjungan Terbaru</h2>
+              <p>Riwayat kunjungan member yang dicatat Staff</p>
             </div>
-
-            <button className="spv-text-button">
-              Lihat Semua
-            </button>
           </div>
 
           <div className="spv-table-wrapper">
             <table className="spv-priority-table">
               <thead>
                 <tr>
-                  <th>Nama Anggota</th>
-                  <th>Absen</th>
-                  <th>Prioritas</th>
-                  <th>PIC</th>
-                  <th>Status</th>
+                  <th>Nama Member</th>
+                  <th>Waktu Kunjungan</th>
+                  <th>Dicatat Oleh</th>
                 </tr>
               </thead>
 
               <tbody>
-                {priorityMembers.map((member) => (
-                  <tr key={member.id}>
-                    <td>
-                      <strong>{member.name}</strong>
-                      <span>{member.phone}</span>
+                {recentAttendance.length === 0 ? (
+                  <tr>
+                    <td colSpan="3">
+                      Belum ada data kunjungan.
                     </td>
-
-                    <td>{member.absences} kali</td>
-
-                    <td>
-                      <span
-                        className={`spv-priority-badge ${member.priority.toLowerCase()}`}
-                      >
-                        {member.priority}
-                      </span>
-                    </td>
-
-                    <td>{member.pic}</td>
-
-                    <td>{member.status}</td>
                   </tr>
-                ))}
+                ) : (
+                  recentAttendance.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.customerName}</strong>
+                      </td>
+
+                      <td>
+                        {formatDateTime(item.visitAt)}
+                      </td>
+
+                      <td>{item.recordedBy}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -175,24 +177,35 @@ function Dashboard() {
             <div className="spv-panel-heading">
               <div>
                 <h2>Aktivitas Tim</h2>
-                <p>Aktivitas terbaru PIC</p>
+                <p>Catatan kunjungan terbaru dari Staff</p>
               </div>
             </div>
 
             <div className="spv-activity-list">
-              {teamActivities.map((activity) => (
-                <div className="spv-activity-item" key={activity.id}>
-                  <div className="spv-activity-avatar">
-                    {activity.name.charAt(0)}
-                  </div>
+              {recentActivities.length === 0 ? (
+                <p>Belum ada aktivitas Staff.</p>
+              ) : (
+                recentActivities.map((activity) => (
+                  <div
+                    className="spv-activity-item"
+                    key={activity.id}
+                  >
+                    <div className="spv-activity-avatar">
+                      {activity.recordedBy?.charAt(0) || '-'}
+                    </div>
 
-                  <div>
-                    <strong>{activity.name}</strong>
-                    <p>{activity.activity}</p>
-                    <span>{activity.time}</span>
+                    <div>
+                      <strong>{activity.recordedBy}</strong>
+                      <p>
+                        Mencatat kunjungan {activity.customerName}
+                      </p>
+                      <span>
+                        {formatDateTime(activity.visitAt)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </section>
 
@@ -202,16 +215,12 @@ function Dashboard() {
             <div className="spv-attention-item">
               <span className="spv-attention-dot" />
               <div>
-                <strong>3 follow-up terlambat</strong>
-                <p>Belum ditangani sesuai jadwal.</p>
-              </div>
-            </div>
-
-            <div className="spv-attention-item">
-              <span className="spv-attention-dot warning" />
-              <div>
-                <strong>5 pelanggan belum merespons</strong>
-                <p>Perlu pemantauan lanjutan.</p>
+                <strong>
+                  {reviewCustomers.length} member perlu ditinjau
+                </strong>
+                <p>
+                  Berdasarkan status data member.
+                </p>
               </div>
             </div>
           </section>

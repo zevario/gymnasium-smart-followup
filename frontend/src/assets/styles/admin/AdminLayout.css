@@ -355,3 +355,21 @@
   background: var(--bg-hover);
   border-left: 3px solid var(--accent-color);
 }
+
+/* Logout button - consistent across roles */
+.sidebar-logout,
+.spv-logout,
+.staff-logout {
+  color: #ff6b6b;
+  background: rgba(255, 77, 77, 0.08);
+  border: 1px solid rgba(255, 77, 77, 0.25);
+  transition: all 0.2s ease;
+}
+
+.sidebar-logout:hover,
+.spv-logout:hover,
+.staff-logout:hover {
+  color: #ffffff;
+  background: #dc3545;
+  border-color: #dc3545;
+}

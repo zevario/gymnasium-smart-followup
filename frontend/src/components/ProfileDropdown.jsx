@@ -1,9 +1,20 @@
+
 import { useEffect, useRef, useState } from 'react';
 import '../assets/styles/ProfileDropdown.css';
 
-function ProfileDropdown({ onOpenProfile, onLogout }) {
+function ProfileDropdown({
+  currentUser,
+  onOpenProfile,
+  onLogout,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const userName = currentUser?.name || 'Administrator';
+  const userEmail = currentUser?.email || '';
+  const userRole = currentUser?.role || 'Administrator Sistem';
+
+  const userInitial = userName.charAt(0).toUpperCase();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -41,14 +52,14 @@ function ProfileDropdown({ onOpenProfile, onLogout }) {
         aria-label="Menu profil"
         aria-expanded={isOpen}
       >
-        A
+        {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
       </button>
 
       {isOpen && (
         <div className="profile-dropdown-menu">
           <div className="profile-dropdown-info">
-            <strong>Administrator</strong>
-            <span>admin@gymnasyum.id</span>
+            <strong>{currentUser?.name}</strong>
+            <span>{currentUser?.email}</span>
           </div>
 
           <button

@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../assets/styles/Profile.css';
 
-function Profile() {
+function Profile({ currentUser }) {
   const [activeTab, setActiveTab] = useState('profile');
 
-  const [profile, setProfile] = useState({
-    name: 'Administrator',
-    email: 'admin@gymnasyum.id',
-    role: 'Administrator Sistem',
+ const [profile, setProfile] = useState({
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    role: currentUser?.accountRole || '',
     location: 'Gymnasyum Bintaro',
   });
+
+  useEffect(() => {
+    setProfile((prev) => ({
+      ...prev,
+      name: currentUser?.name || '',
+      email: currentUser?.email || '',
+      role: currentUser?.accountRole || '',
+    }));
+  }, [currentUser]);
 
   const [passwords, setPasswords] = useState({
     oldPassword: '',

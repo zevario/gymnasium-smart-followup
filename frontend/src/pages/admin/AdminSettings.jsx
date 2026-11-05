@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import '../assets/styles/Settings.css';
+import { useEffect, useState } from 'react';
+import "../../assets/styles/admin/AdminSettings.css";
 
 const initialAccounts = [
   {
@@ -47,16 +47,33 @@ const roles = [
 ];
 
 function Settings() {
-  const [accounts, setAccounts] = useState(initialAccounts);
+  const [accounts, setAccounts] = useState(() => {
+    const savedAccounts = localStorage.getItem('gymnasyum_accounts');
+
+    return savedAccounts
+      ? JSON.parse(savedAccounts)
+      : initialAccounts;
+  });
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState(roles[0]);
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'gymnasyum_accounts',
+      JSON.stringify(accounts)
+    );
+  }, [accounts]);
 
   const handleCreateAccount = (event) => {
     event.preventDefault();
 
     const emailExists = accounts.some(
-      (account) => account.email.toLowerCase() === email.trim().toLowerCase()
+      (account) =>
+        account.email.toLowerCase() === email.trim().toLowerCase()
     );
 
     if (emailExists) {
@@ -68,9 +85,9 @@ function Settings() {
       id: Date.now(),
       name: name.trim(),
       email: email.trim(),
+      password,
       role,
-      description:
-        'Akun karyawan Gymnasyum.',
+      description: 'Akun karyawan Gymnasyum.',
       active: true,
     };
 
@@ -81,7 +98,65 @@ function Settings() {
 
     setName('');
     setEmail('');
+    setPassword('');
     setRole(roles[0]);
+  };
+
+  const handleEditAccount = (account) => {
+  setEditingId(account.id);
+  setName(account.name);
+  setEmail(account.email);
+  setRole(account.role);
+
+  // Password tidak ditampilkan kembali.
+  setPassword('');
+  };
+
+  const handleUpdateAccount = (event) => {
+  event.preventDefault();
+
+  const emailExists = accounts.some(
+    (account) =>
+      account.id !== editingId &&
+      account.email.toLowerCase() === email.trim().toLowerCase()
+  );
+
+  if (emailExists) {
+    alert('Email sudah digunakan akun lain.');
+    return;
+  }
+
+  setAccounts((previousAccounts) =>
+    previousAccounts.map((account) =>
+      account.id === editingId
+        ? {
+            ...account,
+            name: name.trim(),
+            email: email.trim(),
+            role,
+            ...(password ? { password } : {}),
+          }
+        : account
+    )
+  );
+
+  setEditingId(null);
+  setName('');
+  setEmail('');
+  setPassword('');
+  setRole(roles[0]);
+  };
+
+  const handleDeleteAccount = (id) => {
+  const confirmed = window.confirm(
+    'Apakah kamu yakin ingin menghapus akun ini secara permanen?'
+  );
+
+  if (!confirmed) return;
+
+  setAccounts((previousAccounts) =>
+    previousAccounts.filter((account) => account.id !== id)
+  );
   };
 
   const handleChangeRole = (id, newRole) => {
@@ -104,6 +179,10 @@ function Settings() {
     );
   };
 
+
+
+
+
   return (
     <section className="settings-page">
       <div className="settings-heading">
@@ -112,11 +191,6 @@ function Settings() {
         </span>
 
         <h1>Administrasi sistem</h1>
-
-        <p>
-          Kelola akses akun demo dan periksa kesiapan koneksi.
-          Data pelanggan dibatasi untuk peran operasional.
-        </p>
       </div>
 
       <section className="settings-card">
@@ -125,14 +199,20 @@ function Settings() {
 
           <p>
             Administrator membuat akun, mengubah peran, dan
-            menonaktifkan akses karyawan. Admin/CS dan Sales
-            menggunakan satu peran operasional.
+            menonaktifkan akses karyawan. 
+          </p>
+          <p>
+            Supervisor/Manajer Operasional mengatur follow-up
+          </p>
+          <p>
+            Admin/CS dan Sales
+            menggunakan Promosi dan Notifikasi.
           </p>
         </div>
 
         <form
           className="account-form"
-          onSubmit={handleCreateAccount}
+          onSubmit={editingId ? handleUpdateAccount : handleCreateAccount}
         >
           <div className="settings-field">
             <label htmlFor="account-name">
@@ -165,6 +245,22 @@ function Settings() {
           </div>
 
           <div className="settings-field">
+            <label htmlFor="account-password">
+              Password
+            </label>
+
+            <input
+              id="account-password"
+              type="password"
+              placeholder="Buat password akun"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              minLength={8}
+              required
+            />
+          </div>
+
+          <div className="settings-field">
             <label htmlFor="account-role">
               Peran
             </label>
@@ -186,14 +282,25 @@ function Settings() {
             type="submit"
             className="create-account-button"
           >
-            Buat akun
+            {editingId ? 'Simpan Perubahan' : 'Buat akun'}
           </button>
+            
+          {editingId && (
+            <button
+              type="button"
+              className="toggle-account-button"
+              onClick={() => {
+                setEditingId(null);
+                setName('');
+                setEmail('');
+                setPassword('');
+                setRole(roles[0]);
+              }}
+            >
+              Batal
+            </button>
+        )}
         </form>
-
-        <p className="demo-password">
-          Akun demo tersimpan di browser ini.
-          Kata sandi demo: GymnasyumDemo123!
-        </p>
 
         <div className="account-list">
           {accounts.map((account) => (
@@ -245,14 +352,29 @@ function Settings() {
                   <button
                     type="button"
                     className="toggle-account-button"
-                    onClick={() =>
-                      handleToggleStatus(account.id)
-                    }
+                    onClick={() => handleEditAccount(account)}
                   >
                     {account.active
                       ? 'Nonaktifkan'
                       : 'Aktifkan'}
                   </button>
+                  
+                  <button
+                    type="button"
+                    className="toggle-account-button"
+                    onClick={() => handleEditAccount(account)}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="toggle-account-button delete-account-button"
+                    onClick={() => handleDeleteAccount(account.id)}
+                  >
+                    Hapus
+                  </button>
+
                 </div>
 
                 <p className="account-description">

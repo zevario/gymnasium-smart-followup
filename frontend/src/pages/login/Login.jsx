@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import '../assets/styles/Login.css';
-import gymnasyumLogo from '../assets/gallery/gymnasyum-logo.png';
-import ThemeToggle from '../components/ThemeToggle.jsx';
+import '../../assets/styles/login/Login.css';
+import gymnasyumLogo from '../../assets/gallery/gymnasyum-logo.png';
+import ThemeToggle from '../../components/ThemeToggle.jsx';
 
 function Login({ onLogin, isDarkMode, onToggleTheme }) {
   const [email, setEmail] = useState('');
@@ -11,9 +11,7 @@ function Login({ onLogin, isDarkMode, onToggleTheme }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    onLogin();
-
-    console.log({ email, password });
+    onLogin({ email, password });
   };
 
   return (

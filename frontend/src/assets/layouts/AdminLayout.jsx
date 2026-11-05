@@ -1,10 +1,10 @@
-import '../styles/AdminLayout.css';
+import '../styles/admin/AdminLayout.css';
 import gymnasyumLogo from '../gallery/gymnasyum-logo.png';
 import ThemeToggle from '../../components/ThemeToggle.jsx';
 import { LogOut, UserRound } from 'lucide-react';
 import ProfileDropdown from '../../components/ProfileDropdown.jsx';
 
-function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProfile, onBackToSettings }) {
+function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProfile, onBackToSettings, currentUser }) {
   return (
     <div className={`admin-layout ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
       <aside className="admin-sidebar">
@@ -39,8 +39,8 @@ function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProf
             </div>
 
             <div className="profile-info">
-            <strong>Administrator</strong>
-            <span>Admin Sistem</span>
+             <strong>{currentUser?.name || 'Administrator'}</strong>
+              <span>{currentUser?.role || 'Administrator Sistem'}</span>
             </div>
         </div>
 
@@ -75,6 +75,7 @@ function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProf
 
             <div className="admin-avatar">
                 <ProfileDropdown
+                    currentUser={currentUser}
                     onOpenProfile={onOpenProfile}
                     onLogout={onLogout}
                 />

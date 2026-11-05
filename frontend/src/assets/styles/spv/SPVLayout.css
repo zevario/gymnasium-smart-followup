@@ -1,0 +1,147 @@
+
+.spv-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.spv-sidebar {
+  width: 250px;
+  min-width: 250px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+.spv-sidebar-brand {
+  margin-bottom: 36px;
+}
+
+.spv-sidebar-brand h2 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 20px;
+}
+
+.spv-layout.dark {
+  --bg-primary: #080d0a;
+  --bg-secondary: #101a13;
+  --bg-card: #111b14;
+  --bg-hover: #1b2a1e;
+  --text-primary: #f5f7f5;
+  --text-secondary: #a9b9ac;
+  --border-color: #29382d;
+  --accent-color: #a6ff00;
+  --accent-text: #101510;
+}
+
+.spv-layout.light {
+  --bg-primary: #f4f7f1;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #e8efdf;
+  --text-primary: #172019;
+  --text-secondary: #657468;
+  --border-color: #dce5d7;
+  --accent-color: #426b18;
+  --accent-text: #ffffff;
+}
+
+.spv-sidebar-brand span,
+.spv-topbar span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.spv-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spv-nav-item,
+.spv-logout {
+  padding: 12px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.spv-nav-item:hover,
+.spv-nav-item.active {
+  background: var(--bg-hover);
+  color: var(--accent-color);
+}
+
+.spv-logout {
+  margin-top: auto;
+  color: #ef7777;
+}
+
+.spv-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.spv-topbar {
+  min-height: 76px;
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+.spv-topbar h3 {
+  margin: 0 0 4px;
+}
+
+.spv-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spv-avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.spv-content {
+  flex: 1;
+  min-height: 0;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .spv-sidebar {
+    width: 190px;
+    min-width: 190px;
+  }
+
+  .spv-content {
+    padding: 18px;
+  }
+}

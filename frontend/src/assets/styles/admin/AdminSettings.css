@@ -57,7 +57,7 @@
 /* Form */
 .account-form {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
   align-items: end;
   gap: 12px;
   margin-top: 24px;
@@ -279,3 +279,27 @@
   }
 }
 
+.delete-account-button {
+  color: #ff7777;
+  border-color: #713b3b;
+}
+
+.delete-account-button:hover {
+  background: #321d1d;
+  border-color: #ff7777;
+}
+
+.account-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.account-form-actions .create-account-button {
+  flex-shrink: 0;
+}
+
+.account-form-actions .toggle-account-button {
+  flex-shrink: 0;
+}

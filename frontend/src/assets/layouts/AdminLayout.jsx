@@ -10,11 +10,6 @@ function AdminLayout({ children, isDarkMode, onToggleTheme, onLogout, onOpenProf
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
           <img src={gymnasyumLogo} alt="Gymnasyum Logo" />
-
-          <div>
-            <h2>gymnasyum</h2>
-            <span>ADMINISTRATOR</span>
-          </div>
         </div>
 
         <div className="sidebar-location">

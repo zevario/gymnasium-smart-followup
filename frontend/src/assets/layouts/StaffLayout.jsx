@@ -2,6 +2,7 @@ import '../styles/staff/StaffLayout.css';
 import ThemeToggle from '../../components/ThemeToggle.jsx';
 import { Bell } from 'lucide-react';
 import ProfileDropdown from '../../components/ProfileDropdown.jsx';
+import gymnasyumLogo from '../gallery/gymnasyum-logo.png';
 
 function StaffLayout({
   children,
@@ -22,9 +23,8 @@ function StaffLayout({
   return (
     <div className={`staff-layout ${isDarkMode ? 'dark' : 'light'}`}>
       <aside className="staff-sidebar">
-        <div className="staff-sidebar-brand">
-          <h2>GYMNASYUM</h2>
-          <span>Staff</span>
+        <div className="sidebar-brand">
+          <img src={gymnasyumLogo} alt="Gymnasyum Logo" />
         </div>
 
         <nav className="staff-navigation">

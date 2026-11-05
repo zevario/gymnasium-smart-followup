@@ -190,3 +190,20 @@
   font-size: 12px;
 }
 
+.sidebar-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 15px;
+}
+
+.sidebar-brand img {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+}
+
+.sidebar-brand span {
+  font-size: 12px;
+}

@@ -2,6 +2,7 @@ import '../../assets/styles/spv/SPVLayout.css';
 import ProfileDropdown from '../../components/ProfileDropdown.jsx';
 import ThemeToggle from '../../components/ThemeToggle.jsx';
 import { Bell } from 'lucide-react';
+import gymnasyumLogo from '../gallery/gymnasyum-logo.png';
 
 function SPVLayout({
   children,
@@ -16,9 +17,8 @@ function SPVLayout({
   return (
     <div className={`spv-layout ${isDarkMode ? 'dark' : 'light'}`}>
       <aside className="spv-sidebar">
-        <div className="spv-sidebar-brand">
-          <h2>GYMNASYUM</h2>
-          <span>Supervisor</span>
+        <div className="sidebar-brand">
+          <img src={gymnasyumLogo} alt="Gymnasyum Logo" />
         </div>
 
         <nav className="spv-navigation">

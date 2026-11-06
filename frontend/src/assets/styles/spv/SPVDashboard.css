@@ -1,0 +1,246 @@
+
+.spv-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.spv-dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.spv-dashboard-heading h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.spv-dashboard-heading p,
+.spv-summary-card p,
+.spv-panel-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.spv-dashboard-date {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.spv-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.spv-summary-card,
+.spv-panel {
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.spv-summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.spv-summary-icon {
+  font-size: 20px;
+}
+
+.spv-summary-card h2 {
+  margin: 18px 0 8px;
+  font-size: 30px;
+}
+
+.spv-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.spv-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.spv-panel-heading h2,
+.spv-attention-panel h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.spv-text-button {
+  border: none;
+  background: transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.spv-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.spv-priority-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.spv-priority-table th {
+  padding: 13px 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.spv-priority-table td {
+  padding: 15px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.spv-priority-table td:first-child strong,
+.spv-priority-table td:first-child span {
+  display: block;
+}
+
+.spv-priority-table td:first-child span {
+  margin-top: 5px;
+  color: var(--text-secondary);
+}
+
+.spv-priority-badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.spv-priority-badge.high {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef7777;
+}
+
+.spv-priority-badge.medium {
+  background: rgba(234, 179, 8, 0.14);
+  color: #d6a928;
+}
+
+.spv-priority-badge.low {
+  background: rgba(34, 197, 94, 0.14);
+  color: #55bd79;
+}
+
+.spv-side-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.spv-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.spv-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.spv-activity-avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.spv-activity-item strong,
+.spv-attention-item strong {
+  font-size: 13px;
+}
+
+.spv-activity-item p,
+.spv-attention-item p {
+  margin: 5px 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.spv-activity-item span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.spv-attention-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.spv-attention-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.spv-attention-dot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #ef7777;
+}
+
+.spv-attention-dot.warning {
+  background: #d6a928;
+}
+
+@media (max-width: 1100px) {
+  .spv-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .spv-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .spv-dashboard-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .spv-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

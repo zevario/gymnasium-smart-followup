@@ -3,10 +3,13 @@ import ThemeToggle from '../../components/ThemeToggle.jsx';
 import { Bell } from 'lucide-react';
 import ProfileDropdown from '../../components/ProfileDropdown.jsx';
 import gymnasyumLogo from '../gallery/gymnasyum-logo.png';
+import LanguageSwitcher from '../../components/LanguageSwitcher.jsx';
+import useI18n from '../../i18n/useI18n.js';
 
 function StaffLayout({
   children,
   currentUser,
+  profilePhotoUrl,
   isDarkMode,
   onToggleTheme,
   onLogout,
@@ -14,10 +17,14 @@ function StaffLayout({
   onNavigate,
   onOpenProfile,
 }) {
+  const { t } = useI18n();
+
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'absensi', label: 'Absensi Member' },
-    { id: 'pelanggan', label: 'Data Pelanggan' },
+    { id: 'dashboard', label: t('Dashboard') },
+    { id: 'absensi', label: t('Absensi Member') },
+    { id: 'pelanggan', label: t('Data Pelanggan') },
+    { id: 'followups', label: t('Tugas Follow-up') },
+    { id: 'schedule', label: t('Schedule / Class') },
   ];
 
   return (
@@ -42,13 +49,17 @@ function StaffLayout({
           ))}
         </nav>
 
-        <button
-          type="button"
-          className="staff-logout"
-          onClick={onLogout}
-        >
-          Keluar
-        </button>
+        <div className="staff-sidebar-footer">
+          <button
+            type="button"
+            className="staff-logout"
+            onClick={onLogout}
+          >
+            {t('Keluar dari akun')}
+          </button>
+        </div>
+
+
       </aside>
 
       <main className="staff-main">
@@ -56,20 +67,22 @@ function StaffLayout({
           <div className="staff-topbar-title">
             <h3>
               {activePage === 'absensi'
-                ? 'Absensi Member'
+                ? t('Absensi Member')
                 : activePage === 'pelanggan'
-                  ? 'Data Pelanggan'
-                  : 'Staff Dashboard'}
+                  ? t('Data Pelanggan')
+                    : activePage === 'followups'
+                      ? t('Tugas Follow-up')
+                    : t('Staff Dashboard')}
             </h3>
-            <span>Gymnasyum Bintaro</span>
+            <span>{t('Gymnasyum Bintaro')}</span>
           </div>
 
           <div className="staff-topbar-actions">
             <button
               type="button"
               className="staff-notification-button"
-              aria-label="Notifikasi"
-              title="Notifikasi"
+              aria-label={t('Notifikasi')}
+              title={t('Notifikasi')}
             >
               <Bell size={18} />
             </button>
@@ -78,10 +91,12 @@ function StaffLayout({
               isDarkMode={isDarkMode}
               onToggleTheme={onToggleTheme}
             />
+            <LanguageSwitcher />
 
             <div className="staff-profile-avatar">
               <ProfileDropdown
                 currentUser={currentUser}
+                photoUrl={profilePhotoUrl}
                 onOpenProfile={onOpenProfile}
                 onLogout={onLogout}
               />

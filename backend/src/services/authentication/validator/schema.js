@@ -1,0 +1,12 @@
+import Joi from 'joi';
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
+
+const refreshSchema = Joi.object({
+  refreshToken: Joi.string().required(),
+});
+
+export { loginSchema, refreshSchema };

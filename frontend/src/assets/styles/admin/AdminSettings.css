@@ -157,6 +157,7 @@
   border-radius: 50%;
   font-size: 10px;
   font-weight: 800;
+  object-fit: cover;
 }
 
 .account-details {

@@ -105,6 +105,71 @@
   color: var(--accent-color);
   font-size: 25px;
   font-weight: 800;
+  object-fit: cover;
+}
+
+img.profile-photo {
+  display: block;
+}
+
+.profile-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.profile-photo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.profile-photo-input:focus-visible + .profile-photo-button {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.profile-photo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: var(--accent-color);
+  color: var(--accent-text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.profile-photo-button.secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.profile-photo-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.profile-identity .profile-message {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .profile-identity strong,
@@ -191,8 +256,24 @@
   font-size: 10px;
 }
 
+.profile-card-footer .profile-message {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.profile-message.success {
+  color: var(--accent-color);
+}
+
+.profile-message.error {
+  color: var(--status-danger-text);
+}
+
 .profile-card-footer button,
 .update-password-button {
+  min-height: 42px;
   padding: 10px 14px;
   border: none;
   border-radius: 7px;
@@ -208,6 +289,12 @@
   filter: brightness(1.1);
 }
 
+.profile-card-footer button:disabled,
+.update-password-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .security-card {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(230px, 0.9fr);
@@ -218,15 +305,11 @@
   margin-bottom: 16px;
 }
 
-.security-demo-note {
-  padding: 12px;
-  margin-bottom: 17px;
-  border: 1px solid var(--border-color);
-  border-radius: 7px;
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-  font-size: 10px;
-  line-height: 1.6;
+.security-form .profile-message {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .password-input-wrapper {

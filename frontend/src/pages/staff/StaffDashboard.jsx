@@ -1,64 +1,31 @@
 
 import { useEffect, useMemo, useState } from 'react';
-import { getAttendance } from '../../utils/attendance-storage';
-import { subscribeToStorage } from '../../utils/storage-sync';
+import { getAllCustomers, getAttendances } from '../../services/api';
 import '../../assets/styles/staff/StaffDashboard.css';
-
-const CUSTOMER_STORAGE_KEY = 'gymnasyum_customers';
-const ATTENDANCE_STORAGE_KEY = 'gymnasyum_visits';
-
-const getCustomers = () => {
-  try {
-    return JSON.parse(
-      localStorage.getItem(CUSTOMER_STORAGE_KEY) || '[]'
-    );
-  } catch {
-    return [];
-  }
-};
-
-const formatDate = (value) => {
-  if (!value) return '-';
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return '-';
-
-  return date.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+import useI18n from '../../i18n/useI18n.js';
 
 function StaffDashboard() {
-  const [customers, setCustomers] = useState(getCustomers);
-  const [attendance, setAttendance] = useState(getAttendance);
+  const { t, formatDateTime, formatDate, formatNumber } = useI18n();
+  const [customers, setCustomers] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadCustomers = () => {
-      setCustomers(getCustomers());
-    };
-
-    const loadAttendance = () => {
-      setAttendance(getAttendance());
-    };
-
-    const unsubscribeCustomers = subscribeToStorage(
-      CUSTOMER_STORAGE_KEY,
-      loadCustomers
-    );
-
-    const unsubscribeAttendance = subscribeToStorage(
-      ATTENDANCE_STORAGE_KEY,
-      loadAttendance
-    );
-
+    let active = true;
+    Promise.all([
+      getAllCustomers({ status: 'active' }),
+      getAttendances(),
+    ])
+      .then(([customerData, attendanceData]) => {
+        if (!active) return;
+        setCustomers(customerData.customers || []);
+        setAttendance(attendanceData.attendances || []);
+      })
+      .catch((loadError) => {
+        if (active) setError(loadError.message);
+      });
     return () => {
-      unsubscribeCustomers();
-      unsubscribeAttendance();
+      active = false;
     };
   }, []);
 
@@ -93,19 +60,20 @@ function StaffDashboard() {
 
   return (
     <main className="staff-dashboard">
+      {error && <p role="alert">{t(error)}</p>}
       <div className="staff-dashboard-heading">
         <div>
           <span className="staff-dashboard-eyebrow">
-            OVERVIEW
+            {t('OVERVIEW')}
           </span>
-          <h1>Staff Dashboard</h1>
+          <h1>{t('Staff Dashboard')}</h1>
           <p>
-            Ringkasan aktivitas pelanggan dan kunjungan Gymnasyum.
+            {t('Ringkasan aktivitas pelanggan dan kunjungan Gymnasyum.')}
           </p>
         </div>
 
         <div className="staff-dashboard-date">
-          {new Date().toLocaleDateString('id-ID', {
+          {formatDate(new Date(), {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
@@ -116,38 +84,38 @@ function StaffDashboard() {
 
       <section className="staff-dashboard-stats">
         <article className="staff-stat-card">
-          <span>Total Pelanggan</span>
-          <strong>{customers.length}</strong>
-          <small>Data pelanggan terdaftar</small>
+          <span>{t('Total Pelanggan')}</span>
+          <strong>{formatNumber(customers.length)}</strong>
+          <small>{t('Data pelanggan terdaftar')}</small>
         </article>
 
         <article className="staff-stat-card">
-          <span>Kunjungan Hari Ini</span>
-          <strong>{todayVisits.length}</strong>
-          <small>Total catatan kunjungan hari ini</small>
+          <span>{t('Kunjungan Hari Ini')}</span>
+          <strong>{formatNumber(todayVisits.length)}</strong>
+          <small>{t('Total catatan kunjungan hari ini')}</small>
         </article>
 
         <article className="staff-stat-card">
-          <span>Member Hadir</span>
-          <strong>{uniqueVisitors}</strong>
-          <small>Pelanggan berbeda hari ini</small>
+          <span>{t('Member Hadir')}</span>
+          <strong>{formatNumber(uniqueVisitors)}</strong>
+          <small>{t('Pelanggan berbeda hari ini')}</small>
         </article>
 
         <article className="staff-stat-card">
-          <span>Total Kunjungan</span>
-          <strong>{attendance.length}</strong>
-          <small>Seluruh riwayat kunjungan</small>
+          <span>{t('Total Kunjungan')}</span>
+          <strong>{formatNumber(attendance.length)}</strong>
+          <small>{t('Seluruh riwayat kunjungan')}</small>
         </article>
       </section>
 
       <section className="staff-dashboard-section">
         <div className="staff-section-heading">
           <div>
-            <h2>Aktivitas Kunjungan Terbaru</h2>
-            <p>Catatan kunjungan pelanggan terakhir.</p>
+            <h2>{t('Aktivitas Kunjungan Terbaru')}</h2>
+            <p>{t('Catatan kunjungan pelanggan terakhir.')}</p>
           </div>
 
-          <span>{attendance.length} kunjungan</span>
+          <span>{formatNumber(attendance.length)} {t('kunjungan')}</span>
         </div>
 
         {recentVisits.length > 0 ? (
@@ -165,22 +133,22 @@ function StaffDashboard() {
 
                 <div className="staff-recent-info">
                   <strong>
-                    {visit.customerName || 'Pelanggan'}
+                    {visit.customerName || t('Pelanggan')}
                   </strong>
                   <span>
-                    Dicatat oleh {visit.recordedBy || 'Staff'}
+                    {t('Dicatat oleh')} {visit.recordedBy || t('Staff')}
                   </span>
                 </div>
 
-                <time>{formatDate(visit.visitAt)}</time>
+                <time>{formatDateTime(visit.visitAt)}</time>
               </article>
             ))}
           </div>
         ) : (
           <div className="staff-dashboard-empty">
-            <strong>Belum ada kunjungan</strong>
+            <strong>{t('Belum ada kunjungan')}</strong>
             <p>
-              Riwayat kunjungan pelanggan akan muncul di sini.
+              {t('Riwayat kunjungan pelanggan akan muncul di sini.')}
             </p>
           </div>
         )}

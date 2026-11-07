@@ -1,66 +1,59 @@
 import { useEffect, useMemo, useState } from 'react';
-import { subscribeToStorage } from '../../utils/storage-sync';
+import { getAllCustomers } from '../../services/api';
 import '../../assets/styles/staff/StaffCustomer.css';
-import { openWhatsApp } from '../../utils/whatsapp';
+import useI18n from '../../i18n/useI18n.js';
 
-const CUSTOMER_STORAGE_KEY = 'gymnasyum_customers';
-
-const readCustomers = () => {
-  try {
-    const saved = localStorage.getItem(CUSTOMER_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch (error) {
-    console.error('Gagal membaca data pelanggan:', error);
-    return [];
-  }
-};
-
-const formatDate = (value) => {
-  if (!value) return 'Belum ditentukan';
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return 'Belum ditentukan';
-
-  return date.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-};
-
-const getMembershipStatus = (customer) => {
-  const endDate = customer.membershipEnd
+const getMembershipEnd = (customer) => (
+  customer.membershipEnd
+    ?? customer.membership_end
     ?? customer.membershipEndDate
     ?? customer.endDate
-    ?? customer.expiresAt;
+    ?? customer.expiresAt
+);
 
-  if (!endDate) return 'Belum ditentukan';
+const getMembershipStart = (customer) => (
+  customer.membershipStart ?? customer.membership_start
+);
+
+const getMembershipPackage = (customer) => (
+  customer.membershipPackage ?? customer.membership_package
+);
+
+const getMembershipStatus = (customer, t) => {
+  const endDate = getMembershipEnd(customer);
+  if (!endDate) return t('Belum ditentukan');
 
   const expiry = new Date(endDate);
-  if (Number.isNaN(expiry.getTime())) return 'Belum ditentukan';
+  if (Number.isNaN(expiry.getTime())) return t('Belum ditentukan');
 
   expiry.setHours(23, 59, 59, 999);
 
-  return expiry < new Date() ? 'Kedaluwarsa' : 'Aktif';
+  return expiry < new Date() ? t('Kedaluwarsa') : t('Aktif');
 };
 
 function StaffCustomer() {
-  const [customers, setCustomers] = useState(readCustomers);
+  const { t, formatDate, formatNumber } = useI18n();
+  const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadCustomers = () => {
-      setCustomers(readCustomers());
+    let active = true;
+    getAllCustomers({ status: 'active' })
+      .then((data) => {
+        if (active) setCustomers(data.customers || []);
+      })
+      .catch((loadError) => {
+        if (active) setError(loadError.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
     };
-
-    const unsubscribe = subscribeToStorage(
-      CUSTOMER_STORAGE_KEY,
-      loadCustomers
-    );
-
-    return unsubscribe;
   }, []);
 
   const filteredCustomers = useMemo(() => {
@@ -70,7 +63,7 @@ function StaffCustomer() {
       return [
         customer.name,
         customer.phone,
-        customer.package,
+        getMembershipPackage(customer),
         customer.status,
       ].some((value) =>
         String(value ?? '').toLowerCase().includes(keyword)
@@ -82,27 +75,28 @@ function StaffCustomer() {
     <main className="staff-customer-page">
       <header className="staff-customer-header">
         <div>
-          <span className="staff-customer-eyebrow">MEMBER MANAGEMENT</span>
-          <h1>Data Pelanggan</h1>
-          <p>Lihat informasi pelanggan dan status membership Gymnasyum.</p>
+          <span className="staff-customer-eyebrow">{t('MEMBER MANAGEMENT')}</span>
+          <h1>{t('Data Pelanggan')}</h1>
+          <p>{t('Lihat informasi pelanggan dan status membership Gymnasyum.')}</p>
         </div>
 
         <div className="staff-customer-total">
-          <span>Total Pelanggan</span>
-          <strong>{customers.length}</strong>
+          <span>{t('Total Pelanggan')}</span>
+          <strong>{formatNumber(customers.length)}</strong>
         </div>
       </header>
 
       <section className="staff-customer-panel">
+        {error && <p role="alert">{t(error)}</p>}
         <div className="staff-customer-toolbar">
           <div>
-            <h2>Daftar Pelanggan</h2>
-            <p>Informasi pelanggan yang terdaftar dalam sistem.</p>
+            <h2>{t('Daftar Pelanggan')}</h2>
+            <p>{t('Informasi pelanggan yang terdaftar dalam sistem.')}</p>
           </div>
 
           <input
             type="search"
-            placeholder="Cari nama, nomor, atau paket..."
+            placeholder={t('Cari nama, nomor, atau paket...')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -112,46 +106,50 @@ function StaffCustomer() {
           <table className="staff-customer-table">
             <thead>
               <tr>
-                <th>Pelanggan</th>
-                <th>Nomor Telepon</th>
-                <th>Paket</th>
-                <th>Masa Berlaku</th>
-                <th>Status Membership</th>
-                <th>Detail</th>
+                <th>{t('Pelanggan')}</th>
+                <th>{t('Nomor Telepon')}</th>
+                <th>{t('Paket')}</th>
+                <th>{t('Masa Berlaku')}</th>
+                <th>{t('Status Membership')}</th>
+                <th>{t('Detail')}</th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredCustomers.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="staff-customer-empty">
+                    {t('Memuat data pelanggan...')}
+                  </td>
+                </tr>
+              ) : filteredCustomers.length > 0 ? (
                 filteredCustomers.map((customer, index) => {
                   const membershipStatus =
-                    getMembershipStatus(customer);
+                    getMembershipStatus(customer, t);
 
                   return (
                     <tr key={customer.id ?? customer.phone ?? index}>
                       <td>
-                        <strong>{customer.name || 'Tanpa nama'}</strong>
+                        <strong>{customer.name || t('Tanpa nama')}</strong>
                       </td>
 
                       <td>{customer.phone || '-'}</td>
 
-                      <td>{customer.package || '-'}</td>
+                      <td>{getMembershipPackage(customer) || '-'}</td>
 
                       <td>
-                        {formatDate(
-                          customer.membershipEnd
-                            ?? customer.membershipEndDate
-                            ?? customer.endDate
-                            ?? customer.expiresAt
-                        )}
+                        {getMembershipStart(customer)
+                          ? `${formatDate(getMembershipStart(customer))} – `
+                          : ''}
+                        {formatDate(getMembershipEnd(customer))}
                       </td>
 
                       <td>
                         <span
                           className={`staff-membership-badge ${
-                            membershipStatus === 'Aktif'
+                            membershipStatus === t('Aktif')
                               ? 'is-active'
-                              : membershipStatus === 'Kedaluwarsa'
+                              : membershipStatus === t('Kedaluwarsa')
                                 ? 'is-expired'
                                 : 'is-unknown'
                           }`}
@@ -166,7 +164,7 @@ function StaffCustomer() {
                           className="staff-customer-detail-button"
                           onClick={() => setSelectedCustomer(customer)}
                         >
-                          Lihat Detail
+                          {t('Lihat Detail')}
                         </button>
                       </td>
                     </tr>
@@ -176,8 +174,8 @@ function StaffCustomer() {
                 <tr>
                   <td colSpan="6" className="staff-customer-empty">
                     {customers.length === 0
-                      ? 'Belum ada pelanggan terdaftar.'
-                      : 'Pelanggan tidak ditemukan.'}
+                      ? t('Belum ada pelanggan terdaftar.')
+                      : t('Pelanggan tidak ditemukan.')}
                   </td>
                 </tr>
               )}
@@ -200,16 +198,16 @@ function StaffCustomer() {
           >
             <div className="staff-customer-modal-header">
               <div>
-                <span>INFORMASI MEMBER</span>
+                <span>{t('INFORMASI MEMBER')}</span>
                 <h2 id="staff-customer-modal-title">
-                  Detail Pelanggan
+                  {t('Detail Pelanggan')}
                 </h2>
               </div>
 
               <button
                 type="button"
                 onClick={() => setSelectedCustomer(null)}
-                aria-label="Tutup detail"
+                aria-label={t('Tutup detail')}
               >
                 ×
               </button>
@@ -217,77 +215,55 @@ function StaffCustomer() {
 
             <div className="staff-customer-detail">
               <div>
-                <span>Nama Pelanggan</span>
+                <span>{t('Nama Pelanggan')}</span>
                 <strong>{selectedCustomer.name || '-'}</strong>
               </div>
 
               <div>
-                <span>Nomor Telepon</span>
+                <span>{t('Nomor Telepon')}</span>
                 <strong>{selectedCustomer.phone || '-'}</strong>
               </div>
 
               <div>
-                <span>Paket Membership</span>
-                <strong>{selectedCustomer.package || '-'}</strong>
+                <span>{t('Paket Membership')}</span>
+                <strong>{getMembershipPackage(selectedCustomer) || '-'}</strong>
               </div>
 
               <div>
-                <span>Tanggal Mulai</span>
+                <span>{t('Tanggal Mulai')}</span>
                 <strong>
-                  {formatDate(selectedCustomer.membershipStart)}
+                  {formatDate(getMembershipStart(selectedCustomer))}
                 </strong>
               </div>
 
               <div>
-                <span>Tanggal Berakhir</span>
+                <span>{t('Tanggal Berakhir')}</span>
                 <strong>
-                  {formatDate(
-                    selectedCustomer.membershipEnd
-                      ?? selectedCustomer.membershipEndDate
-                      ?? selectedCustomer.endDate
-                      ?? selectedCustomer.expiresAt
-                  )}
+                  {formatDate(getMembershipEnd(selectedCustomer))}
                 </strong>
               </div>
 
               <div>
-                <span>Status Membership</span>
+                <span>{t('Status Membership')}</span>
                 <strong>
-                  {getMembershipStatus(selectedCustomer)}
+                  {getMembershipStatus(selectedCustomer, t)}
                 </strong>
               </div>
 
               <div>
-                <span>Status Pelanggan</span>
+                <span>{t('Status Pelanggan')}</span>
                 <strong>{selectedCustomer.status || '-'}</strong>
               </div>
 
               <div>
-                <span>Penanggung Jawab (PIC)</span>
-                <strong>{selectedCustomer.pic || 'Belum ditugaskan'}</strong>
+                <span>{t('Penanggung Jawab (PIC)')}</span>
+                <strong>{selectedCustomer.picName || t('Belum ditugaskan')}</strong>
               </div>
             </div>
 
             <p className="staff-customer-readonly-note">
-              Informasi ini hanya dapat dilihat oleh Staff.
-              Perubahan data dilakukan melalui akun Supervisor.
+              {t('Informasi ini hanya dapat dilihat oleh Staff. Perubahan data dilakukan melalui akun Supervisor.')}
 
-              <button
-              type="button"
-              className="staff-customer-whatsapp-button"
-              disabled={
-                !selectedCustomer.phone ||
-                selectedCustomer.contactPermission === 'Ditolak'
-              }
-              onClick={() =>
-                openWhatsApp(
-                  selectedCustomer.phone,
-                  `Halo ${selectedCustomer.name}, kami dari Gymnasyum. Kami ingin menanyakan kabar dan aktivitas latihan Anda. Apakah ada yang bisa kami bantu?`
-                )
-              }
-            >
-              Hubungi via WhatsApp
-            </button>
             </p>
 
             <button
@@ -295,7 +271,7 @@ function StaffCustomer() {
               className="staff-customer-close-button"
               onClick={() => setSelectedCustomer(null)}
             >
-              Tutup
+              {t('Tutup')}
             </button>
           </section>
         </div>

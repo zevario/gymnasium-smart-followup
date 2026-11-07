@@ -1,195 +1,144 @@
 import { useEffect, useState } from 'react';
-
 import {
-  getAttendance,
-} from '../../utils/attendance-storage';
-
-import {
-  notifyStorageChange,
-  subscribeToStorage,
-} from '../../utils/storage-sync';
-
+  getCustomers,
+  getUsers,
+  createCustomer,
+  updateCustomer,
+  deactivateCustomer,
+} from '../../services/api.js';
 import '../../assets/styles/spv/SPVCustomer.css';
-
-
-const initialCustomers = [
-  {
-    id: 1,
-    name: 'Rina Pramesti',
-    phone: '081234567890',
-    package: 'Open Gym Bulanan',
-    status: 'Aktif',
-    membershipStart: '2026-10-01',
-    membershipEnd: '2026-10-31',
-    contactPermission: 'Aktif',
-    pic: 'Alya',
-  },
-  {
-    id: 2,
-    name: 'Dimas Saputra',
-    phone: '081234567891',
-    package: 'Trial Group Class',
-    status: 'Trial aktif',
-    membershipStart: '2026-10-10',
-    membershipEnd: '2026-10-17',
-    contactPermission: 'Aktif',
-    pic: 'Belum ditugaskan',
-  },
-];
+import useI18n from '../../i18n/useI18n.js';
 
 const emptyForm = {
   name: '',
+  email: '',
   phone: '',
-  package: '',
-  status: 'Aktif',
-  membershipStart: '',
-  membershipEnd: '',
-  contactPermission: 'Aktif',
-  picId: '',
+  gender: '',
+  address: '',
+  notes: '',
+  membership_package: '',
+  membership_start: '',
+  membership_end: '',
+  contact_permission: 'true',
+  pic_id: '',
+  status: 'active',
 };
 
+const picRoles = new Set(['spv', 'staff']);
+
+const formatRole = (role) => role.toUpperCase();
+
 function SPVCustomer() {
-  const [customers, setCustomers] = useState(() => {
-    try {
-      const savedCustomers = localStorage.getItem('gymnasyum_customers');
-
-      return savedCustomers
-        ? JSON.parse(savedCustomers)
-        : initialCustomers;
-    } catch {
-      return initialCustomers;
-    }
-  });
-
+  const { t, formatDate, formatNumber } = useI18n();
+  const [customers, setCustomers] = useState([]);
   const [picOptions, setPicOptions] = useState([]);
-  const [attendance, setAttendance] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
 
-  useEffect(() => {
-  const loadAccounts = () => {
-    try {
-      const savedAccounts = localStorage.getItem('gymnasyum_accounts');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [picErrorMessage, setPicErrorMessage] = useState('');
 
-      if (!savedAccounts) {
-        setPicOptions([]);
-        return;
+  // Mengambil data Customer dari PostgreSQL melalui Express API.
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCustomers = async () => {
+      try {
+        setIsLoading(true);
+        setErrorMessage('');
+
+        const result = await getCustomers({
+          page: 1,
+          limit: 100,
+          search: searchTerm.trim(),
+        });
+
+        if (isMounted) {
+          setCustomers(result.customers || []);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setErrorMessage(error.message);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
+    };
 
-      const accounts = JSON.parse(savedAccounts);
+    loadCustomers();
 
-      setPicOptions(
-        accounts.filter(
-          (account) =>
-            account.role === 'Admin/CS & Sales' &&
-            account.active === true
-        )
-      );
-    } catch (error) {
-      console.error('Gagal membaca data PIC:', error);
-      setPicOptions([]);
-    }
-  };
-
-  loadAccounts();
-
-  return subscribeToStorage('gymnasyum_accounts', loadAccounts);
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
-  try {
-    localStorage.setItem(
-      'gymnasyum_customers',
-      JSON.stringify(customers)
-    );
+    let isMounted = true;
 
-    notifyStorageChange('gymnasyum_customers');
-  } catch (error) {
-    console.error('Gagal menyimpan data pelanggan:', error);
-  }
-  }, [customers]);
+    const loadPicOptions = async () => {
+      try {
+        const users = await getUsers();
+        if (isMounted) {
+          setPicOptions(
+            users.filter(
+              (user) => user.is_active && picRoles.has(user.role)
+            )
+          );
+        }
+      } catch (error) {
+        if (isMounted) {
+          setPicErrorMessage(error.message);
+        }
+      }
+    };
 
-  useEffect(() => {
-  const loadAttendance = () => {
-    setAttendance(getAttendance());
-  };
+    loadPicOptions();
 
-  loadAttendance();
-
-  return subscribeToStorage('gymnasyum_visits', loadAttendance);
+    return () => {
+      isMounted = false;
+    };
   }, []);
-  
-  const getLastVisit = (customerId) => {
-    const customerVisits = attendance
-      .filter(
-        (item) => String(item.customerId) === String(customerId)
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.visitAt).getTime() -
-          new Date(a.visitAt).getTime()
-      );
-
-    if (customerVisits.length === 0) {
-      return '-';
-    }
-
-    return new Date(
-      customerVisits[0].visitAt
-    ).toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const getPicName = (customer) => {
-    if (customer.picId) {
-      const assignedPic = picOptions.find(
-        (account) => String(account.id) === String(customer.picId)
-      );
-
-      if (assignedPic) return assignedPic.name;
-    }
-
-    // Kompatibilitas dengan data pelanggan lama yang masih menyimpan nama PIC.
-    return customer.pic || 'Belum ditugaskan';
-  };
-
-  const filteredCustomers = customers.filter((customer) =>
-    `${customer.name} ${customer.package} ${customer.phone || ''} ${getPicName(customer)}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
 
   const handleOpenAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
+    setErrorMessage('');
     setIsFormOpen(true);
   };
 
   const handleOpenEdit = (customer) => {
-    const existingPic = picOptions.find(
-      (account) =>
-        String(account.id) === String(customer.picId) ||
-        account.name === customer.pic
-    );
-
     setEditingId(customer.id);
 
     setFormData({
       name: customer.name || '',
+      email: customer.email || '',
       phone: customer.phone || '',
-      package: customer.package || '',
-      status: customer.status || 'Aktif',
-      membershipStart: customer.membershipStart || '',
-      membershipEnd: customer.membershipEnd || '',
-      contactPermission: customer.contactPermission || 'Aktif',
-      picId: existingPic ? String(existingPic.id) : '',
+      gender: customer.gender || '',
+      address: customer.address || '',
+      notes: customer.notes || '',
+      membership_package: customer.membership_package || '',
+      membership_start: customer.membership_start
+        ? customer.membership_start.slice(0, 10)
+        : '',
+      membership_end: customer.membership_end
+        ? customer.membership_end.slice(0, 10)
+        : '',
+      contact_permission: customer.contact_permission ? 'true' : 'false',
+      pic_id: picOptions.some(
+        (user) => user.id === customer.pic_id
+      )
+        ? customer.pic_id
+        : '',
+      status: customer.status || 'active',
     });
 
+    setErrorMessage('');
     setIsFormOpen(true);
   };
 
@@ -202,90 +151,143 @@ function SPVCustomer() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (picErrorMessage) {
+      setErrorMessage(t(
+        'Daftar PIC gagal dimuat. Muat ulang halaman sebelum menyimpan.'
+      ));
+      return;
+    }
+
+    if (!formData.name.trim() || !formData.phone.trim()) {
+      setErrorMessage(t('Nama dan nomor WhatsApp wajib diisi.'));
+      return;
+    }
+
     if (
-      !formData.name.trim() ||
-      !formData.phone.trim() ||
-      !formData.package.trim() ||
-      !formData.membershipEnd
+      formData.membership_start &&
+      formData.membership_start > formData.membership_end
     ) {
-      alert(
-        'Nama, nomor WhatsApp, paket, dan tanggal berakhir membership wajib diisi.'
+      setErrorMessage(
+        t('Tanggal mulai membership harus sebelum tanggal berakhir.')
       );
       return;
     }
 
-    const selectedPic = picOptions.find(
-      (account) => String(account.id) === String(formData.picId)
-    );
-
     const customerData = {
-      ...formData,
       name: formData.name.trim(),
+      email: formData.email.trim() || null,
       phone: formData.phone.trim(),
-      package: formData.package.trim(),
-      picId: selectedPic ? selectedPic.id : '',
-      pic: selectedPic ? selectedPic.name : 'Belum ditugaskan',
+      gender: formData.gender || null,
+      address: formData.address.trim() || null,
+      notes: formData.notes.trim() || null,
+      membership_package: formData.membership_package.trim(),
+      membership_start: formData.membership_start || null,
+      membership_end: formData.membership_end,
+      contact_permission: formData.contact_permission === 'true',
+      pic_id: picOptions.some((user) => user.id === formData.pic_id)
+        ? formData.pic_id
+        : null,
     };
 
-    if (editingId !== null) {
-      setCustomers((previous) =>
-        previous.map((customer) =>
-          customer.id === editingId
-            ? { ...customer, ...customerData }
-            : customer
-        )
-      );
-    } else {
-      const newCustomer = {
-        id: Date.now(),
-        ...customerData,
-      };
+    try {
+      setIsSaving(true);
+      setErrorMessage('');
 
-      setCustomers((previous) => [...previous, newCustomer]);
+      if (editingId) {
+        await updateCustomer(editingId, {
+          ...customerData,
+          status: formData.status,
+        });
+      } else {
+        await createCustomer(customerData);
+      }
+
+      const result = await getCustomers({
+        page: 1,
+        limit: 100,
+        search: searchTerm.trim(),
+      });
+
+      setCustomers(result.customers || []);
+      setIsFormOpen(false);
+      setEditingId(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsFormOpen(false);
-    setEditingId(null);
-    setFormData(emptyForm);
   };
 
-  const handleDelete = (id) => {
-    const confirmed = window.confirm(
-      'Apakah kamu yakin ingin menghapus pelanggan ini?'
-    );
+  const handleDeactivate = async (id) => {
+    const confirmed = window.confirm(t(
+      'Apakah kamu yakin ingin menonaktifkan pelanggan ini?'
+    ));
 
     if (!confirmed) return;
 
-    setCustomers((previous) =>
-      previous.filter((customer) => customer.id !== id)
-    );
+    try {
+      setErrorMessage('');
+
+      await deactivateCustomer(id);
+
+      const result = await getCustomers({
+        page: 1,
+        limit: 100,
+        search: searchTerm.trim(),
+      });
+
+      setCustomers(result.customers || []);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
-  return (
+  const filteredCustomers = customers;
+
+  const getStatusLabel = (customer) => {
+    if (customer.status !== 'active') return t('Tidak aktif');
+    if (!customer.membership_end) return t('Aktif');
+
+    const endOfMembership = new Date(
+      `${customer.membership_end.slice(0, 10)}T23:59:59`
+    );
+    return endOfMembership < new Date() ? t('Kedaluwarsa') : t('Aktif');
+  };
+
+  const getStatusClass = (customer) => {
+    return getStatusLabel(customer) === t('Aktif')
+      ? 'status-active'
+      : 'status-inactive';
+  };
+
+  // JSX return tetap di bawah sini.
+
+return (
     <div className="spv-customers">
       <div className="spv-customers-heading">
         <div>
-          <span className="spv-eyebrow">DATA MEMBER GYMNASYUM</span>
-          <h1>Data Pelanggan</h1>
+          <span className="spv-eyebrow">{t('DATA MEMBER GYMNASYUM')}</span>
+          <h1>{t('Data Pelanggan')}</h1>
           <p>
-            Kelola informasi pelanggan dan status keanggotaan Gymnasyum.
+            {t('Kelola informasi pelanggan dan status keanggotaan Gymnasyum.')}
           </p>
         </div>
 
         <div className="spv-customer-total">
-          <span>Total Pelanggan</span>
-          <strong>{customers.length}</strong>
+          <span>{t('Total Pelanggan')}</span>
+          <strong>{formatNumber(customers.length)}</strong>
         </div>
       </div>
 
       <section className="spv-customer-section">
         <div className="spv-customer-section-heading">
           <div>
-            <h2>Daftar Pelanggan</h2>
-            <p>Data pelanggan yang dikelola oleh Supervisor.</p>
+            <h2>{t('Daftar Pelanggan')}</h2>
+            <p>{t('Data pelanggan yang dikelola oleh Supervisor.')}</p>
           </div>
 
           <button
@@ -293,33 +295,40 @@ function SPVCustomer() {
             className="spv-add-button"
             onClick={handleOpenAdd}
           >
-            + Tambah Pelanggan
+            + {t('Tambah Pelanggan')}
           </button>
         </div>
 
         <div className="spv-customer-toolbar">
           <input
             type="search"
-            placeholder="Cari nama, nomor WhatsApp, paket, atau PIC..."
+            placeholder={t('Cari nama, nomor WhatsApp, paket, atau PIC...')}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
 
-          <span>{filteredCustomers.length} pelanggan ditampilkan</span>
+          <span>{formatNumber(filteredCustomers.length)} {t('pelanggan ditampilkan')}</span>
         </div>
 
         <div className="spv-customer-table-wrapper">
+          {errorMessage && (
+            <p className="spv-pic-warning">{t(errorMessage)}</p>
+          )}
+
+          {isLoading && (
+            <p>{t('Memuat data pelanggan...')}</p>
+          )}
           <table className="spv-customer-table">
             <thead>
               <tr>
-                <th>PELANGGAN</th>
-                <th>PAKET MEMBERSHIP</th>
-                <th>STATUS</th>
-                <th>KUNJUNGAN TERAKHIR</th>
-                <th>MASA MEMBERSHIP</th>
-                <th>IZIN KONTAK</th>
-                <th>PIC</th>
-                <th>AKSI</th>
+                <th>{t('PELANGGAN')}</th>
+                <th>{t('PAKET MEMBERSHIP')}</th>
+                <th>{t('STATUS')}</th>
+                <th>{t('KUNJUNGAN TERAKHIR')}</th>
+                <th>{t('MASA MEMBERSHIP')}</th>
+                <th>{t('IZIN KONTAK')}</th>
+                <th>{t('PIC')}</th>
+                <th>{t('AKSI')}</th>
               </tr>
             </thead>
 
@@ -339,31 +348,23 @@ function SPVCustomer() {
                     </div>
                   </td>
 
-                  <td>{customer.package}</td>
+                  <td>{customer.membership_package || t('Belum ditentukan')}</td>
 
                   <td>
-                    <span
-                      className={`spv-status ${
-                        customer.status === 'Perlu ditinjau'
-                          ? 'status-review'
-                          : customer.status === 'Tidak aktif'
-                            ? 'status-inactive'
-                            : 'status-active'
-                      }`}
-                    >
-                      {customer.status}
+                    <span className={`spv-status ${getStatusClass(customer)}`}>
+                      {getStatusLabel(customer)}
                     </span>
                   </td>
 
-                  <td>{getLastVisit(customer.id)}</td>
+                  <td>{formatDate(customer.last_visit)}</td>
 
                   <td>
                     <div className="spv-membership-dates">
                       <span>
-                        Mulai: {customer.membershipStart || '-'}
+                        {t('Mulai')}: {formatDate(customer.membership_start)}
                       </span>
                       <span>
-                        Berakhir: {customer.membershipEnd || '-'}
+                        {t('Berakhir')}: {formatDate(customer.membership_end)}
                       </span>
                     </div>
                   </td>
@@ -371,16 +372,18 @@ function SPVCustomer() {
                   <td>
                     <span
                       className={`spv-contact ${
-                        customer.contactPermission === 'Aktif'
+                        customer.contact_permission
                           ? 'contact-active'
                           : 'contact-rejected'
                       }`}
                     >
-                      ● {customer.contactPermission}
+                      ● {customer.contact_permission
+                        ? t('Diizinkan')
+                        : t('Tidak diizinkan')}
                     </span>
                   </td>
 
-                  <td>{getPicName(customer)}</td>
+                  <td>{customer.pic_name || t('Belum ditugaskan')}</td>
 
                   <td>
                     <div className="spv-customer-actions">
@@ -388,15 +391,16 @@ function SPVCustomer() {
                         type="button"
                         onClick={() => handleOpenEdit(customer)}
                       >
-                        Edit
+                        {t('Edit')}
                       </button>
 
                       <button
                         type="button"
                         className="delete-action"
-                        onClick={() => handleDelete(customer.id)}
+                        disabled={customer.status === 'inactive'}
+                        onClick={() => handleDeactivate(customer.id)}
                       >
-                        Hapus
+                        {t('Nonaktifkan')}
                       </button>
                     </div>
                   </td>
@@ -406,7 +410,7 @@ function SPVCustomer() {
               {filteredCustomers.length === 0 && (
                 <tr>
                   <td colSpan="8" className="spv-empty-state">
-                    Belum ada data pelanggan atau pelanggan tidak ditemukan.
+                    {t('Belum ada data pelanggan atau pelanggan tidak ditemukan.')}
                   </td>
                 </tr>
               )}
@@ -415,15 +419,17 @@ function SPVCustomer() {
         </div>
 
         <div className="spv-customer-footer">
-          Menampilkan {filteredCustomers.length} dari {customers.length} pelanggan.
+          {t('Menampilkan {{shown}} dari {{total}} pelanggan.', {
+            shown: formatNumber(filteredCustomers.length),
+            total: formatNumber(customers.length),
+          })}
         </div>
       </section>
 
       <div className="spv-customer-info">
-        <strong>Informasi Pengelolaan</strong>
+        <strong>{t('Informasi Pengelolaan')}</strong>
         <p>
-          Data pelanggan dikelola oleh Supervisor. Kunjungan terakhir
-          diperbarui otomatis berdasarkan riwayat absensi Staff.
+          {t('Data pelanggan dikelola oleh Supervisor. Kunjungan terakhir diperbarui otomatis berdasarkan riwayat absensi Staff.')}
         </p>
       </div>
 
@@ -440,10 +446,10 @@ function SPVCustomer() {
               <div>
                 <h2>
                   {editingId !== null
-                    ? 'Edit Pelanggan'
-                    : 'Tambah Pelanggan'}
+                    ? t('Edit Pelanggan')
+                    : t('Tambah Pelanggan')}
                 </h2>
-                <p>Lengkapi informasi keanggotaan pelanggan.</p>
+                <p>{t('Lengkapi informasi keanggotaan pelanggan.')}</p>
               </div>
 
               <button
@@ -457,116 +463,173 @@ function SPVCustomer() {
 
             <form onSubmit={handleSubmit}>
               <label>
-                Nama Lengkap
+                {t('Nama Lengkap')}
                 <input
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Masukkan nama lengkap"
+                  placeholder={t('Masukkan nama lengkap')}
                   required
                 />
               </label>
 
               <label>
-                Nomor WhatsApp
+                {t('Email')}
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder={t('Masukkan email')}
+                />
+              </label>
+
+              <label>
+                {t('Nomor WhatsApp')}
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="Contoh: 081234567890"
+                  placeholder={t('Contoh: 081234567890')}
                   required
                 />
               </label>
 
               <label>
-                Paket Membership
+                {t('Paket Membership')}
                 <select
-                  name="package"
-                  value={formData.package}
+                  name="membership_package"
+                  value={formData.membership_package}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">-- Pilih Paket --</option>
-                  <option value="Open Gym Bulanan">Open Gym Bulanan</option>
-                  <option value="Open Gym 3 Bulan">Open Gym 3 Bulan</option>
-                  <option value="Open Gym Tahunan">Open Gym Tahunan</option>
-                  <option value="Personal Training">Personal Training</option>
-                  <option value="Trial Open Gym">Trial Open Gym</option>
-                  <option value="Trial Group Class">Trial Group Class</option>
-                  <option value="Yoga Bulanan">Yoga Bulanan</option>
+                  <option value="">{t('-- Pilih Paket --')}</option>
+                  <option value="Open Gym Bulanan">{t('Open Gym Bulanan')}</option>
+                  <option value="Open Gym 3 Bulan">{t('Open Gym 3 Bulan')}</option>
+                  <option value="Open Gym Tahunan">{t('Open Gym Tahunan')}</option>
+                  <option value="Personal Training">{t('Personal Training')}</option>
+                  <option value="Trial Open Gym">{t('Trial Open Gym')}</option>
+                  <option value="Trial Group Class">{t('Trial Group Class')}</option>
+                  <option value="Yoga Bulanan">{t('Yoga Bulanan')}</option>
                 </select>
               </label>
 
               <label>
-                Status Membership
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value="Aktif">Aktif</option>
-                  <option value="Trial aktif">Trial aktif</option>
-                  <option value="Perlu ditinjau">Perlu ditinjau</option>
-                  <option value="Tidak aktif">Tidak aktif</option>
-                </select>
-              </label>
-
-              <label>
-                Tanggal Mulai Membership
+                {t('Tanggal Mulai Membership')}
                 <input
                   type="date"
-                  name="membershipStart"
-                  value={formData.membershipStart}
+                  name="membership_start"
+                  value={formData.membership_start}
                   onChange={handleChange}
                 />
               </label>
 
               <label>
-                Tanggal Berakhir Membership
+                {t('Tanggal Berakhir Membership')}
                 <input
                   type="date"
-                  name="membershipEnd"
-                  value={formData.membershipEnd}
+                  name="membership_end"
+                  value={formData.membership_end}
                   onChange={handleChange}
                   required
                 />
               </label>
 
               <label>
-                Izin Kontak
+                {t('Izin Kontak')}
                 <select
-                  name="contactPermission"
-                  value={formData.contactPermission}
+                  name="contact_permission"
+                  value={formData.contact_permission}
                   onChange={handleChange}
                 >
-                  <option value="Aktif">Diizinkan</option>
-                  <option value="Ditolak">Tidak diizinkan</option>
+                  <option value="true">{t('Diizinkan')}</option>
+                  <option value="false">{t('Tidak diizinkan')}</option>
                 </select>
               </label>
 
               <label>
-                PIC (Admin/CS & Sales)
+                {t('PIC (Penanggung Jawab)')}
                 <select
-                  name="picId"
-                  value={formData.picId}
+                  name="pic_id"
+                  value={formData.pic_id}
                   onChange={handleChange}
                 >
-                  <option value="">Belum ditugaskan</option>
-
-                  {picOptions.map((account) => (
-                    <option key={account.id} value={String(account.id)}>
-                      {account.name}
+                  <option value="">{t('Belum ditugaskan')}</option>
+                  {picOptions.map((user) => (
+                    <option
+                      key={user.id}
+                      value={user.id}
+                    >
+                      {user.name} ({formatRole(user.role)})
                     </option>
                   ))}
                 </select>
               </label>
 
-              {picOptions.length === 0 && (
+              {picErrorMessage && (
+                <p className="spv-pic-warning">{t(picErrorMessage)}</p>
+              )}
+
+              {!picErrorMessage &&
+                !picOptions.some(
+                  (user) => picRoles.has(user.role)
+                ) && (
                 <p className="spv-pic-warning">
-                  Belum ada akun Admin/CS & Sales aktif. Tambahkan atau
-                  aktifkan akun melalui Pengaturan Admin.
+                  {t('Belum ada akun SPV atau Staff aktif yang dapat ditugaskan sebagai PIC.')}
                 </p>
+              )}
+
+              <label>
+                {t('Jenis Kelamin')}
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">{t('-- Pilih Jenis Kelamin --')}</option>
+                  <option value="male">{t('Laki-laki')}</option>
+                  <option value="female">{t('Perempuan')}</option>
+                  <option value="other">{t('Lainnya')}</option>
+                </select>
+              </label>
+
+              <label>
+                {t('Alamat')}
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder={t('Masukkan alamat pelanggan')}
+                />
+              </label>
+
+              <label>
+                {t('Catatan')}
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder={t('Catatan tambahan')}
+                />
+              </label>
+
+              {editingId && (
+                <label>
+                  {t('Status Pelanggan')}
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                  >
+                    <option value="active">{t('Aktif')}</option>
+                    <option value="inactive">{t('Tidak aktif')}</option>
+                  </select>
+                </label>
+              )}
+
+              {errorMessage && (
+                <p className="spv-pic-warning">{t(errorMessage)}</p>
               )}
 
               <div className="spv-modal-actions">
@@ -574,17 +637,25 @@ function SPVCustomer() {
                   type="button"
                   className="spv-cancel-button"
                   onClick={() => setIsFormOpen(false)}
+                  disabled={isSaving}
                 >
-                  Batal
+                  {t('Batal')}
                 </button>
 
-                <button type="submit" className="spv-save-button">
-                  {editingId !== null
-                    ? 'Simpan Perubahan'
-                    : 'Tambah Pelanggan'}
+                <button
+                  type="submit"
+                  className="spv-save-button"
+                  disabled={isSaving}
+                >
+                  {isSaving
+                    ? t('Menyimpan...')
+                    : editingId
+                      ? t('Simpan Perubahan')
+                      : t('Tambah Pelanggan')}
                 </button>
               </div>
             </form>
+
           </div>
         </div>
       )}

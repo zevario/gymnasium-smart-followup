@@ -1,25 +1,25 @@
 /* Dark Mode */
 .login-page.dark-mode {
-  --login-bg: #080d0a;
-  --login-card: #111914;
-  --login-input: #18231c;
-  --login-text: #ffffff;
-  --login-secondary: #aab9ae;
-  --login-border: #354638;
-  --login-accent: #a5ff00;
-  --login-accent-text: #101510;
+  --login-bg: var(--bg-primary);
+  --login-card: var(--bg-card);
+  --login-input: var(--bg-secondary);
+  --login-text: var(--text-primary);
+  --login-secondary: var(--text-secondary);
+  --login-border: var(--border-color);
+  --login-accent: var(--accent-color);
+  --login-accent-text: var(--accent-text);
 }
 
 /* Light Mode */
 .login-page.light-mode {
-  --login-bg: #f4f7f1;
-  --login-card: #ffffff;
-  --login-input: #ffffff;
-  --login-text: #172019;
-  --login-secondary: #657468;
-  --login-border: #dce5d7;
-  --login-accent: #426b18;
-  --login-accent-text: #ffffff;
+  --login-bg: var(--bg-primary);
+  --login-card: var(--bg-card);
+  --login-input: var(--bg-secondary);
+  --login-text: var(--text-primary);
+  --login-secondary: var(--text-secondary);
+  --login-border: var(--border-color);
+  --login-accent: var(--accent-color);
+  --login-accent-text: var(--accent-text);
 }
 
 /* Login page */
@@ -44,21 +44,16 @@
 /* Theme button */
 .login-theme-toggle {
   position: absolute;
-  top: 20px;
-  right: 25px;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--login-border);
-  border-radius: 10px;
-  background: var(--login-card);
-  color: var(--login-text);
-  font-size: 23px;
-  cursor: pointer;
-  transition: 0.2s ease;
+  top: 16px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.login-theme-toggle:hover {
-  transform: scale(1.08);
+.login-theme-toggle .language-switcher select {
+  color: var(--login-text);
+  background: var(--login-card);
 }
 
 /* Login card */
@@ -196,4 +191,10 @@
   .login-welcome h1 {
     font-size: 17px;
   }
+}
+
+.login-error {
+  color: #dc2626;
+  font-size: 13px;
+  margin: 10px 0;
 }

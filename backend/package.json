@@ -1,0 +1,41 @@
+{
+  "name": "gymnasyum-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Gymnasyum Smart Reminder & Follow-up",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "migrate": "node-pg-migrate",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "seed:admin": "node src/seeds/create-admin.js",
+    "seed:demo": "node src/seeds/seed-demo-data.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "joi": "^18.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "node-pg-migrate": "^9.0.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-config-dicodingacademy": "^0.9.5",
+    "globals": "^17.14.0",
+    "nodemon": "^3.1.14"
+  }
+}

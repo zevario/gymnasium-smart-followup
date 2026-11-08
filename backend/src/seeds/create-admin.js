@@ -19,8 +19,8 @@ const createAdmin = async () => {
 
   const result = await pool.query(
     `
-      INSERT INTO users (name, email, password_hash, role)
-      VALUES ($1, $2, $3, 'admin')
+      INSERT INTO users (name, email, password_hash, role,pilot_location)
+      VALUES ($1, $2, $3, 'admin','bintaro')
       ON CONFLICT DO NOTHING
       RETURNING id, name, email, role
     `,

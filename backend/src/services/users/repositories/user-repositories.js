@@ -110,12 +110,12 @@ const UserRepositories = {
     return result.rowCount > 0;
   },
 
-  async create(data) {
+  async create(data, pilotLocation = null) {
     const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO users (name, email, password_hash, role, pilot_location)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, name, email, role, is_active`,
-      [data.name, data.email, data.password_hash, data.role],
+      [data.name, data.email, data.password_hash, data.role, pilotLocation],
     );
 
     return result.rows[0];

@@ -1,300 +1,173 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import Login from './pages/login/Login.jsx';
+import { useT } from "./i18n/useLanguage.js"
+import { useState, useEffect } from "react"
+import { initialCustomers } from "./features/customers/data/demoCustomers.js"
+import { demoAccounts, accountRoles, demoPassword, authenticateDemo } from "./features/auth/services/demoAccounts.js"
+import { canContact, todayQueue } from "./features/followups/services/followupRules.js"
+import { isProfilePhoto, defaultProfilePhoto } from "./features/profile/utils/profilePhoto.js"
+import { permissions, mayEditTask } from "./features/auth/services/access.js"
+import { mayOpenPage } from "./routes/pageAccess.js"
+import LoginPage from "./pages/login/Login.jsx"
+import { AccountContext } from "./features/auth/context/AccountContext.js"
+import { Sidebar } from "./layouts/Sidebar.jsx"
+import { Header } from "./layouts/AppHeader.jsx"
+import { Today } from "./pages/staff/Dashboard.jsx"
+import { AllFollowups } from "./pages/staff/FollowUps.jsx"
+import { Customers } from "./pages/staff/Customers.jsx"
+import { Reports } from "./pages/spv/Reports.jsx"
+import { SystemSettings } from "./pages/admin/SystemSettings.jsx"
+import { Settings } from "./pages/spv/Settings.jsx"
+import { Profile } from "./pages/Profile.jsx"
+import { DetailDrawer } from "./features/followups/components/FollowUpDetails.jsx"
+import { Icon } from "./components/Controls/Controls.jsx"
 
-import Settings from './pages/admin/AdminSettings.jsx';
-import Profile from './pages/Profile.jsx';
+import { api, hasSession, login, logout } from "./services/pilotApi.js"
+import { PilotWorkspace } from "./layouts/PilotWorkspace.jsx"
 
-import AdminLayout from './assets/layouts/AdminLayout.jsx';
-import AdminSchedule from './pages/admin/AdminSchedule.jsx';
-
-import SPVLayout from './assets/layouts/SPVLayout.jsx';
-import SPVDashboard from './pages/spv/SPVDashboard.jsx';
-import SPVFollowUps from './pages/spv/SPVFollowUps.jsx';
-import SPVCustomer from './pages/spv/SPVCustomer.jsx';
-import SPVAttendance from './pages/spv/SPVAttendance.jsx';
-import SPVSchedule from './pages/spv/SPVSchedule.jsx';
-import SPVReports from './pages/spv/SPVReports.jsx';
-
-import StaffLayout from './assets/layouts/StaffLayout.jsx';
-import StaffAttendance from './pages/staff/StaffAttendance.jsx';
-import StaffCustomer from './pages/staff/StaffCustomer.jsx';
-import StaffDashboard from './pages/staff/StaffDashboard.jsx';
-import StaffSchedule from './pages/staff/StaffSchedule.jsx';
-import StaffFollowUps from './pages/staff/StaffFollowUps.jsx';
-
-import {
-  loginRequest as apiLogin,
-  getCurrentUser as getMe,
-  getOwnProfilePhoto,
-  logoutRequest as apiLogout,
-} from './services/api.js';
-import useI18n from './i18n/useI18n.js';
-
-function App() {
-  const { t } = useI18n();
-  const [session, setSession] = useState(null);
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
-  const profilePhotoUrlRef = useRef(null);
-  const profilePhotoRequestVersionRef = useRef(0);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('gymnasyum_theme');
-    return savedTheme ? savedTheme === 'dark' : true;
-  });
-
-  const [activePage, setActivePage] = useState('dashboard');
-  const [isLoading, setIsLoading] = useState(true);
-  const [loginError, setLoginError] = useState('');
-  const handleNavigate = (page) => {
-  setActivePage(page);
-
-  if (session?.role) {
-    localStorage.setItem(
-      `gymnasyum_active_page_${session.role}`,
-      page
-    );
-  }
-  };
-
-  const handleProfileUpdated = (updatedUser) => {
-    setSession((previous) => ({ ...previous, ...updatedUser }));
-  };
-
-  const handleProfilePhotoUpdated = useCallback(async (photoBlob) => {
-    const requestVersion = ++profilePhotoRequestVersionRef.current;
-
-    if (photoBlob === undefined) {
-      photoBlob = await getOwnProfilePhoto();
-      if (requestVersion !== profilePhotoRequestVersionRef.current) {
-        return null;
-      }
-    }
-
-    if (profilePhotoUrlRef.current) {
-      URL.revokeObjectURL(profilePhotoUrlRef.current);
-    }
-
-    const nextPhotoUrl = photoBlob ? URL.createObjectURL(photoBlob) : null;
-    profilePhotoUrlRef.current = nextPhotoUrl;
-    setProfilePhotoUrl(nextPhotoUrl);
-    return photoBlob;
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-
-    if (!session?.id) return undefined;
-    handleProfilePhotoUpdated()
-      .catch((error) => {
-        if (active) console.error('Gagal memuat foto profil:', error);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [session?.id, handleProfilePhotoUpdated]);
-
-  useEffect(() => () => {
-    profilePhotoRequestVersionRef.current += 1;
-    if (profilePhotoUrlRef.current) {
-      URL.revokeObjectURL(profilePhotoUrlRef.current);
-      profilePhotoUrlRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    const restoreSession = async () => {
-      try {
-        const result = await getMe();
-        const user = result.user;
-
-        setSession(user);
-
-        const savedPage = localStorage.getItem(
-        `gymnasyum_active_page_${user.role}`
-        );
-
-        setActivePage(
-          user.role === 'spv' && savedPage === 'aktivitas'
-            ? 'laporan'
-            : savedPage || (user.role === 'admin' ? 'settings' : 'dashboard')
-        );
-      } catch {
-        setSession(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    restoreSession();
-  }, []);
-
-  const activeRole = session?.role;
-
-  const handleToggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const nextTheme = !prev;
-
-      localStorage.setItem(
-        'gymnasyum_theme',
-        nextTheme ? 'dark' : 'light'
-      );
-
-      return nextTheme;
+export default function App() {
+    const t = useT();
+    const [identity,setIdentity]=useState(null);
+    const [restoring,setRestoring]=useState(hasSession);
+    useEffect(()=>{
+        let active=true;
+        const ended=()=>setIdentity(null);
+        window.addEventListener("pilot-session-ended",ended);
+        if(hasSession()) api('/session').then(data=>{if(active)setIdentity(data.user);})
+            .catch(()=>{}).finally(()=>{if(active)setRestoring(false);});
+        return ()=>{active=false;window.removeEventListener("pilot-session-ended",ended);};
+    },[]);
+    const [page, setPage] = useState("Dashboard");
+    const [customers, setCustomers] = useState(initialCustomers);
+    const [selected, setSelected] = useState(null);
+    const [mobileNav, setMobileNav] = useState(() => window.matchMedia("(min-width: 769px)").matches);
+    const [toast, setToast] = useState("");
+    const [account, setAccount] = useState(() => {
+        try {
+            const saved = sessionStorage.getItem("gymnasyum-demo-login");
+            const disabled = JSON.parse(localStorage.getItem("gymnasyum-disabled-accounts") || "[]");
+            return demoAccounts.find((user) => !disabled.includes(user.email) && (user.email === saved || (saved === "active" && user === demoAccounts[0]))) ?? null;
+        }
+        catch {
+            return null;
+        }
     });
-  };
-
-  const handleLogin = async ({ email, password }) => {
-  setLoginError('');
-  setIsLoading(true);
-
-  try {
-    const user = await apiLogin({ email, password });
-
-    handleProfilePhotoUpdated(null);
-    setSession(user);
-
-    const savedPage = localStorage.getItem(
-      `gymnasyum_active_page_${user.role}`
-    );
-
-    setActivePage(
-      user.role === 'spv' && savedPage === 'aktivitas'
-        ? 'laporan'
-        : savedPage || (user.role === 'admin' ? 'settings' : 'dashboard')
-    );
-  } catch (error) {
-    setLoginError(
-      t(error.message || 'Login gagal. Periksa email dan password.')
-    );
-  } finally {
-    setIsLoading(false);
-  }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await apiLogout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      handleProfilePhotoUpdated(null);
-      setSession(null);
-      setActivePage('dashboard');
-    }
-  };
-
-  if (isLoading && !session) {
-    return (
-      <main className="login-page">
-        <p>{t('Memeriksa sesi akun...')}</p>
+    const [profilePhotos, setProfilePhotos] = useState(() => {
+        const photos = {};
+        for (const user of demoAccounts) {
+            try {
+                const saved = localStorage.getItem(`gymnasyum-profile-photo-v1:${user.email}`);
+                if (saved && isProfilePhoto(saved))
+                    photos[user.email] = saved;
+            }
+            catch { /* The default avatar remains available without browser storage. */ }
+        }
+        return photos;
+    });
+    const profilePhoto = account ? profilePhotos[account.email] ?? defaultProfilePhoto : defaultProfilePhoto;
+    const saveProfilePhoto = (photo) => {
+        if (!account || !isProfilePhoto(photo))
+            return;
+        localStorage.setItem(`gymnasyum-profile-photo-v1:${account.email}`, photo);
+        setProfilePhotos((previous) => ({ ...previous, [account.email]: photo }));
+        notify("Foto profil berhasil diperbarui");
+    };
+    const currentUser = account ?? demoAccounts[0];
+    const access = permissions(account);
+    const activePage = mayOpenPage(account, page) ? page : access.system ? "Pengaturan" : "Dashboard";
+    const setLoginSession = (user) => {
+        setAccount(user);
+        try {
+            if (user)
+                sessionStorage.setItem("gymnasyum-demo-login", user.email);
+            else
+                sessionStorage.removeItem("gymnasyum-demo-login");
+        }
+        catch { /* The demo remains usable when browser storage is unavailable. */ }
+    };
+    useEffect(() => {
+        const desktop = window.matchMedia("(min-width: 769px)");
+        const syncSidebar = () => setMobileNav(desktop.matches);
+        desktop.addEventListener("change", syncSidebar);
+        return () => desktop.removeEventListener("change", syncSidebar);
+    }, []);
+    useEffect(() => {
+        const escape = (e) => {
+            if (e.key === "Escape") {
+                setSelected(null);
+                setMobileNav(false);
+            }
+        };
+        window.addEventListener("keydown", escape);
+        return () => window.removeEventListener("keydown", escape);
+    }, []);
+    useEffect(() => {
+        document.querySelector(".main")?.scrollTo(0, 0);
+        window.scrollTo(0, 0);
+    }, [page]);
+    const navigate = (p) => {
+        if (!mayOpenPage(account, p))
+            return;
+        setPage(p);
+        if (window.matchMedia("(max-width: 768px)").matches)
+            setMobileNav(false);
+        setSelected(null);
+    };
+    const updateCustomer = (id, patch) => {
+        const apply = (c) => {
+            const claiming = access.operational && c.owner === "Belum ditugaskan" && patch.owner === account?.name.split(" ")[0] && Object.keys(patch).every((key) => key === "owner");
+            if (!claiming && !mayEditTask(account, c.owner))
+                return c;
+            if (patch.owner && !claiming && !access.supervisor)
+                return c;
+            if (patch.lastContact && !canContact(c))
+                return c;
+            return { ...c, ...patch };
+        };
+        setCustomers((c) => c.map((x) => (x.id === id ? apply(x) : x)));
+        setSelected((s) => (s?.id === id ? apply(s) : s));
+    };
+    const notify = (message) => {
+        setToast(message);
+        window.setTimeout(() => setToast(""), 3200);
+    };
+    if(restoring) return <p role="status">{t("Memuat sesi…")}</p>;
+    if(identity) return <PilotWorkspace identity={identity} onLogout={()=>{logout().catch(()=>{});setIdentity(null);setLoginSession(null);}}/>;
+    if (!account)
+        return <LoginPage accounts={accountRoles.flatMap(role => demoAccounts.find(user => user.role === role) ?? [])} demoPassword={demoPassword}
+            authenticate={async(email,password,setError,demo)=>{
+                if(demo) {
+                    if(hasSession()) await logout().catch(()=>{});
+                    authenticateDemo(email,password,user=>{setLoginSession(user);setPage(permissions(user).system?"Pengaturan":"Dashboard");},setError);
+                    return;
+                }
+                try{const user=await login(email,password);setLoginSession(null);setIdentity(user);}
+                catch(e){setError(e.status===401?"Email atau kata sandi tidak sesuai.":e.message);}
+            }}/>;
+    return (<AccountContext.Provider value={account}>
+    <div className={`app-shell ${mobileNav ? "sidebar-visible" : "sidebar-hidden"}`}>
+      <Sidebar page={activePage} navigate={navigate} open={mobileNav} onToggle={() => setMobileNav((open) => !open)} count={todayQueue(customers).length} memberCount={customers.length} user={currentUser} onLogout={() => { setLoginSession(null); setSelected(null); setPage("Dashboard"); }}/>
+      {mobileNav && (<button className="nav-backdrop" aria-label={t("Tutup navigasi")} onClick={() => setMobileNav(false)}/>)}
+      <main className="main">
+        <Header page={activePage} photo={profilePhoto} customers={customers} onOpenNotification={(customer) => { if (access.operational)
+        setSelected(customer); }} account={account} onProfile={() => navigate("Profil")} onLogin={(user) => { setLoginSession(user); setPage(permissions(user).system ? "Pengaturan" : "Dashboard"); notify(`Berhasil masuk sebagai ${user.name}`); }} onLogout={() => { setLoginSession(null); navigate("Dashboard"); notify("Anda sudah keluar dari akun demo"); }}/>
+        <div className={`content ${activePage === "Profil" ? "content-account" : ""}`}>
+          {activePage === "Dashboard" && (<Today customers={customers} onOpen={(customer) => { if (access.operational)
+            setSelected(customer); }} onAll={() => navigate("Semua follow-up")}/>)}
+          {activePage === "Semua follow-up" && (<AllFollowups customers={customers} onOpen={(customer) => { if (access.operational)
+            setSelected(customer); }}/>)}
+          {activePage === "Pelanggan" && (<Customers customers={customers} onOpen={(customer) => { if (access.operational)
+            setSelected(customer); }}/>)}
+          {activePage === "Laporan" && <Reports />}
+          {activePage === "Pengaturan" && (access.system ? <SystemSettings /> : <Settings notify={notify}/>)}
+          {activePage === "Profil" && <Profile key={currentUser.email} user={currentUser} photo={profilePhoto} onSavePhoto={saveProfilePhoto}/>}
+        </div>
       </main>
-    );
-  }
-
-  if (!session) {
-    return (
-      <Login
-        onLogin={handleLogin}
-        isDarkMode={isDarkMode}
-        onToggleTheme={handleToggleTheme}
-        isLoading={isLoading}
-        errorMessage={loginError}
-      />
-    );
-  }
-
-  if (activeRole === 'spv') {
-    return (
-      <SPVLayout
-        currentUser={session}
-        profilePhotoUrl={profilePhotoUrl}
-        isDarkMode={isDarkMode}
-        onToggleTheme={handleToggleTheme}
-        onLogout={handleLogout}
-        activePage={activePage}
-        onNavigate={handleNavigate}
-        onOpenProfile={() => handleNavigate('profile')}
-      >
-        {activePage === 'dashboard' && <SPVDashboard />}
-        {activePage === 'pelanggan' && <SPVCustomer />}
-        {activePage === 'followups' && <SPVFollowUps />}
-        {activePage === 'absensi' && <SPVAttendance />}
-        {activePage === 'schedule' && <SPVSchedule />}
-        {activePage === 'laporan' && <SPVReports />}
-
-        {activePage === 'profile' && (
-          <Profile
-            currentUser={session}
-            photoUrl={profilePhotoUrl}
-            onProfileUpdated={handleProfileUpdated}
-            onProfilePhotoUpdated={handleProfilePhotoUpdated}
-          />
-        )}
-      </SPVLayout>
-    );
-  }
-
-  if (activeRole === 'staff') {
-    return (
-      <StaffLayout
-        currentUser={session}
-        profilePhotoUrl={profilePhotoUrl}
-        isDarkMode={isDarkMode}
-        onToggleTheme={handleToggleTheme}
-        onLogout={handleLogout}
-        activePage={activePage}
-        onNavigate={handleNavigate}
-        onOpenProfile={() => handleNavigate('profile')}
-      >
-        {activePage === 'dashboard' && <StaffDashboard />}
-        {activePage === 'absensi' && (
-          <StaffAttendance currentUser={session} />
-        )}
-        {activePage === 'pelanggan' && <StaffCustomer />}
-        {activePage === 'followups' && <StaffFollowUps />}
-        {activePage === 'profile' && (
-          <Profile
-            currentUser={session}
-            photoUrl={profilePhotoUrl}
-            onProfileUpdated={handleProfileUpdated}
-            onProfilePhotoUpdated={handleProfilePhotoUpdated}
-          />
-        )}
-        {activePage === 'schedule' && <StaffSchedule />}
-      </StaffLayout>
-    );
-  }
-
-  return (
-    <AdminLayout
-      currentUser={session}
-      profilePhotoUrl={profilePhotoUrl}
-      isDarkMode={isDarkMode}
-      onToggleTheme={handleToggleTheme}
-      onLogout={handleLogout}
-      onOpenProfile={() => handleNavigate('profile')}
-      onBackToSettings={() => handleNavigate('settings')}
-      activePage={activePage}
-      onNavigate={handleNavigate}
-    >
-      {activePage === 'profile' ? (
-        <Profile
-          currentUser={session}
-          photoUrl={profilePhotoUrl}
-          onProfileUpdated={handleProfileUpdated}
-          onProfilePhotoUpdated={handleProfilePhotoUpdated}
-        />
-      ) : activePage === 'schedule' ? (
-        <AdminSchedule />
-      ) : activePage === 'followups' ? (
-        <SPVFollowUps />
-      ) : activePage === 'laporan' ? (
-        <SPVReports />
-      ) : (
-        <Settings />
-      )}
-    </AdminLayout>
-  );
+      {selected && access.operational && (<DetailDrawer customer={selected} onClose={() => setSelected(null)} update={updateCustomer} notify={notify}/>)}
+      {toast && (<div className="toast">
+          <span className="toast-icon">
+            <Icon name="check" size={15}/>
+          </span>
+          {t(toast)}
+        </div>)}
+    </div>
+    </AccountContext.Provider>);
 }
-
-export default App;

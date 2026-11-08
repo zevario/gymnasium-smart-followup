@@ -1,0 +1,56 @@
+.pilot-form {
+  display: grid;
+  gap: 14px;
+  padding: clamp(16px, 3vw, 28px);
+  margin-block: 14px;
+}
+.pilot-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+.pilot-form label:has(input[type='checkbox']) {
+  display: block;
+}
+.pilot-form input:not([type='checkbox']),
+.pilot-form textarea,
+.pilot-form select,
+.pilot-account select {
+  background: var(--surface, Canvas);
+  color: inherit;
+  border: 1px solid var(--border, GrayText);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  max-width: 100%;
+}
+.pilot-form textarea {
+  width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+}
+.pilot-form .btn {
+  justify-self: start;
+}
+.pilot-actions,
+.pilot-account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-block: 12px;
+}
+.pilot-account > div {
+  flex: 1;
+}
+.pilot-drawer .drawer-content {
+  overflow-y: auto;
+}
+.pilot-drawer blockquote {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.pilot-drawer .detail-section p,
+.pilot-drawer .history p {
+  margin-block: 8px;
+}

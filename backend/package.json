@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:pilot",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
@@ -15,7 +15,9 @@
     "migrate:down": "node-pg-migrate down",
     "seed": "node src/config/seed.js",
     "seed:admin": "node src/seeds/create-admin.js",
-    "seed:demo": "node src/seeds/seed-demo-data.js"
+    "seed:demo": "node src/seeds/seed-demo-data.js",
+    "pilot": "node src/pilot-server.js",
+    "test:pilot": "node --test test/pilot*.test.js"
   },
   "keywords": [],
   "author": "",

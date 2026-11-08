@@ -20,7 +20,7 @@ const authentication = async (req, res, next) => {
     );
 
     const result = await pool.query(
-      `SELECT id, name, email, role, is_active
+      `SELECT id, name, email, role, is_active, pilot_location
        FROM users WHERE id = $1`,
       [decoded.sub],
     );

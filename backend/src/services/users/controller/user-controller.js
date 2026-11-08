@@ -174,7 +174,7 @@ const createUser = async (req, res, next) => {
 
     delete data.password;
 
-    const user = await UserRepositories.create(data);
+    const user = await UserRepositories.create(data,req.pilotLocation);
 
     return response.success(res, 'User created', user, 201);
   } catch (error) {

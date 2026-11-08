@@ -1,16 +1,25 @@
-# React + Vite
+# Gymnasyum | Smart Follow-up
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend aplikasi staf untuk mengelola pelanggan dan tindak lanjut, dibangun dengan React, JavaScript/JSX, dan Vite.
 
-Currently, two official plugins are available:
+## Menjalankan aplikasi
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Untuk menjalankan frontend dan backend bersama, ikuti [panduan di akar proyek](../README.md). Untuk mengembangkan tampilan, jalankan `npm ci` untuk memasang dependensi, lalu `npm run dev` untuk membuka server lokal. Gunakan `npm run lint` untuk memeriksa kode dan `npm run build` untuk membuat versi produksi.
 
-## React Compiler
+## Struktur proyek
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Lokasi | Isi |
+| --- | --- |
+| `public/` | Favicon dan avatar dengan alamat publik tetap |
+| `src/assets/` | Gambar yang diimpor aplikasi dan gaya yang berlaku lintas halaman |
+| `src/components/` | Komponen antarmuka bersama, seperti tombol, dialog, dan pemilih bahasa |
+| `src/features/auth/` | Akun demo, konteks akun, dan hak akses |
+| `src/features/customers/` | Data pelanggan demo dan komponen baris pelanggan |
+| `src/features/followups/` | Detail follow-up, aturan prioritas, dan antrean kontak |
+| `src/features/profile/` | Editor dan fungsi pengelolaan foto profil |
+| `src/i18n/` | Kamus terjemahan, pengaturan bahasa, dan hook EN/ID |
+| `src/layouts/` | Header dan sidebar aplikasi |
+| `src/pages/` | Halaman login beserta CSS-nya, profil, dan halaman kerja dalam folder staff, spv, dan admin |
+| `src/routes/` | Aturan akses halaman berdasarkan peran |
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Vite memuat `index.html` di akar proyek. React dimulai dari `src/main.jsx`, sedangkan `src/App.jsx` menyusun tampilan utama.

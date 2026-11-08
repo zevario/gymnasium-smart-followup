@@ -1,33 +1,6 @@
 /* ==============================
    DARK MODE
 ================================ */
-.admin-layout.dark-mode {
-  --bg-primary: #080d0a;
-  --bg-secondary: #101a13;
-  --bg-card: #111b14;
-  --bg-hover: #1b2a1e;
-  --text-primary: #f5f7f5;
-  --text-secondary: #a9b9ac;
-  --border-color: #29382d;
-  --accent-color: #a6ff00;
-  --accent-text: #101510;
-}
-
-/* ==============================
-   LIGHT MODE
-================================ */
-.admin-layout.light-mode {
-  --bg-primary: #f4f7f1;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-hover: #e8efdf;
-  --text-primary: #172019;
-  --text-secondary: #657468;
-  --border-color: #dce5d7;
-  --accent-color: #426b18;
-  --accent-text: #ffffff;
-}
-
 /* ==============================
    MAIN LAYOUT
 ================================ */
@@ -293,43 +266,15 @@
 
 .sidebar-footer {
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 18px;
   border-top: 1px solid var(--border-color);
 }
 
-.sidebar-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  padding: 0 4px;
-}
-
-.profile-avatar {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.profile-info strong {
-  font-size: 11px;
-  color: var(--text-primary);
-}
-
-.profile-info span {
-  font-size: 10px;
-  color: var(--text-secondary);
+.staff-sidebar-footer .sidebar-logout {
+  width: 100%;
+  color: #ff6b6b;
+  border-color: #713535;
+  background: rgba(255, 80, 80, 0.08);
 }
 
 .sidebar-navigation button {
@@ -343,6 +288,7 @@
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .sidebar-navigation button:hover {
@@ -354,6 +300,16 @@
   color: var(--text-primary);
   background: var(--bg-hover);
   border-left: 3px solid var(--accent-color);
+}
+
+.sidebar-navigation button:focus-visible,
+.spv-nav-item:focus-visible,
+.staff-nav-item:focus-visible {
+  outline-offset: -2px;
+}
+
+.admin-topbar .language-switcher {
+  margin-left: var(--gym-space-2);
 }
 
 /* Logout button - consistent across roles */

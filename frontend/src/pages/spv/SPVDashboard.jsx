@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from 'react';
-import { getAttendance } from '../../utils/attendance-storage';
+import { getAllCustomers, getAttendances } from '../../services/api';
 import '../../assets/styles/spv/SPVDashboard.css';
+import useI18n from '../../i18n/useI18n.js';
 
 const getToday = () => {
   const now = new Date();
@@ -13,33 +14,29 @@ const getToday = () => {
   return `${year}-${month}-${day}`;
 };
 
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 function Dashboard() {
+  const { t, formatDateTime, formatNumber } = useI18n();
   const [customers, setCustomers] = useState([]);
   const [attendance, setAttendance] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    try {
-      const savedCustomers = localStorage.getItem('gymnasyum_customers');
-
-      setCustomers(
-        savedCustomers ? JSON.parse(savedCustomers) : []
-      );
-    } catch (error) {
-      console.error('Gagal membaca data member:', error);
-      setCustomers([]);
-    }
-
-    setAttendance(getAttendance());
+    let active = true;
+    Promise.all([
+      getAllCustomers(),
+      getAttendances(),
+    ])
+      .then(([customerData, attendanceData]) => {
+        if (!active) return;
+        setCustomers(customerData.customers || []);
+        setAttendance(attendanceData.attendances || []);
+      })
+      .catch((loadError) => {
+        if (active) setError(loadError.message);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const today = getToday();
@@ -58,33 +55,34 @@ function Dashboard() {
     todayAttendance.map((item) => item.recordedBy)
   );
 
-  const reviewCustomers = customers.filter(
-    (customer) => customer.status === 'Perlu ditinjau'
-  );
+  const reviewCustomers = customers.filter((customer) => (
+    customer.status === 'inactive'
+    || (customer.membership_end && new Date(customer.membership_end) < new Date())
+  ));
 
   const summaryData = [
     {
-      title: 'Total Member',
+      title: t('Total Member'),
       value: customers.length,
-      description: 'Seluruh member terdaftar',
+      description: t('Seluruh member terdaftar'),
       icon: '👥',
     },
     {
-      title: 'Kunjungan Hari Ini',
+      title: t('Kunjungan Hari Ini'),
       value: todayAttendance.length,
-      description: 'Total kunjungan tercatat hari ini',
+      description: t('Total kunjungan tercatat hari ini'),
       icon: '📋',
     },
     {
-      title: 'Member Berkunjung',
+      title: t('Member Berkunjung'),
       value: uniqueMembersToday.size,
-      description: 'Member unik yang berkunjung hari ini',
+      description: t('Member unik yang berkunjung hari ini'),
       icon: '🏋️',
     },
     {
-      title: 'Staff Bertugas',
+      title: t('Staff Bertugas'),
       value: uniqueStaffToday.size,
-      description: 'Staff yang mencatat kunjungan hari ini',
+      description: t('Staff yang mencatat kunjungan hari ini'),
       icon: '👤',
     },
   ];
@@ -99,16 +97,17 @@ function Dashboard() {
 
   return (
     <div className="spv-dashboard">
+      {error && <p role="alert">{t(error)}</p>}
       <div className="spv-dashboard-heading">
         <div>
-          <h1>Dashboard</h1>
+          <h1>{t('Dashboard')}</h1>
           <p>
-            Pantau aktivitas kunjungan member dan perkembangan operasional.
+            {t('Pantau aktivitas kunjungan member dan perkembangan operasional.')}
           </p>
         </div>
 
         <span className="spv-dashboard-date">
-          Ringkasan Hari Ini
+          {t('Ringkasan Hari Ini')}
         </span>
       </div>
 
@@ -120,7 +119,7 @@ function Dashboard() {
               <span className="spv-summary-icon">{item.icon}</span>
             </div>
 
-            <h2>{item.value}</h2>
+            <h2>{formatNumber(item.value)}</h2>
             <p>{item.description}</p>
           </div>
         ))}
@@ -130,8 +129,8 @@ function Dashboard() {
         <section className="spv-panel spv-priority-panel">
           <div className="spv-panel-heading">
             <div>
-              <h2>Kunjungan Terbaru</h2>
-              <p>Riwayat kunjungan member yang dicatat Staff</p>
+              <h2>{t('Kunjungan Terbaru')}</h2>
+              <p>{t('Riwayat kunjungan member yang dicatat Staff')}</p>
             </div>
           </div>
 
@@ -139,9 +138,9 @@ function Dashboard() {
             <table className="spv-priority-table">
               <thead>
                 <tr>
-                  <th>Nama Member</th>
-                  <th>Waktu Kunjungan</th>
-                  <th>Dicatat Oleh</th>
+                  <th>{t('Nama Member')}</th>
+                  <th>{t('Waktu Kunjungan')}</th>
+                  <th>{t('Dicatat Oleh')}</th>
                 </tr>
               </thead>
 
@@ -149,7 +148,7 @@ function Dashboard() {
                 {recentAttendance.length === 0 ? (
                   <tr>
                     <td colSpan="3">
-                      Belum ada data kunjungan.
+                      {t('Belum ada data kunjungan.')}
                     </td>
                   </tr>
                 ) : (
@@ -176,14 +175,14 @@ function Dashboard() {
           <section className="spv-panel">
             <div className="spv-panel-heading">
               <div>
-                <h2>Aktivitas Tim</h2>
-                <p>Catatan kunjungan terbaru dari Staff</p>
+                <h2>{t('Kunjungan Staff Terbaru')}</h2>
+                <p>{t('Catatan kunjungan terbaru dari Staff')}</p>
               </div>
             </div>
 
             <div className="spv-activity-list">
               {recentActivities.length === 0 ? (
-                <p>Belum ada aktivitas Staff.</p>
+                <p>{t('Belum ada aktivitas Staff.')}</p>
               ) : (
                 recentActivities.map((activity) => (
                   <div
@@ -197,7 +196,7 @@ function Dashboard() {
                     <div>
                       <strong>{activity.recordedBy}</strong>
                       <p>
-                        Mencatat kunjungan {activity.customerName}
+                        {t('Mencatat kunjungan')} {activity.customerName}
                       </p>
                       <span>
                         {formatDateTime(activity.visitAt)}
@@ -210,16 +209,18 @@ function Dashboard() {
           </section>
 
           <section className="spv-panel spv-attention-panel">
-            <h2>Perlu Perhatian</h2>
+            <h2>{t('Perlu Perhatian')}</h2>
 
             <div className="spv-attention-item">
               <span className="spv-attention-dot" />
               <div>
                 <strong>
-                  {reviewCustomers.length} member perlu ditinjau
+                  {t('{{count}} member perlu ditinjau', {
+                    count: formatNumber(reviewCustomers.length),
+                  })}
                 </strong>
                 <p>
-                  Berdasarkan status data member.
+                  {t('Berdasarkan status data member.')}
                 </p>
               </div>
             </div>

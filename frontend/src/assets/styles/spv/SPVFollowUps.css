@@ -270,6 +270,12 @@
   color: #55bd79;
 }
 
+.spv-priority-tag.unknown {
+  border-color: var(--border-color);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
 .spv-pic {
   display: flex;
   align-items: center;
@@ -388,7 +394,7 @@
   overflow-y: auto;
   padding: 22px;
   border-radius: 12px;
-  background: var(--card-background, var(--bg-primary));
+  background: var(--bg-card);
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
 }
 
@@ -596,4 +602,401 @@
   color: var(--text-primary);
   font-size: 12px;
   line-height: 1.6;
+}
+
+.spv-followups {
+  gap: var(--gym-space-6);
+  max-width: 1280px;
+}
+
+.spv-followups-heading h1 {
+  font-size: clamp(24px, 3vw, 30px);
+}
+
+.spv-followups-panel > .spv-followups-heading {
+  padding: var(--gym-space-4) var(--gym-space-6);
+}
+
+.spv-followups-panel > .spv-followups-heading h2 {
+  margin: 0 0 var(--gym-space-2);
+  color: var(--text-primary);
+  font-size: 17px;
+}
+
+.spv-followups-panel > .spv-followups-heading p {
+  max-width: 760px;
+  line-height: 1.55;
+}
+
+.spv-ai-availability-alert {
+  margin: 0 var(--gym-space-6) var(--gym-space-4);
+  padding: var(--gym-space-3) var(--gym-space-4);
+  border: 1px solid var(--status-warning-border);
+  border-radius: var(--gym-radius-sm);
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.spv-followups-panel > p[role="alert"] {
+  margin: 0 var(--gym-space-6) var(--gym-space-4);
+  padding: var(--gym-space-3) var(--gym-space-4);
+  border: 1px solid var(--status-danger-border);
+  border-radius: var(--gym-radius-sm);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.spv-followups-tabs {
+  flex-wrap: wrap;
+  gap: var(--gym-space-2) var(--gym-space-6);
+  padding: var(--gym-space-2) var(--gym-space-4) 0;
+}
+
+.spv-followups-tab {
+  min-height: 44px;
+}
+
+.spv-followups-filters {
+  flex-wrap: wrap;
+  gap: var(--gym-space-3);
+  padding: var(--gym-space-4);
+}
+
+.spv-followups-filters select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  flex: 1 1 165px;
+}
+
+.spv-followups-search {
+  min-width: 180px;
+  min-height: 40px;
+  flex: 2 1 240px;
+}
+
+.spv-followup-row {
+  min-width: 0;
+  gap: var(--gym-space-4);
+  padding: var(--gym-space-4);
+}
+
+.spv-recommendation-row {
+  grid-template-columns:
+    minmax(140px, 1fr)
+    minmax(90px, 0.6fr)
+    minmax(150px, 1.2fr)
+    minmax(150px, 1fr)
+    minmax(180px, 1.3fr)
+    minmax(160px, 1.1fr);
+  align-items: start;
+}
+
+.spv-recommendation-row .spv-followup-field {
+  line-height: 1.5;
+}
+
+.spv-recommendation-row .spv-followup-field > span:not(.spv-priority-tag),
+.spv-recommendation-row .spv-followup-field > small {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.spv-recommendation-row select,
+.spv-recommendation-row textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+
+.spv-recommendation-row textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.spv-recommendation-row .spv-followup-field:last-child {
+  gap: var(--gym-space-2);
+}
+
+.spv-recommendation-row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.spv-recommendation-row .spv-followup-field button,
+.spv-history-button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.spv-recommendation-row .spv-followup-field button:first-child {
+  border-color: transparent;
+  background: var(--accent-color);
+  color: var(--accent-text);
+}
+
+.spv-recommendation-row .spv-followup-field button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spv-member-followup-row {
+  grid-template-columns:
+    minmax(140px, 1.3fr)
+    minmax(80px, 0.7fr)
+    minmax(120px, 0.9fr)
+    minmax(140px, 1.2fr)
+    minmax(150px, 1.3fr)
+    minmax(100px, 0.8fr)
+    minmax(130px, 1fr);
+}
+
+.spv-priority-reason,
+.spv-followup-field,
+.spv-followup-recommendation {
+  overflow-wrap: anywhere;
+}
+
+.spv-followup-row:hover {
+  background: color-mix(in srgb, var(--bg-hover) 55%, transparent);
+}
+
+.spv-followups-list {
+  min-width: 0;
+}
+
+.spv-followups-panel {
+  overflow-x: hidden;
+}
+
+.spv-followups-tabs,
+.spv-followups-filters,
+.spv-followup-row,
+.spv-followups-footer {
+  min-width: 0;
+}
+
+.spv-reminder-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gym-space-4);
+  margin-top: var(--gym-space-3);
+  padding: var(--gym-space-6);
+  border-top: 1px solid var(--border-color);
+}
+
+.spv-reminder-history h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+}
+
+.spv-reminder-history-empty {
+  margin: 0;
+  padding: var(--gym-space-4);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.spv-reminder-review-row {
+  grid-template-columns:
+    minmax(140px, 1.1fr)
+    minmax(120px, 1fr)
+    minmax(120px, 0.9fr)
+    minmax(180px, 1.4fr)
+    minmax(150px, 1.1fr)
+    minmax(150px, 1fr);
+  align-items: start;
+}
+
+.spv-reminder-review-row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.spv-reminder-review-row textarea,
+.spv-reminder-review-row select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+
+.spv-reminder-review-row textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.spv-reminder-review-row .spv-followup-field:last-child {
+  gap: var(--gym-space-2);
+}
+
+.spv-reminder-review-row .spv-followup-field button,
+.spv-reminder-history-row button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.spv-reminder-review-row .spv-followup-field button:first-child {
+  border-color: transparent;
+  background: var(--accent-color);
+  color: var(--accent-text);
+}
+
+.spv-reminder-review-row .spv-followup-field button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spv-reminder-history-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(120px, 1fr)
+    minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: var(--gym-space-3);
+  min-width: 0;
+  padding: var(--gym-space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--gym-radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.spv-reminder-history-row strong {
+  color: var(--text-primary);
+}
+
+@media (max-width: 1120px) {
+  .spv-recommendation-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .spv-reminder-review-row {
+    min-width: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .spv-reminder-history-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .spv-member-followup-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .spv-followups {
+    gap: var(--gym-space-4);
+  }
+
+  .spv-followups-panel > .spv-followups-heading {
+    padding: var(--gym-space-4);
+  }
+
+  .spv-followups-tabs {
+    gap: 4px var(--gym-space-3);
+    padding: var(--gym-space-2) var(--gym-space-3) 0;
+  }
+
+  .spv-followups-tab {
+    min-height: 38px;
+    font-size: 11px;
+  }
+
+  .spv-followups-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .spv-followups-filters select,
+  .spv-followups-search {
+    width: 100%;
+    min-width: 0;
+    flex: auto;
+  }
+
+  .spv-recommendation-row,
+  .spv-reminder-review-row,
+  .spv-member-followup-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: var(--gym-space-3);
+    padding: var(--gym-space-4);
+  }
+
+  .spv-member-followup-row .spv-followup-field,
+  .spv-member-followup-row .spv-followup-recommendation {
+    padding-top: var(--gym-space-2);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .spv-recommendation-row .spv-followup-field:last-child {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .spv-ai-availability-alert,
+  .spv-followups-panel > p[role="alert"] {
+    margin-right: var(--gym-space-4);
+    margin-left: var(--gym-space-4);
+  }
+
+  .spv-reminder-history {
+    padding: var(--gym-space-4);
+  }
+
+  .spv-reminder-history-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .spv-history-overlay {
+    padding: var(--gym-space-3);
+  }
+
+  .spv-history-modal {
+    max-height: calc(100dvh - 24px);
+    padding: var(--gym-space-4);
+  }
 }

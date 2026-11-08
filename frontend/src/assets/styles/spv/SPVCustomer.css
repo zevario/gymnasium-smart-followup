@@ -85,7 +85,7 @@
   border-radius: 7px;
   padding: 11px 16px;
   background: var(--accent-color);
-  color: var(--text-primary);
+  color: var(--accent-text);
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
@@ -349,8 +349,10 @@
   font-size: 12px;
 }
 
+
 .spv-customer-modal input,
-.spv-customer-modal select {
+.spv-customer-modal select,
+.spv-customer-modal textarea {
   width: 100%;
   min-height: 40px;
   box-sizing: border-box;
@@ -360,12 +362,26 @@
   outline: none;
   background: var(--bg-card, #111b14);
   color: var(--text-primary, #f5f7f5);
-  color-scheme: dark;
+  color-scheme: light;
+  font-family: inherit;
+  font-size: inherit;
 }
 
+.spv-customer-modal textarea {
+  resize: vertical;
+  line-height: 18px;
+}
+
+.spv-customer-modal input:focus,
+.spv-customer-modal select:focus,
+.spv-customer-modal textarea:focus {
+  border-color: #a6ff00;
+}
+
+
 .spv-customer-modal select option {
-  background: #111b14;
-  color: #f5f7f5;
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .spv-pic-warning {
@@ -593,6 +609,12 @@
 
 .spv-layout.dark .status-inactive {
   color: #ff9999;
+}
+
+.spv-layout.dark .spv-customer-modal input,
+.spv-layout.dark .spv-customer-modal select,
+.spv-layout.dark .spv-customer-modal textarea {
+  color-scheme: dark;
 }
 
 /* RESPONSIVE */

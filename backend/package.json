@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API for Gymnasyum Smart Reminder & Follow-up",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
@@ -12,13 +13,13 @@
     "migrate": "node-pg-migrate",
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
+    "seed": "node src/config/seed.js",
     "seed:admin": "node src/seeds/create-admin.js",
     "seed:demo": "node src/seeds/seed-demo-data.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

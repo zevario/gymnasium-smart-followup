@@ -1,4 +1,3 @@
-
 .staff-customer-page {
   padding: 34px 4%;
   color: var(--text-primary);
@@ -36,7 +35,7 @@
   padding: 17px 20px;
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  background: var(--card-bg);
+  background: var(--bg-card);
 }
 
 .staff-customer-total span,
@@ -59,7 +58,7 @@
   overflow: hidden;
   border: 1px solid var(--border-color);
   border-radius: 13px;
-  background: var(--card-bg);
+  background: var(--bg-card);
 }
 
 .staff-customer-toolbar {
@@ -83,7 +82,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   outline: none;
-  background: var(--input-bg, transparent);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   font: inherit;
   font-size: 12px;
@@ -125,7 +124,7 @@
 }
 
 .staff-customer-table tbody tr:hover {
-  background: var(--hover-bg, rgba(255, 255, 255, 0.025));
+  background: var(--bg-hover);
 }
 
 .staff-membership-badge {
@@ -190,7 +189,7 @@
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: 15px;
-  background: var(--card-bg, #101b13);
+  background: var(--bg-card);
   color: var(--text-primary);
 }
 
@@ -308,4 +307,68 @@
 .staff-customer-whatsapp-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ===== GREEN THEME - STAFF CUSTOMER ===== */
+
+.staff-customer-page {
+  color: var(--text-primary);
+}
+
+/* Panel dan kartu */
+.staff-customer-total,
+.staff-customer-panel,
+.staff-customer-modal {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Header tabel */
+.staff-customer-table th {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+/* Baris tabel */
+.staff-customer-table tbody tr {
+  background: var(--bg-card);
+}
+
+.staff-customer-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+/* Kolom dan garis tabel */
+.staff-customer-table th,
+.staff-customer-table td {
+  border-bottom-color: var(--border-color);
+}
+
+/* Input pencarian */
+.staff-customer-toolbar input {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Tombol detail */
+.staff-customer-detail-button {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Status membership aktif */
+.staff-membership-badge.is-active {
+  color: #a6ff00;
+  background: rgba(166, 255, 0, 0.12);
+}
+
+/* Catatan detail */
+.staff-customer-readonly-note {
+  background: rgba(166, 255, 0, 0.08);
+}
+
+/* Tombol tutup modal */
+.staff-customer-close-button {
+  background: var(--accent-color);
+  color: var(--accent-text);
 }

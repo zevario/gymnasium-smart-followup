@@ -1,19 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import '../assets/styles/ProfileDropdown.css';
+import useI18n from '../i18n/useI18n.js';
 
 function ProfileDropdown({
   currentUser,
+  photoUrl,
   onOpenProfile,
   onLogout,
 }) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
-  const userName = currentUser?.name || 'Administrator';
-  const userEmail = currentUser?.email || '';
-  const userRole = currentUser?.role || 'Administrator Sistem';
-
-  const userInitial = userName.charAt(0).toUpperCase();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -48,10 +45,14 @@ function ProfileDropdown({
         type="button"
         className="profile-avatar-button"
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Menu profil"
+        aria-label={t('Menu profil')}
         aria-expanded={isOpen}
       >
-        {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
+        {photoUrl ? (
+          <img className="profile-avatar-image" src={photoUrl} alt="" />
+        ) : (
+          currentUser?.name?.charAt(0).toUpperCase() || 'U'
+        )}
       </button>
 
       {isOpen && (
@@ -67,7 +68,7 @@ function ProfileDropdown({
             onClick={handleOpenProfile}
           >
             <span>♙</span>
-            Lihat profil
+            {t('Lihat profil')}
           </button>
 
           <button
@@ -76,7 +77,7 @@ function ProfileDropdown({
             onClick={handleLogout}
           >
             <span>↪</span>
-            Keluar
+            {t('Keluar')}
           </button>
         </div>
       )}

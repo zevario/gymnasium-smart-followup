@@ -3,10 +3,13 @@ import ProfileDropdown from '../../components/ProfileDropdown.jsx';
 import ThemeToggle from '../../components/ThemeToggle.jsx';
 import { Bell } from 'lucide-react';
 import gymnasyumLogo from '../gallery/gymnasyum-logo.png';
+import LanguageSwitcher from '../../components/LanguageSwitcher.jsx';
+import useI18n from '../../i18n/useI18n.js';
 
 function SPVLayout({
   children,
   currentUser,
+  profilePhotoUrl,
   onLogout,
   isDarkMode,
   onToggleTheme,
@@ -14,6 +17,8 @@ function SPVLayout({
   onNavigate,
   onOpenProfile,
 }) {
+  const { t } = useI18n();
+
   return (
     <div className={`spv-layout ${isDarkMode ? 'dark' : 'light'}`}>
       <aside className="spv-sidebar">
@@ -29,7 +34,7 @@ function SPVLayout({
             }`}
             onClick={() => onNavigate('dashboard')}
           >
-            Dashboard
+            {t('Dashboard')}
           </button>
 
           <button
@@ -39,7 +44,7 @@ function SPVLayout({
             }`}
             onClick={() => onNavigate('followups')}
           >
-            Semua Follow-up
+            {t('Semua Follow-up')}
           </button>
 
           <button
@@ -49,7 +54,7 @@ function SPVLayout({
             }`}
             onClick={() => onNavigate('pelanggan')}
           >
-            Pelanggan
+            {t('Pelanggan')}
           </button>
 
           <button
@@ -59,17 +64,17 @@ function SPVLayout({
             }`}
             onClick={() => onNavigate('absensi')}
           >
-            Monitoring Absensi
+            {t('Monitoring Absensi')}
           </button>
 
           <button
             type="button"
             className={`spv-nav-item ${
-              activePage === 'aktivitas' ? 'active' : ''
+              activePage === 'schedule' ? 'active' : ''
             }`}
-            onClick={() => onNavigate('aktivitas')}
+            onClick={() => onNavigate('schedule')}
           >
-            Aktivitas Tim
+            {t('Schedule / Class')}
           </button>
 
           <button
@@ -79,32 +84,34 @@ function SPVLayout({
             }`}
             onClick={() => onNavigate('laporan')}
           >
-            Laporan
+            {t('Laporan')}
           </button>
         </nav>
 
-        <button
-          type="button"
-          className="spv-logout"
-          onClick={onLogout}
-        >
-          Keluar
-        </button>
+        <div className="SPV-sidebar-footer">
+          <button
+            type="button"
+            className="spv-logout"
+            onClick={onLogout}
+          >
+            {t('Keluar dari akun')}
+          </button>
+        </div>
       </aside>
 
       <main className="spv-main">
         <header className="spv-topbar">
           <div className="spv-topbar-title">
-            <h3>Supervisor Dashboard</h3>
-            <span>Gymnasyum Bintaro</span>
+            <h3>{t('Supervisor Dashboard')}</h3>
+            <span>{t('Gymnasyum Bintaro')}</span>
           </div>
 
           <div className="spv-topbar-actions">
             <button
               type="button"
               className="spv-notification-button"
-              aria-label="Notifikasi"
-              title="Notifikasi"
+              aria-label={t('Notifikasi')}
+              title={t('Notifikasi')}
             >
               <Bell size={18} />
             </button>
@@ -113,10 +120,12 @@ function SPVLayout({
               isDarkMode={isDarkMode}
               onToggleTheme={onToggleTheme}
             />
+            <LanguageSwitcher />
 
             <div className="spv-profile-avatar">
               <ProfileDropdown
                 currentUser={currentUser}
+                photoUrl={profilePhotoUrl}
                 onOpenProfile={onOpenProfile}
                 onLogout={onLogout}
               />

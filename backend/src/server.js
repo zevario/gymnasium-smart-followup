@@ -1,8 +1,8 @@
 import 'dotenv/config';
 
 import app from './app.js';
-import pool from './config/database.js';
-import ReminderSchedulerService from './services/reminders/services/reminder-scheduler-service.js';
+import pool from './database/pool.js';
+import ReminderSchedulerService from './modules/reminders/reminder-scheduler.service.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 

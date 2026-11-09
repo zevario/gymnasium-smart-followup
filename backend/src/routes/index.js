@@ -1,13 +1,13 @@
 import { Router } from 'express';
 
-import authenticationRoutes from '../services/authentication/routes/index.js';
-import userRoutes from '../services/users/routes/index.js';
-import customerRoutes from '../services/customers/routes/index.js';
-import scheduleRoutes from '../services/schedules/routes/index.js';
-import attendanceRoutes from '../services/attendances/routes/index.js';
-import followupRoutes from '../services/followups/routes/index.js';
-import reminderRoutes from '../services/reminders/routes/index.js';
-import reportRoutes from '../services/reports/routes/index.js';
+import authenticationRoutes from '../modules/authentication/authentication.routes.js';
+import userRoutes from '../modules/users/user.routes.js';
+import customerRoutes from '../modules/customers/customer.routes.js';
+import scheduleRoutes from '../modules/schedules/schedule.routes.js';
+import attendanceRoutes from '../modules/attendances/attendance.routes.js';
+import followupRoutes from '../modules/followups/followup.routes.js';
+import reminderRoutes from '../modules/reminders/reminder.routes.js';
+import reportRoutes from '../modules/reports/report.routes.js';
 
 const router = Router();
 

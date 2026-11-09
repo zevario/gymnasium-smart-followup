@@ -216,6 +216,128 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   assert.equal(changed.draft, null);
   assert.equal((await upload([fresh])).data.unchanged, 1);
   assert.equal((await findFresh()).transaction, 'unique-payment');
+  // Security regressions use extra sessions so workflow assertions above stay independent.
+  async function secureCall(path, { token, body, method = body ? 'POST' : 'GET' } = {}) {
+    const result = await fetch(base + '/api' + path, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { code: result.status, headers: result.headers, body: await result.json() };
+  }
+  const credentials = { email: 'staff@example.com', password };
+  const signIn = async () => (await secureCall('/auth/login', { body: credentials })).body.data;
+  let securitySession = await signIn();
+  const parallelRefreshes = await Promise.all(
+    [1, 2].map(() =>
+      secureCall('/auth/refresh', { body: { refreshToken: securitySession.refreshToken } }),
+    ),
+  );
+  assert.deepEqual(parallelRefreshes.map((result) => result.code).sort(), [200, 401]);
+  assert.equal((await secureCall('/session', { token: securitySession.accessToken })).code, 401);
+  securitySession = parallelRefreshes.find((result) => result.code === 200).body.data;
+  assert.equal((await secureCall('/session', { token: securitySession.accessToken })).code, 200);
+  const health = await secureCall('/health');
+  assert.equal(health.headers.get('cache-control'), 'no-store');
+  assert.equal(health.headers.get('x-powered-by'), null);
+  assert.ok(health.headers.get('content-security-policy').includes("frame-ancestors 'none'"));
+  assert.equal(
+    (
+      await secureCall('/users/me', {
+        token: securitySession.accessToken,
+        method: 'PUT',
+        body: { name: 'Staff', email: 'staff@example.com', role: 'admin' },
+      })
+    ).code,
+    400,
+  );
+  assert.equal(
+    (
+      await secureCall('/auth/logout', {
+        token: 'expired-access-token',
+        body: { refreshToken: securitySession.refreshToken },
+      })
+    ).code,
+    200,
+  );
+  assert.equal((await secureCall('/session', { token: securitySession.accessToken })).code, 401);
+  assert.equal(
+    (await secureCall('/auth/refresh', { body: { refreshToken: securitySession.refreshToken } }))
+      .code,
+    401,
+  );
+
+  const uploadSession = await signIn();
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aG9kAAAAASUVORK5CYII=',
+    'base64',
+  );
+  const photoForm = new FormData();
+  photoForm.append('photo', new Blob([png], { type: 'image/png' }), 'avatar.png');
+  const photoResult = await fetch(base + '/api/users/me/photo', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + uploadSession.accessToken },
+    body: photoForm,
+  });
+  assert.equal(photoResult.status, 200, await photoResult.text());
+  const dangerousForm = new FormData();
+  dangerousForm.append(
+    'photo',
+    new Blob(['<svg onload="alert(1)"></svg>'], { type: 'image/svg+xml' }),
+    'avatar.svg',
+  );
+  assert.equal(
+    (
+      await fetch(base + '/api/users/me/photo', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + uploadSession.accessToken },
+        body: dangerousForm,
+      })
+    ).status,
+    400,
+  );
+
+  const passwordSession = await signIn();
+  const otherSession = await signIn();
+  const newPassword = 'UpdatedSecurePassword123!';
+  assert.equal(
+    (
+      await secureCall('/users/me/password', {
+        token: passwordSession.accessToken,
+        method: 'PATCH',
+        body: { currentPassword: password, newPassword, confirmPassword: newPassword },
+      })
+    ).code,
+    200,
+  );
+  for (const session of [passwordSession, otherSession]) {
+    assert.equal((await secureCall('/session', { token: session.accessToken })).code, 401);
+    assert.equal(
+      (await secureCall('/auth/refresh', { body: { refreshToken: session.refreshToken } })).code,
+      401,
+    );
+  }
+  // Restore this fixture's password for optional browser checks after proving revocation.
+  await db.query('UPDATE users SET password_hash=$1 WHERE email=$2', [hash, credentials.email]);
+  const resetSession = await signIn();
+  const resetUser = (await secureCall('/session', { token: resetSession.accessToken })).body.data
+    .user;
+  assert.equal(
+    (
+      await secureCall('/users/' + resetUser.id, {
+        token: tokens.system,
+        method: 'PUT',
+        body: { password: newPassword },
+      })
+    ).code,
+    200,
+  );
+  assert.equal((await secureCall('/session', { token: resetSession.accessToken })).code, 401);
+  await db.query('UPDATE users SET password_hash=$1 WHERE email=$2', [hash, credentials.email]);
+
   // Optional local browser smoke command, using only this isolated fixture.
   if (process.env.PILOT_BROWSER_CHECK)
     execFileSync(process.execPath, [process.env.PILOT_BROWSER_CHECK], {
@@ -228,4 +350,22 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
       stdio: 'inherit',
       timeout: 40000,
     });
+  for (let attempt = 0; attempt < 10; attempt++) {
+    assert.equal(
+      (
+        await secureCall('/auth/login', {
+          body: { email: 'unknown@example.com', password: 'incorrect' },
+        })
+      ).code,
+      401,
+    );
+  }
+  assert.equal(
+    (
+      await secureCall('/auth/login', {
+        body: { email: 'unknown@example.com', password: 'incorrect' },
+      })
+    ).code,
+    429,
+  );
 });

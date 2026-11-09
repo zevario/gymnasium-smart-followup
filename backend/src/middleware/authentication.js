@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
-import pool from '../config/database.js';
+import { verifyToken } from '../modules/authentication/token.service.js';
+import pool from '../database/pool.js';
 
 const authentication = async (req, res, next) => {
   try {
@@ -14,15 +14,15 @@ const authentication = async (req, res, next) => {
 
     const token = authorization.split(' ')[1];
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_ACCESS_SECRET,
-    );
+    const decoded = verifyToken(token, 'access');
 
     const result = await pool.query(
       `SELECT id, name, email, role, is_active, pilot_location
-       FROM users WHERE id = $1`,
-      [decoded.sub],
+       FROM users WHERE id = $1 AND EXISTS (
+         SELECT 1 FROM sessions WHERE user_id=users.id AND refresh_token_hash=$2
+         AND revoked_at IS NULL AND expires_at>NOW()
+       )`,
+      [decoded.sub, decoded.sid],
     );
 
     if (!result.rowCount || !result.rows[0].is_active) {
@@ -35,19 +35,19 @@ const authentication = async (req, res, next) => {
     req.user = result.rows[0];
     next();
   } catch (error) {
-  if (
-    error.name === 'TokenExpiredError' ||
-    error.name === 'JsonWebTokenError' ||
-    error.name === 'NotBeforeError'
-  ) {
-    return res.status(401).json({
-      status: 'error',
-      message: 'Invalid or expired access token',
-    });
-  }
+    if (
+      error.name === 'TokenExpiredError' ||
+      error.name === 'JsonWebTokenError' ||
+      error.name === 'NotBeforeError'
+    ) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid or expired access token',
+      });
+    }
 
-  next(error);
-}
+    next(error);
+  }
 };
 
 export default authentication;

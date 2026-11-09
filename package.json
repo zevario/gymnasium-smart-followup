@@ -1,0 +1,16 @@
+{
+  "name": "gymnasyum-smart-followup",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
+    "test": "npm --prefix backend test",
+    "build": "npm --prefix frontend run build",
+    "check": "npm run format:check && npm run lint && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

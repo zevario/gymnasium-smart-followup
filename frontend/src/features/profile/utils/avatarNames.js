@@ -4,5 +4,4 @@ export const avatarNames = [
   'Rambut pendek berkacamata',
   'Hijab',
   'Rambut panjang',
-  'Rambut bob',
 ];

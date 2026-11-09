@@ -1,6 +1,5 @@
 import { LocationDialog } from '../components/LocationDialog.jsx';
 import { LocationPin } from '../../shared/components/LocationPin.jsx';
-import logo from '../../assets/images/gymnasyum-logo.png';
 import { useT } from '../../shared/i18n/useLanguage.js';
 import { useState, useRef } from 'react';
 import { Icon } from '../../shared/components/Icon.jsx';
@@ -23,7 +22,13 @@ export function Sidebar({ page, navigate, open, count, memberCount, user, onLogo
     <>
       <aside id="app-sidebar" className={`sidebar ${open ? 'sidebar-open' : ''}`}>
         <div className="brand">
-          <img className="brand-logo" src={logo} alt={t('Logo Gymnasyum')} width={40} height={40} />
+          <img
+            className="brand-logo"
+            src="/images/gymnasyum-logo.png"
+            alt={t('Logo Gymnasyum')}
+            width={40}
+            height={40}
+          />
           <span>
             <strong>{t('gymnasyum')}</strong>
             <small>{t('MEMBER RELATIONS')}</small>

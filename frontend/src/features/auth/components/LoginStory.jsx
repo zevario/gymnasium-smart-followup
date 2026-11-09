@@ -5,7 +5,6 @@ import { website } from '../data/loginContent.js';
 import slide1 from '../../../assets/images/login-slide-1.png';
 import slide2 from '../../../assets/images/login-slide-2.png';
 import slide3 from '../../../assets/images/login-slide-3.png';
-import logo from '../../../assets/images/gymnasyum-logo.png';
 
 export function LoginStory({ t }) {
   return (
@@ -17,7 +16,7 @@ export function LoginStory({ t }) {
       </div>
       <header className="login-story-header">
         <a className="login-brand" href={website} target="_blank" rel="noreferrer">
-          <img src={logo} alt="" />
+          <img src="/images/gymnasyum-logo.png" alt="" />
           <span id="login-brand-title">GYMNASYUM</span>
         </a>
         <p className="login-tagline">{t('Sehat dan kuat, dunia akhirat.')}</p>

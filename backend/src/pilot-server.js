@@ -1,6 +1,6 @@
 import app from './pilot-app.js';
-import pool from './config/database.js';
-import { startLifecycle } from './services/pilot/lifecycle.js';
+import pool from './database/pool.js';
+import { startLifecycle } from './modules/pilot/pilot.lifecycle.js';
 
 const port = Number(process.env.PILOT_PORT || 3001);
 const server = app.listen(port, process.env.PILOT_HOST || '127.0.0.1', () =>

@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "test": "npm run test:pilot",
+    "test": "node --test test/*.test.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
@@ -13,11 +13,11 @@
     "migrate": "node-pg-migrate",
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
-    "seed": "node src/config/seed.js",
-    "seed:admin": "node src/seeds/create-admin.js",
-    "seed:demo": "node src/seeds/seed-demo-data.js",
+    "seed:admin": "node src/database/seeds/create-admin.js",
+    "seed:demo": "node src/database/seeds/seed-demo-data.js",
     "pilot": "node src/pilot-server.js",
-    "test:pilot": "node --test test/pilot*.test.js"
+    "test:pilot": "node --test test/pilot*.test.js",
+    "seed:spv": "node src/database/seeds/create-spv.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +27,7 @@
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
+    "express-rate-limit": "8.7.3",
     "helmet": "^8.3.0",
     "joi": "^18.3.2",
     "jsonwebtoken": "^9.0.3",
@@ -37,8 +38,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.14.0",
-    "eslint-config-dicodingacademy": "^0.9.5",
     "globals": "^17.14.0",
     "nodemon": "^3.1.14"
+  },
+  "overrides": {
+    "glob": "^14.0.4",
+    "minimatch": "^11.0.5"
   }
 }

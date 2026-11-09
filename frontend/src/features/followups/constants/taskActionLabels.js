@@ -1,0 +1,15 @@
+export const taskActionLabels = {
+  closed: 'Siklus selesai',
+  released: 'PIC dilepas',
+  reply: 'Catat balasan',
+  claim: 'Tugas diambil',
+  assign: 'Pengalihan PIC',
+  draft: 'Penyusunan draft',
+  approve: 'Persetujuan manual',
+  accepted: 'Terkirim manual',
+  failed: 'Gagal dikirim',
+  snooze: 'Tunda follow-up',
+  outcome: 'Catat hasil',
+  optout: 'Catat opt-out',
+  import: 'Impor sumber',
+};

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DAY, HOUR, evaluate, schedule } from '../src/services/pilot/policy.js';
+import { DAY, HOUR, evaluate, schedule } from '../src/modules/pilot/pilot.policy.js';
 const now = Date.parse('2026-10-14T10:00:00+07:00');
 const at = (time) => new Date(time).toISOString();
 function task(goal, offset) {

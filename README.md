@@ -7,6 +7,7 @@ Aplikasi lokal untuk petugas Gymnasyum Bintaro. Antarmuka React berada di `front
 Gunakan Node.js 24 dan PostgreSQL dengan database khusus aplikasi. Pada instalasi baru, salin `backend/.env.example` ke `backend/.env`, isi koneksi PostgreSQL, dua rahasia JWT berbeda dan akun administrator awal. Pertahankan konfigurasi yang sudah ada pada instalasi lama. Jalankan dari akar proyek.
 
 ```sh
+npm ci
 npm ci --prefix backend
 npm ci --prefix frontend
 npm --prefix backend run migrate:up
@@ -39,9 +40,66 @@ Draft standar memakai template dan fakta sumber. Untuk pemilihan frasa berbantua
 ## Verifikasi
 
 ```sh
-npm --prefix frontend run lint
-npm --prefix frontend run build
-npm --prefix backend run test:pilot
+npm run check
 ```
 
+`npm run check` memeriksa format kode, menjalankan lint frontend dan backend, seluruh uji pilot, lalu build frontend. Masing-masing tahap juga tersedia melalui `npm run lint`, `npm test`, dan `npm run build` dari akar proyek. Database pengembangan harus aktif sesuai konfigurasi backend.
+
 Uji HTTP membuat skema PostgreSQL sementara, menjalankan migrasi dan API untuk akun sintetis, lalu menghapus skema uji. Gunakan database pengembangan dengan hak membuat skema. Uji kebijakan memeriksa batas waktu, cooldown, cap dan penanganan balasan. Endpoint `/api/health` memeriksa koneksi dan tabel pilot.
+
+## Struktur dan pedoman kode
+
+```text
+frontend/src/
+  app/                 # App dan layout aplikasi
+  features/            # auth, accounts, customers, dashboard, followups, profile, reports, settings
+    <fitur>/
+      pages/           # Halaman fitur (termasuk varian pilot)
+      components/      # Komponen khusus fitur
+      hooks/           # State dan efek React khusus fitur
+      services/        # Aturan dan operasi fitur
+      constants/       # Nilai tetap fitur
+  shared/
+    api/               # HTTP client dan sesi API
+    components/        # Komponen UI lintas fitur
+    i18n/              # Provider, hook, dan kamus bahasa
+    styles/            # CSS lintas halaman
+  assets/images/       # Gambar yang diimpor aplikasi
+  main.jsx             # Entry point React
+backend/
+  src/
+    modules/           # Modul berdasarkan domain
+      <domain>/        # *.routes.js, *.controller.js, *.service.js, *.repository.js, *.schema.js
+    database/
+      pool.js          # Koneksi PostgreSQL aplikasi
+      seeds/           # Seed untuk skema aplikasi saat ini
+    middleware/        # Autentikasi, otorisasi, dan penanganan error
+    routes/            # Penggabungan route API terdahulu
+    utils/             # Utilitas lintas modul
+    app.js             # Express API terdahulu
+    server.js          # Startup API terdahulu
+    pilot-app.js       # Express API pilot dan penyajian frontend
+    pilot-server.js    # Startup API pilot dan lifecycle
+  migrations/          # Migrasi node-pg-migrate
+  test/                # Pengujian kebijakan dan HTTP
+```
+
+Folder fitur hanya dibuat jika diperlukan; tidak perlu membuat subfolder kosong. Halaman dikelompokkan berdasarkan fitur, sedangkan izin peran tetap ditangani oleh aturan akses dan middleware.
+
+Di `backend/src/modules/pilot/`, `pilot.routes.js` menangani HTTP dan validasi, `pilot.service.js` mengatur alur serta batas transaksi, dan `pilot.repository.js` menangani akses data. `pilot.policy.js` berisi evaluasi aturan bisnis, `pilot.commands.js` menangani tindakan tugas, dan `pilot.lifecycle.js` merekonsiliasi siklus. Kontrak input berada di `pilot.schema.js`.
+
+Gunakan nama `*.controller.js`, `*.repository.js`, `*.routes.js`, `*.schema.js`, dan `*.service.js` sesuai tanggung jawabnya. Simpan komponen khusus fitur di fitur tersebut; pindahkan ke `shared` hanya jika memang digunakan lintas fitur. Gunakan import langsung ke file tujuan agar dependensi terlihat jelas. Pertahankan urutan lock dan batas transaksi saat mengubah alur impor. Jalankan `npm run check` sebelum mengajukan perubahan.
+
+Entry point Vite, Express, konfigurasi Vercel, lokasi migrasi, dan URL API tetap sama. Script `seed:admin` dan `seed:demo` menggunakan `src/database/seeds/`. Script `seed:spv` tersedia untuk bootstrap supervisor API terdahulu memakai `SPV_NAME`, `SPV_EMAIL`, dan `SPV_PASSWORD`. Untuk akun pilot, gunakan halaman administrasi agar akun mendapat penugasan lokasi.
+
+## Menjaga kode tetap rapi
+
+Jalankan `npm run format` setelah mengedit kode. Aturan Prettier dan EditorConfig di akar proyek menyamakan indentasi, kutip, dan panjang baris. `npm run format:check` memeriksa tanpa mengubah file; pemeriksaan ini juga menjadi bagian dari `npm run check`. Migrasi historis dan lockfile tidak diformat ulang.
+
+Konfigurasi ignore dipusatkan di `.gitignore` akar. Folder `node_modules`, hasil build, coverage, serta konfigurasi lokal tidak masuk Git. Jangan menghapus migrasi hanya karena tidak diimpor oleh JavaScript: migrasi dijalankan CLI dan dibutuhkan instalasi database.
+
+Prototipe CommonJS dengan skema lama dan perintah `npm run seed` yang mengarah ke prototipe tersebut sudah dihapus. Gunakan `seed:admin` untuk administrator awal dan `seed:demo` untuk data demo skema saat ini. API terdahulu (`npm start`) dan API pilot (`npm run pilot`) tetap tersedia; keduanya mempunyai entry point yang aktif.
+
+## Keamanan
+
+Pembatasan permintaan, validasi JWT, rotasi refresh atomik, pencabutan sesi, batas input/upload, dan header browser telah diterapkan. Sesi lama perlu login ulang setelah pembaruan format token. Lihat [panduan keamanan](docs/SECURITY.md) untuk konfigurasi produksi, batas perlindungan, dan langkah verifikasi.

@@ -5,18 +5,24 @@ import { permissions, mayEditTask } from '../../features/auth/services/access.js
 import { mayOpenPage } from '../../features/auth/services/pageAccess.js';
 import { canContact } from '../../features/followups/services/followupRules.js';
 import { isProfilePhoto, defaultProfilePhoto } from '../../features/profile/utils/profilePhoto.js';
+import { profilePhotoStorageKey } from '../../shared/storage/keys.js';
+import {
+  DESKTOP_MEDIA_QUERY,
+  isDesktopViewport,
+  isMobileViewport,
+} from '../../shared/utils/viewport.js';
 
 export function useDemoWorkspace(account) {
   const [page, setPage] = useState('Dashboard');
   const [customers, setCustomers] = useState(initialCustomers);
   const [selected, setSelected] = useState(null);
-  const [mobileNav, setMobileNav] = useState(() => window.matchMedia('(min-width: 769px)').matches);
+  const [mobileNav, setMobileNav] = useState(isDesktopViewport);
   const [toast, setToast] = useState('');
   const [profilePhotos, setProfilePhotos] = useState(() => {
     const photos = {};
     for (const user of demoAccounts) {
       try {
-        const saved = localStorage.getItem(`gymnasyum-profile-photo-v1:${user.email}`);
+        const saved = localStorage.getItem(profilePhotoStorageKey(user.email));
         if (saved && isProfilePhoto(saved)) photos[user.email] = saved;
       } catch {
         /* The default avatar remains available without browser storage. */
@@ -29,7 +35,7 @@ export function useDemoWorkspace(account) {
     : defaultProfilePhoto;
   const saveProfilePhoto = (photo) => {
     if (!account || !isProfilePhoto(photo)) return;
-    localStorage.setItem(`gymnasyum-profile-photo-v1:${account.email}`, photo);
+    localStorage.setItem(profilePhotoStorageKey(account.email), photo);
     setProfilePhotos((previous) => ({ ...previous, [account.email]: photo }));
     notify('Foto profil berhasil diperbarui');
   };
@@ -37,7 +43,7 @@ export function useDemoWorkspace(account) {
   const access = permissions(account);
   const activePage = mayOpenPage(account, page) ? page : access.system ? 'Pengaturan' : 'Dashboard';
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 769px)');
+    const desktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
     const syncSidebar = () => setMobileNav(desktop.matches);
     desktop.addEventListener('change', syncSidebar);
     return () => desktop.removeEventListener('change', syncSidebar);
@@ -59,7 +65,7 @@ export function useDemoWorkspace(account) {
   const navigate = (p) => {
     if (!mayOpenPage(account, p)) return;
     setPage(p);
-    if (window.matchMedia('(max-width: 768px)').matches) setMobileNav(false);
+    if (isMobileViewport()) setMobileNav(false);
     setSelected(null);
   };
   const updateCustomer = (id, patch) => {

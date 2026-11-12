@@ -1,5 +1,6 @@
 import pool from '../../database/pool.js';
-import { attempts, event, tasks, transaction } from './pilot.repository.js';
+import { withTransaction } from '../../database/transaction.js';
+import { attempts, event, tasks } from './pilot.repository.js';
 import { evaluate } from './pilot.policy.js';
 
 export async function reconcile(db, row) {
@@ -33,7 +34,7 @@ export function startLifecycle() {
         await pool.query(`SELECT c.id,c.person_id FROM pilot_cycles c JOIN pilot_people p ON p.id=c.person_id
           WHERE c.status<>'closed' AND c.opens_at<=now() AND p.location='bintaro' ORDER BY p.id,c.id`);
       for (const item of rows) {
-        await transaction(async (db) => {
+        await withTransaction(async (db) => {
           const locked = await db.query(
             'SELECT id FROM pilot_people WHERE id=$1 FOR UPDATE SKIP LOCKED',
             [item.person_id],

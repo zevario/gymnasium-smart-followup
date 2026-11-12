@@ -60,10 +60,12 @@ frontend/src/
       services/        # Aturan dan operasi fitur
       constants/       # Nilai tetap fitur
   shared/
-    api/               # HTTP client dan sesi API
+    api/               # HTTP client (pilotApi), penyimpanan token (session), bentuk user API (users)
     components/        # Komponen UI lintas fitur
     i18n/              # Provider, hook, dan kamus bahasa
+    storage/           # Kunci localStorage/sessionStorage yang dipakai aplikasi
     styles/            # CSS lintas halaman
+    utils/             # Helper murni: format tanggal, inisial nama, breakpoint viewport
   assets/images/       # Gambar yang diimpor aplikasi
   main.jsx             # Entry point React
 backend/
@@ -73,9 +75,9 @@ backend/
     database/
       pool.js          # Koneksi PostgreSQL aplikasi
       seeds/           # Seed untuk skema aplikasi saat ini
-    middleware/        # Autentikasi, otorisasi, dan penanganan error
+    middleware/        # Autentikasi, otorisasi, validasi Joi, rate limit, dan penanganan error
     routes/            # Penggabungan route API terdahulu
-    utils/             # Utilitas lintas modul
+    utils/             # Utilitas lintas modul (format respons, error ber-status HTTP)
     app.js             # Express API terdahulu
     server.js          # Startup API terdahulu
     pilot-app.js       # Express API pilot dan penyajian frontend
@@ -86,9 +88,9 @@ backend/
 
 Folder fitur hanya dibuat jika diperlukan; tidak perlu membuat subfolder kosong. Halaman dikelompokkan berdasarkan fitur, sedangkan izin peran tetap ditangani oleh aturan akses dan middleware.
 
-Di `backend/src/modules/pilot/`, `pilot.routes.js` menangani HTTP dan validasi, `pilot.service.js` mengatur alur serta batas transaksi, dan `pilot.repository.js` menangani akses data. `pilot.policy.js` berisi evaluasi aturan bisnis, `pilot.commands.js` menangani tindakan tugas, dan `pilot.lifecycle.js` merekonsiliasi siklus. Kontrak input berada di `pilot.schema.js`.
+Di `backend/src/modules/pilot/`, `pilot.routes.js` menangani HTTP dan validasi, `pilot.service.js` mengatur alur serta batas transaksi, dan `pilot.repository.js` menangani akses data. `pilot.policy.js` berisi evaluasi aturan bisnis, `pilot.commands.js` menangani tindakan tugas, dan `pilot.lifecycle.js` merekonsiliasi siklus. Kontrak input berada di `pilot.schema.js`, dan lokasi pilot dipusatkan di `pilot.constants.js`. Transaksi memakai `withTransaction` dari `database/transaction.js`; error dengan status HTTP dilempar lewat `reject` di `utils/http-error.js`.
 
-Gunakan nama `*.controller.js`, `*.repository.js`, `*.routes.js`, `*.schema.js`, dan `*.service.js` sesuai tanggung jawabnya. Simpan komponen khusus fitur di fitur tersebut; pindahkan ke `shared` hanya jika memang digunakan lintas fitur. Gunakan import langsung ke file tujuan agar dependensi terlihat jelas. Pertahankan urutan lock dan batas transaksi saat mengubah alur impor. Jalankan `npm run check` sebelum mengajukan perubahan.
+Gunakan nama `*.controller.js`, `*.repository.js`, `*.routes.js`, `*.schema.js`, dan `*.service.js` sesuai tanggung jawabnya. Validasi body/query/params di route memakai `middleware/validate.js`, bukan helper lokal per modul. Di frontend, kunci penyimpanan browser didefinisikan sekali di `shared/storage/keys.js` agar data pengguna yang sudah tersimpan tidak hilang karena salah ketik kunci. Simpan komponen khusus fitur di fitur tersebut; pindahkan ke `shared` hanya jika memang digunakan lintas fitur. Gunakan import langsung ke file tujuan agar dependensi terlihat jelas. Pertahankan urutan lock dan batas transaksi saat mengubah alur impor. Jalankan `npm run check` sebelum mengajukan perubahan.
 
 Entry point Vite, Express, konfigurasi Vercel, lokasi migrasi, dan URL API tetap sama. Script `seed:admin` dan `seed:demo` menggunakan `src/database/seeds/`. Script `seed:spv` tersedia untuk bootstrap supervisor API terdahulu memakai `SPV_NAME`, `SPV_EMAIL`, dan `SPV_PASSWORD`. Untuk akun pilot, gunakan halaman administrasi agar akun mendapat penugasan lokasi.
 

@@ -5,13 +5,14 @@ import { mayEditTask } from '../../features/auth/services/access.js';
 import { canContact } from '../../features/followups/services/followupRules.js';
 
 import { Icon } from '../../shared/components/Icon.jsx';
+import { notificationsReadStorageKey } from '../../shared/storage/keys.js';
 
 export function Notifications({ account, customers, onOpen }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const container = useRef(null);
   const trigger = useRef(null);
-  const storageKey = `gymnasyum-notifications-read:${account.email}`;
+  const storageKey = notificationsReadStorageKey(account.email);
   const [read, setRead] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');

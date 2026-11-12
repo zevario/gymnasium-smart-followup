@@ -1,4 +1,5 @@
 import { useT } from '../i18n/useLanguage.js';
+import { STORAGE_KEYS } from '../storage/keys.js';
 import { useState, useEffect } from 'react';
 
 export function ThemeToggle() {
@@ -9,7 +10,7 @@ export function ThemeToggle() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
-      localStorage.setItem('gymnasyum-theme', theme);
+      localStorage.setItem(STORAGE_KEYS.theme, theme);
     } catch {
       /* Keep the toggle usable when storage is unavailable. */
     }

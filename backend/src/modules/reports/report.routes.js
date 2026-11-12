@@ -1,26 +1,13 @@
 import { Router } from 'express';
 import authentication from '../../middleware/authentication.js';
 import authorization from '../../middleware/authorization.js';
+import validate from '../../middleware/validate.js';
 import getReport from './report.controller.js';
 import { reportPeriodSchema } from './report.schema.js';
 
 const router = Router();
 
 router.use(authentication, authorization('admin', 'spv'));
-router.get(
-  '/',
-  (req, res, next) => {
-    const { error, value } = reportPeriodSchema.validate(req.query);
-    if (error) {
-      return res.status(400).json({
-        status: 'error',
-        message: error.details[0].message,
-      });
-    }
-    req.validated = value;
-    return next();
-  },
-  getReport,
-);
+router.get('/', validate(reportPeriodSchema, 'query'), getReport);
 
 export default router;

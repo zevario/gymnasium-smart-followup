@@ -8,6 +8,7 @@ import { PageIntro } from '../../../shared/components/PageIntro.jsx';
 import ProfilePhotoEditor from '../components/ProfilePhotoEditor.jsx';
 import AccountSecurity from '../../auth/components/AccountSecurity.jsx';
 import { demoPassword } from '../../auth/services/demoAccounts.js';
+import { accountStorageKey } from '../../../shared/storage/keys.js';
 
 export function Profile({ user, photo, onSavePhoto }) {
   const t = useT();
@@ -18,7 +19,7 @@ export function Profile({ user, photo, onSavePhoto }) {
   const saveAccountData = () => {
     try {
       localStorage.setItem(
-        `gymnasyum-account-v1:${user.email}`,
+        accountStorageKey(user.email),
         JSON.stringify({
           name: user.name,
           email: user.email,

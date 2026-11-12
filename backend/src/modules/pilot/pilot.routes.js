@@ -5,7 +5,8 @@ import authentication from '../../middleware/authentication.js';
 import authorization from '../../middleware/authorization.js';
 import { pilotScope } from './pilot.scope.js';
 import { batch, command, policyUpdate } from './pilot.schema.js';
-import { listAssignees, readPolicy, report, taskHistory, transaction } from './pilot.repository.js';
+import { withTransaction } from '../../database/transaction.js';
+import { listAssignees, readPolicy, report, taskHistory } from './pilot.repository.js';
 import { importBatch, listTasks, updatePolicy } from './pilot.service.js';
 import { execute } from './pilot.commands.js';
 
@@ -51,7 +52,7 @@ router.get('/tasks/:id/history', async (req, res) => {
 
 router.post('/tasks/:id/actions', async (req, res) => {
   const input = await command.validateAsync(req.body);
-  const data = await transaction((db) => execute(db, req.params.id, req.user, input));
+  const data = await withTransaction((db) => execute(db, req.params.id, req.user, input));
   res.json({ data });
 });
 

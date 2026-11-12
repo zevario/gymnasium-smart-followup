@@ -1,4 +1,4 @@
-import { roles } from '../../../shared/api/pilotApi.js';
+import { roles } from '../../../shared/api/users.js';
 
 import { Button } from '../../../shared/components/Button.jsx';
 import { useT } from '../../../shared/i18n/useLanguage.js';

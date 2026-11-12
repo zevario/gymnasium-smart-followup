@@ -2,11 +2,12 @@ import pool from '../../database/pool.js';
 import authorization from '../../middleware/authorization.js';
 import { Router } from 'express';
 import userRoutes from '../users/user.routes.js';
+import { PILOT_LOCATION } from './pilot.constants.js';
 
 export function pilotScope(req, res, next) {
-  if (req.user?.pilot_location !== 'bintaro')
+  if (req.user?.pilot_location !== PILOT_LOCATION)
     return res.status(403).json({ message: 'Akun belum ditugaskan ke Gymnasyum Bintaro.' });
-  req.pilotLocation = 'bintaro';
+  req.pilotLocation = PILOT_LOCATION;
   next();
 }
 export const pilotUsers = Router();

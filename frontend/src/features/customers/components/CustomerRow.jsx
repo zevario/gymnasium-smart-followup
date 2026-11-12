@@ -1,3 +1,4 @@
+import { initialsOf } from '../../../shared/utils/text.js';
 import { useT } from '../../../shared/i18n/useLanguage.js';
 import { priorityLabel } from '../../followups/services/followupRules.js';
 import { Avatar } from '../../../shared/components/Avatar.jsx';
@@ -38,13 +39,7 @@ export function CustomerRow({ customer: c, onOpen }) {
           {c.owner === 'Belum ditugaskan' ? (
             <i className="empty-avatar">{t('?')}</i>
           ) : (
-            <Avatar
-              initials={c.owner
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((s) => s[0])
-                .join('')}
-            />
+            <Avatar initials={initialsOf(c.owner)} />
           )}
           {t(' ')}
           {t(c.owner)}

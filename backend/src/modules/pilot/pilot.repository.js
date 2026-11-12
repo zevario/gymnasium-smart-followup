@@ -1,23 +1,7 @@
 import pool from '../../database/pool.js';
+import { reject } from '../../utils/http-error.js';
 import { evaluate, schedule } from './pilot.policy.js';
 
-export function reject(message, statusCode = 409) {
-  throw Object.assign(new Error(message), { statusCode });
-}
-export async function transaction(work) {
-  const db = await pool.connect();
-  try {
-    await db.query('BEGIN');
-    const value = await work(db);
-    await db.query('COMMIT');
-    return value;
-  } catch (error) {
-    await db.query('ROLLBACK');
-    throw error;
-  } finally {
-    db.release();
-  }
-}
 export async function event(db, id, actor, action, note = '') {
   await db.query('INSERT INTO pilot_events(cycle_id,actor_id,action,note) VALUES ($1,$2,$3,$4)', [
     id,

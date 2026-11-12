@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
+
 const initialDemoAccounts = [
   {
     name: 'Alya Putri',
@@ -42,7 +44,7 @@ export const roleDescriptions = {
 
 export let demoAccounts = (() => {
   try {
-    const saved = JSON.parse(localStorage.getItem('gymnasyum-demo-accounts-v2') || 'null');
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.demoAccounts) || 'null');
     if (
       Array.isArray(saved) &&
       saved.length &&
@@ -67,7 +69,7 @@ export function authenticateDemo(email, password, onSuccess, setError) {
   const user = demoAccounts.find((user) => user.email === email.trim().toLowerCase());
   let disabled = [];
   try {
-    disabled = JSON.parse(localStorage.getItem('gymnasyum-disabled-accounts') || '[]');
+    disabled = JSON.parse(localStorage.getItem(STORAGE_KEYS.disabledAccounts) || '[]');
   } catch {
     /* Use the default demo state. */
   }

@@ -1,5 +1,6 @@
 import { evaluate } from './pilot.policy.js';
-import { attempts, event, reject, tasks } from './pilot.repository.js';
+import { reject } from '../../utils/http-error.js';
+import { attempts, event, tasks } from './pilot.repository.js';
 import { draftFor } from './pilot.drafts.js';
 
 export async function execute(db, id, user, input) {

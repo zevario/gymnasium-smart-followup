@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, displayUser } from '../../shared/api/pilotApi.js';
+import { api } from '../../shared/api/pilotApi.js';
+import { displayUser } from '../../shared/api/users.js';
+import { DESKTOP_MIN_WIDTH, isDesktopViewport } from '../../shared/utils/viewport.js';
 import { Header } from './AppHeader.jsx';
 import { Sidebar } from './Sidebar.jsx';
 import { Today } from '../../features/dashboard/pages/Dashboard.jsx';
@@ -24,7 +26,7 @@ export function PilotWorkspace({ identity, onLogout }) {
     [people, setPeople] = useState([]);
   const [selected, setSelected] = useState(null),
     [error, setError] = useState('');
-  const [nav, setNav] = useState(() => matchMedia('(min-width:769px)').matches);
+  const [nav, setNav] = useState(isDesktopViewport);
   const refresh = useCallback(async () => {
     const next = await api('/pilot/tasks');
     setRows(next);
@@ -53,7 +55,7 @@ export function PilotWorkspace({ identity, onLogout }) {
   function navigate(next) {
     setPage(next);
     setSelected(null);
-    if (innerWidth < 769) setNav(false);
+    if (innerWidth < DESKTOP_MIN_WIDTH) setNav(false);
   }
   const open = (row) => setSelected(row.id);
   return (

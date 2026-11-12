@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { demoAccounts } from '../services/demoAccounts.js';
+import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
 
 export function useDemoAccount() {
   const [account, setAccount] = useState(() => {
     try {
-      const saved = sessionStorage.getItem('gymnasyum-demo-login');
-      const disabled = JSON.parse(localStorage.getItem('gymnasyum-disabled-accounts') || '[]');
+      const saved = sessionStorage.getItem(STORAGE_KEYS.demoLogin);
+      const disabled = JSON.parse(localStorage.getItem(STORAGE_KEYS.disabledAccounts) || '[]');
       return (
         demoAccounts.find(
           (user) =>
@@ -20,8 +21,8 @@ export function useDemoAccount() {
   const setLoginSession = (user) => {
     setAccount(user);
     try {
-      if (user) sessionStorage.setItem('gymnasyum-demo-login', user.email);
-      else sessionStorage.removeItem('gymnasyum-demo-login');
+      if (user) sessionStorage.setItem(STORAGE_KEYS.demoLogin, user.email);
+      else sessionStorage.removeItem(STORAGE_KEYS.demoLogin);
     } catch {
       /* The demo remains usable when browser storage is unavailable. */
     }

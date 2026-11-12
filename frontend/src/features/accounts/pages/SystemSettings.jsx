@@ -13,13 +13,14 @@ import {
 } from '../../auth/services/demoAccounts.js';
 import { permissions } from '../../auth/services/access.js';
 import { PageIntro } from '../../../shared/components/PageIntro.jsx';
+import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
 
 export function SystemSettings() {
   const t = useT();
   const user = useContext(AccountContext);
   const [disabledAccounts, setDisabledAccounts] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('gymnasyum-disabled-accounts') || '[]');
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.disabledAccounts) || '[]');
     } catch {
       return [];
     }
@@ -29,7 +30,7 @@ export function SystemSettings() {
   const [message, setMessage] = useState('');
   const saveAccounts = (next) => {
     try {
-      localStorage.setItem('gymnasyum-demo-accounts-v2', JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEYS.demoAccounts, JSON.stringify(next));
       replaceDemoAccounts(next);
       setAccounts(next);
       setMessage('Data akun demo berhasil disimpan.');
@@ -47,7 +48,7 @@ export function SystemSettings() {
       ? disabledAccounts.filter((value) => value !== email)
       : [...disabledAccounts, email];
     try {
-      localStorage.setItem('gymnasyum-disabled-accounts', JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEYS.disabledAccounts, JSON.stringify(next));
       setDisabledAccounts(next);
       setMessage('Status akun berhasil diperbarui.');
     } catch {

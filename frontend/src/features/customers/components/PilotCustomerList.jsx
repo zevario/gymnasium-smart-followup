@@ -1,4 +1,4 @@
-import { dateTime } from '../../../shared/api/pilotApi.js';
+import { dateTime } from '../../../shared/utils/format.js';
 import { Button } from '../../../shared/components/Button.jsx';
 
 import { useT } from '../../../shared/i18n/useLanguage.js';

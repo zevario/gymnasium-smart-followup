@@ -1,3 +1,4 @@
+import { withTransaction } from '../../database/transaction.js';
 import {
   attempts,
   importRecord,
@@ -5,12 +6,11 @@ import {
   savePolicy,
   present,
   tasks,
-  transaction,
 } from './pilot.repository.js';
 import { reconcile } from './pilot.lifecycle.js';
 
 export async function listTasks() {
-  return transaction(async (db) => {
+  return withTransaction(async (db) => {
     await db.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const rows = await tasks(db);
     const byPerson = new Map();
@@ -30,7 +30,7 @@ export async function listTasks() {
 }
 
 export async function importBatch(records, actorId) {
-  return transaction(async (db) => {
+  return withTransaction(async (db) => {
     let updated = 0;
     // A consistent customer order keeps concurrent batches from locking people in opposite orders.
     for (const item of [...records].sort(
@@ -51,6 +51,6 @@ export async function importBatch(records, actorId) {
 }
 
 export async function updatePolicy(input, actorId) {
-  await transaction((db) => savePolicy(db, input, actorId));
+  await withTransaction((db) => savePolicy(db, input, actorId));
   return input;
 }

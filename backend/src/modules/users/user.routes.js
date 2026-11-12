@@ -3,6 +3,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import authentication from '../../middleware/authentication.js';
 import authorization from '../../middleware/authorization.js';
+import validate from '../../middleware/validate.js';
 import {
   getUsers,
   getUserById,
@@ -26,15 +27,6 @@ import {
 import response from '../../utils/response.js';
 
 const router = Router();
-
-const validate = (schema) => (req, res, next) => {
-  const { error, value } = schema.validate(req.body);
-
-  if (error) return next(error);
-
-  req.validated = value;
-  next();
-};
 
 const uploadProfilePhoto = multer({
   storage: multer.memoryStorage(),

@@ -1,0 +1,312 @@
+/* Size page layouts against their available space, including the desktop sidebar. */
+.content {
+  container: workspace / inline-size;
+}
+
+.page-intro > *,
+.card-head > div,
+.kpi > div,
+.form-grid > *,
+.account-create-form > *,
+.pilot-form > *,
+.pilot-form label,
+.pilot-account > div,
+.summary-grid > *,
+.security-field,
+.password-requirements,
+.customer-hero > div {
+  min-width: 0;
+}
+
+.content input,
+.content select,
+.drawer-content input,
+.drawer-content select,
+.modal-body input,
+.modal-body select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.card-head,
+.member-tools,
+.rec-facts,
+.report-filters,
+.tone-row,
+.draft-meta,
+.data-source,
+.modal-actions,
+.location-dialog-footer {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.member-tools .field {
+  flex: 1 1 220px;
+  max-width: 100%;
+}
+
+.toolbar select,
+.list-tools select,
+.report-filters select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.segmented {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.segmented button {
+  flex: 1 1 auto;
+}
+
+.btn {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.btn > svg,
+.info-banner > span,
+.blocked-banner > span,
+.attention-icon,
+.toast-icon {
+  flex-shrink: 0;
+}
+
+.pilot-account > div,
+.pilot-drawer blockquote,
+.summary-grid strong,
+.review-summary strong,
+.customer-hero h2,
+.system-connections dd {
+  overflow-wrap: anywhere;
+}
+
+.system-connections {
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+}
+
+.system-accounts > div > div {
+  min-width: 0;
+  flex-basis: 180px;
+}
+
+/* A month of daily values needs its own scrolling area, not narrower labels. */
+.chart-month {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 12px;
+  height: 196px;
+}
+
+.chart-month > div {
+  flex: 1 0 24px;
+}
+
+.legend {
+  flex-wrap: wrap;
+  padding-inline: 12px;
+}
+
+@container workspace (max-width: 1080px) {
+  .dashboard-grid,
+  .report-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .right-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
+  }
+
+  .attention {
+    grid-column: 1 / -1;
+  }
+
+  .account-create-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container workspace (max-width: 760px) {
+  .kpi-grid,
+  .report-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kpi {
+    flex-direction: column;
+  }
+
+  .toolbar,
+  .list-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .toolbar .field,
+  .toolbar .segmented,
+  .list-tools .field {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .settings-layout,
+  .account-security {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .settings-tabs button {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .account-security .password-requirements {
+    height: auto;
+  }
+}
+
+@container workspace (max-width: 560px) {
+  .right-column,
+  .form-grid,
+  .account-create-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .freshness {
+    white-space: normal;
+  }
+
+  .report-filters {
+    width: 100%;
+  }
+
+  .report-filters select {
+    flex: 1 1 140px;
+  }
+
+  .staff-table {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .staff-table .table-head,
+  .staff-row {
+    min-width: 460px;
+  }
+
+  .funnel > div {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 32px;
+  }
+
+  .system-panel {
+    padding: 20px;
+  }
+
+  .pilot-account > div {
+    flex-basis: 100%;
+  }
+}
+
+/* Dialogs live outside the workspace container and follow the viewport. */
+@media (max-width: 600px) {
+  .drawer-header {
+    flex-shrink: 0;
+    min-height: 64px;
+    height: auto;
+    padding-block: 12px;
+    gap: 10px;
+  }
+
+  .drawer-header > div,
+  .drawer-content,
+  .detail-section,
+  .composer-head > div {
+    min-width: 0;
+  }
+
+  .drawer-header > div {
+    flex-wrap: wrap;
+  }
+
+  .drawer-footer {
+    position: static;
+    height: auto;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .drawer-footer .btn {
+    flex: 1 1 80px;
+  }
+
+  .drawer-content {
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 24px;
+  }
+
+  .task-readonly {
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .detail-tabs {
+    overflow-x: auto;
+  }
+
+  .detail-tabs button {
+    flex-shrink: 0;
+  }
+
+  .eligibility span {
+    max-width: 100%;
+  }
+
+  .modal-header {
+    height: auto;
+    min-height: 60px;
+    padding-block: 14px;
+    gap: 12px;
+  }
+
+  .modal-header button {
+    flex-shrink: 0;
+  }
+
+  .modal-actions .btn {
+    flex: 1 1 100px;
+  }
+
+  .content input,
+  .content select,
+  .drawer-content input,
+  .drawer-content select,
+  .drawer-content textarea,
+  .modal-body input,
+  .modal-body select,
+  .modal-body textarea {
+    font-size: 16px;
+  }
+
+  .toolbar select,
+  .list-tools select,
+  .date-select,
+  .field,
+  .segmented button,
+  .drawer-footer .btn {
+    min-height: 44px;
+  }
+}

@@ -5,6 +5,8 @@ import App from './app/App.jsx';
 import { STORAGE_KEYS } from './shared/storage/keys.js';
 import './shared/styles/global.css';
 import './shared/styles/polish.css';
+import './shared/styles/responsive-shell.css';
+import './shared/styles/responsive-content.css';
 // Restore the selected appearance before the first render.
 try {
   document.documentElement.dataset.theme =

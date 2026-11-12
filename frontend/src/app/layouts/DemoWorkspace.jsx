@@ -19,6 +19,7 @@ export function DemoWorkspace({ account, setLoginSession, workspace }) {
     selected,
     setSelected,
     mobileNav,
+    drawerOpen,
     setMobileNav,
     toast,
     profilePhoto,
@@ -37,6 +38,7 @@ export function DemoWorkspace({ account, setLoginSession, workspace }) {
           page={activePage}
           navigate={navigate}
           open={mobileNav}
+          drawerOpen={drawerOpen}
           onToggle={() => setMobileNav((open) => !open)}
           count={todayQueue(customers).length}
           memberCount={customers.length}
@@ -54,8 +56,10 @@ export function DemoWorkspace({ account, setLoginSession, workspace }) {
             onClick={() => setMobileNav(false)}
           />
         )}
-        <main className="main">
+        <main className="main" inert={drawerOpen}>
           <Header
+            navOpen={mobileNav}
+            onToggleNav={() => setMobileNav((open) => !open)}
             page={activePage}
             photo={profilePhoto}
             customers={customers}

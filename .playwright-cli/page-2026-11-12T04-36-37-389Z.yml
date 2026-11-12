@@ -1,0 +1,84 @@
+- main [ref=e3]:
+    - region "GYMNASYUM" [ref=e4]:
+        - generic [ref=e5]:
+            - link "GYMNASYUM" [ref=e6] [cursor=pointer]:
+                - /url: https://gymnasyum.id
+            - paragraph [ref=e8]: Sehat dan kuat, dunia akhirat.
+        - generic [ref=e9]:
+            - article [ref=e10]:
+                - heading "Dasar yang kuat, progres yang nyata" [level=2] [ref=e11]:
+                    - generic [aria-hidden] [ref=e12]: D
+                    - text: Dasar yang kuat, progres yang nyata
+                - paragraph [ref=e13]: Pelajari teknik dasar latihan beban untuk membangun tubuh yang lebih sehat dan kuat.
+            - article [ref=e14]:
+                - heading "Didampingi coach profesional" [level=2] [ref=e15]:
+                    - generic [aria-hidden] [ref=e16]: D
+                    - text: Didampingi coach profesional
+                - paragraph [ref=e17]: Berlatih bersama coach profesional bersertifikat untuk membantu mencapai tujuan kebugaran Anda.
+            - article [ref=e18]:
+                - heading "Tumbuh bersama komunitas" [level=2] [ref=e19]:
+                    - generic [aria-hidden] [ref=e20]: T
+                    - text: Tumbuh bersama komunitas
+                - paragraph [ref=e21]: Tempat berlatih, bertumbuh, dan saling mendukung dalam perjalanan hidup yang lebih sehat.
+            - article [ref=e22]:
+                - heading "Latihan sesuai tujuan Anda" [level=2] [ref=e23]:
+                    - generic [aria-hidden] [ref=e24]: L
+                    - text: Latihan sesuai tujuan Anda
+                - paragraph [ref=e25]: Temukan pilihan kelas dan paket latihan yang sesuai dengan kebutuhan kebugaran Anda.
+            - article [ref=e26]:
+                - heading "Lebih mudah, lebih terencana" [level=2] [ref=e27]:
+                    - generic [aria-hidden] [ref=e28]: L
+                    - text: Lebih mudah, lebih terencana
+                - paragraph [ref=e29]: Jelajahi jadwal latihan, pilih kelas, dan mulai kebiasaan baik bersama Gymnasyum.
+        - generic [ref=e30]:
+            - navigation "Tautan Gymnasyum" [ref=e31]:
+                - link "Website" [ref=e32] [cursor=pointer]:
+                    - /url: https://gymnasyum.id
+                - link "Kelas" [ref=e35] [cursor=pointer]:
+                    - /url: https://gymnasyum.id/class
+                - link "Harga Paket" [ref=e38] [cursor=pointer]:
+                    - /url: https://gymnasyum.id/package
+                - link "Jadwal Latihan" [ref=e41] [cursor=pointer]:
+                    - /url: https://gymnasyum.id/timetable
+            - generic [ref=e44]:
+                - link "Ruko Kebayoran Square A12, Bintaro, Tangerang Selatan, 15227, Banten" [ref=e45] [cursor=pointer]:
+                    - /url: https://gymnasyum.id/location
+                - link "+62 812 8642 5888" [ref=e49] [cursor=pointer]:
+                    - /url: https://wa.me/6281286425888
+    - region "GYMNASYUM SMART FOLLOW-UP SYSTEM" [ref=e53]:
+        - generic [ref=e54]:
+            - generic [ref=e55]:
+                - combobox "Language / Bahasa" [ref=e57] [cursor=pointer]:
+                    - option "EN"
+                    - option "ID" [selected]
+                - button "Ubah tema" [ref=e58] [cursor=pointer]: ☾
+            - generic [ref=e59]:
+                - generic [ref=e60]:
+                    - img "Gymnasyum" [ref=e61]
+                    - heading "GYMNASYUM SMART FOLLOW-UP SYSTEM" [level=1] [ref=e62]:
+                        - text: GYMNASYUM
+                        - generic [ref=e63]: SMART FOLLOW-UP SYSTEM
+                - generic [ref=e64]:
+                    - generic [ref=e65]:
+                        - generic [ref=e66]: Email
+                        - textbox "Email" [ref=e67]:
+                            - /placeholder: nama@gymnasyum.id
+                    - generic [ref=e68]:
+                        - generic [ref=e69]: Kata sandi
+                        - generic [ref=e70]:
+                            - textbox "Kata sandi" [ref=e71]:
+                                - /placeholder: Masukkan kata sandi Anda
+                            - button "Lihat" [ref=e72] [cursor=pointer]
+                    - generic [ref=e73]:
+                        - generic [ref=e74]: Tidak bisa masuk?
+                        - link "Hubungi tim Gymnasyum" [ref=e75] [cursor=pointer]:
+                            - /url: https://wa.me/6281286425888
+                    - button "Masuk" [ref=e78] [cursor=pointer]
+            - generic [ref=e79]:
+                - link "Instagram Gymnasyum" [ref=e80] [cursor=pointer]:
+                    - /url: https://www.instagram.com/gymnasyum.id/
+                - link "WhatsApp Gymnasyum" [ref=e85] [cursor=pointer]:
+                    - /url: https://wa.me/6281286425888
+                - link "Website Gymnasyum" [ref=e88] [cursor=pointer]:
+                    - /url: https://gymnasyum.id
+            - paragraph [ref=e91]: © 2026 Gymnasyum · Grup DB15-G007

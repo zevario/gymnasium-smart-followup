@@ -1,16 +1,55 @@
 import { LocationDialog } from '../components/LocationDialog.jsx';
 import { LocationPin } from '../../shared/components/LocationPin.jsx';
 import { useT } from '../../shared/i18n/useLanguage.js';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Icon } from '../../shared/components/Icon.jsx';
 
 import { permissions } from '../../features/auth/services/access.js';
 import { mayOpenPage } from '../../features/auth/services/pageAccess.js';
 
-export function Sidebar({ page, navigate, open, count, memberCount, user, onLogout, onToggle }) {
+export function Sidebar({
+  page,
+  navigate,
+  open,
+  drawerOpen,
+  count,
+  memberCount,
+  user,
+  onLogout,
+  onToggle,
+}) {
   const t = useT();
   const [locationOpen, setLocationOpen] = useState(false);
   const locationTrigger = useRef(null);
+  const sidebarRef = useRef(null);
+  const closeRef = useRef(null);
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const trigger = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+    };
+  }, [drawerOpen]);
+
+  function containFocus(event) {
+    if (!drawerOpen || event.key !== 'Tab') return;
+    const controls = [
+      ...sidebarRef.current.querySelectorAll('button, [href], [tabindex="0"]'),
+    ].filter((element) => !element.disabled && element.getClientRects().length);
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  }
   const top = [
     ['Dashboard', 'dashboard'],
     ['Semua follow-up', 'list'],
@@ -20,7 +59,15 @@ export function Sidebar({ page, navigate, open, count, memberCount, user, onLogo
   ];
   return (
     <>
-      <aside id="app-sidebar" className={`sidebar ${open ? 'sidebar-open' : ''}`}>
+      <aside
+        id="app-sidebar"
+        ref={sidebarRef}
+        className={`sidebar ${open ? 'sidebar-open' : ''}`}
+        role={drawerOpen ? 'dialog' : undefined}
+        aria-modal={drawerOpen || undefined}
+        aria-label={t('Smart Follow-up')}
+        onKeyDown={containFocus}
+      >
         <div className="brand">
           <img
             className="brand-logo"
@@ -33,6 +80,15 @@ export function Sidebar({ page, navigate, open, count, memberCount, user, onLogo
             <strong>{t('gymnasyum')}</strong>
             <small>{t('MEMBER RELATIONS')}</small>
           </span>
+          <button
+            ref={closeRef}
+            type="button"
+            className="sidebar-close icon-button"
+            aria-label={t('Tutup navigasi')}
+            onClick={onToggle}
+          >
+            <Icon name="close" size={22} />
+          </button>
         </div>
         <button
           type="button"

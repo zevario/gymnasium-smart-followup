@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../shared/api/pilotApi.js';
 import { displayUser } from '../../shared/api/users.js';
-import { DESKTOP_MIN_WIDTH, isDesktopViewport } from '../../shared/utils/viewport.js';
+import { isMobileViewport } from '../../shared/utils/viewport.js';
+import { useSidebarNavigation } from '../hooks/useSidebarNavigation.js';
 import { Header } from './AppHeader.jsx';
 import { Sidebar } from './Sidebar.jsx';
 import { Today } from '../../features/dashboard/pages/Dashboard.jsx';
@@ -26,7 +27,7 @@ export function PilotWorkspace({ identity, onLogout }) {
     [people, setPeople] = useState([]);
   const [selected, setSelected] = useState(null),
     [error, setError] = useState('');
-  const [nav, setNav] = useState(isDesktopViewport);
+  const { open: nav, setOpen: setNav, drawerOpen } = useSidebarNavigation();
   const refresh = useCallback(async () => {
     const next = await api('/pilot/tasks');
     setRows(next);
@@ -55,7 +56,7 @@ export function PilotWorkspace({ identity, onLogout }) {
   function navigate(next) {
     setPage(next);
     setSelected(null);
-    if (innerWidth < DESKTOP_MIN_WIDTH) setNav(false);
+    if (isMobileViewport()) setNav(false);
   }
   const open = (row) => setSelected(row.id);
   return (
@@ -64,6 +65,7 @@ export function PilotWorkspace({ identity, onLogout }) {
         page={page}
         navigate={navigate}
         open={nav}
+        drawerOpen={drawerOpen}
         onToggle={() => setNav(!nav)}
         count={rows?.filter((r) => r.canPrepare).length || 0}
         memberCount={new Set(rows?.map((r) => r.personId)).size}
@@ -77,8 +79,10 @@ export function PilotWorkspace({ identity, onLogout }) {
           onClick={() => setNav(false)}
         />
       )}
-      <main className="main">
+      <main className="main" inert={drawerOpen}>
         <Header
+          navOpen={nav}
+          onToggleNav={() => setNav((open) => !open)}
           page={page}
           account={user}
           photo={defaultProfilePhoto}

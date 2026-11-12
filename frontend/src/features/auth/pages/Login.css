@@ -681,3 +681,29 @@
 .login-theme-toggle .theme-toggle {
   font-size: 22px;
 }
+
+.login-story,
+.login-panel,
+.login-panel-inner,
+.login-card,
+.login-card form,
+.login-page .form-group {
+  min-width: 0;
+}
+.login-demos button,
+.login-story-footer address a {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .login-page .form-group input {
+    font-size: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .login-panel {
+    padding-inline: 16px;
+  }
+  .login-card {
+    padding-inline: 20px;
+  }
+}

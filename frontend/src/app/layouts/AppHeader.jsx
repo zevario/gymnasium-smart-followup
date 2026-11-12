@@ -15,27 +15,41 @@ export function Header({
   onOpenNotification,
   onLogout,
   onProfile,
+  navOpen,
+  onToggleNav,
 }) {
   const t = useT();
   const { language } = useLanguage();
   return (
     <header className="header">
-      <div className="breadcrumb">
-        <span>{t('Smart Follow-up')}</span>
-        <Icon name="chevron" size={14} />
-        <strong>
-          {t(
-            language === 'en'
-              ? ({
-                  'Semua follow-up': 'All follow-ups',
-                  Pelanggan: 'Customers',
-                  Laporan: 'Reports',
-                  Pengaturan: 'Settings',
-                  Profil: 'Profile',
-                }[page] ?? page)
-              : page,
-          )}
-        </strong>
+      <div className="header-heading">
+        <button
+          type="button"
+          className="header-menu-toggle icon-button"
+          aria-label={t('Perluas sidebar')}
+          aria-expanded={navOpen}
+          aria-controls="app-sidebar"
+          onClick={onToggleNav}
+        >
+          <Icon name="menu" size={22} />
+        </button>
+        <div className="breadcrumb">
+          <span>{t('Smart Follow-up')}</span>
+          <Icon name="chevron" size={14} />
+          <strong>
+            {t(
+              language === 'en'
+                ? ({
+                    'Semua follow-up': 'All follow-ups',
+                    Pelanggan: 'Customers',
+                    Laporan: 'Reports',
+                    Pengaturan: 'Settings',
+                    Profil: 'Profile',
+                  }[page] ?? page)
+                : page,
+            )}
+          </strong>
+        </div>
       </div>
       <div className="header-right">
         <Badge tone="demo">

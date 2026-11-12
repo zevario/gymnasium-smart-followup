@@ -1,0 +1,239 @@
+/* Workspace sizing, loaded after visual styles. Keep 1024px in sync with viewport.js. */
+.app-shell {
+  --sidebar-width: 240px;
+  --header-height: 76px;
+}
+.app-shell .main {
+  margin-left: var(--sidebar-width);
+  min-width: 0;
+}
+.app-shell .sidebar {
+  width: var(--sidebar-width);
+  height: 100dvh;
+  padding: 24px 16px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.app-shell .brand {
+  flex-shrink: 0;
+  padding: 0;
+  gap: 10px;
+}
+.app-shell .brand > span {
+  min-width: 0;
+}
+.app-shell .brand strong {
+  font-size: 20px;
+  white-space: nowrap;
+}
+.app-shell .brand small {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+}
+.app-shell .sidebar-bottom {
+  padding-top: 24px;
+}
+.app-shell .header {
+  height: auto;
+  min-height: var(--header-height);
+  padding: 12px 28px;
+  gap: 24px;
+}
+.header-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+}
+.app-shell .breadcrumb {
+  min-width: 0;
+  gap: 10px;
+  line-height: 1.4;
+}
+.app-shell .breadcrumb > span,
+.app-shell .breadcrumb > svg {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.app-shell .breadcrumb strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+.app-shell .header-right {
+  flex: 0 0 auto;
+  gap: 12px;
+  margin-left: auto;
+}
+.app-shell .account-actions {
+  flex: 0 0 auto;
+  gap: 12px;
+}
+.app-shell .header-right > .badge {
+  display: inline-flex;
+  white-space: nowrap;
+}
+.app-shell .header .icon-button,
+.app-shell .header-profile-avatar {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+}
+.app-shell .header-preferences {
+  height: 44px;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: 0 4px;
+}
+.app-shell .app-language select {
+  width: 52px;
+  height: 40px;
+  font-size: 14px;
+}
+.app-shell .header-preferences .theme-toggle {
+  width: 40px;
+  height: 40px;
+}
+.app-shell .theme-divider {
+  margin: 0;
+  height: 28px;
+}
+.app-shell .header-menu-toggle,
+.app-shell .sidebar-close {
+  display: none;
+}
+.app-shell .sidebar-edge-toggle {
+  width: 36px;
+  height: 36px;
+  top: 20px;
+  left: calc(var(--sidebar-width) - 18px);
+}
+.app-shell .header-profile-dropdown {
+  max-height: calc(100dvh - var(--header-height) - 16px);
+  overflow-y: auto;
+}
+.app-shell .header-profile-identity {
+  overflow-wrap: anywhere;
+}
+.app-shell .notification-panel {
+  max-height: calc(100dvh - var(--header-height) - 16px);
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .app-shell.sidebar-hidden {
+    --sidebar-width: 76px;
+  }
+  .app-shell.sidebar-hidden .sidebar {
+    padding-inline: 12px;
+  }
+  .app-shell .nav-backdrop {
+    display: none;
+  }
+}
+
+@media (max-width: 1279px) {
+  .app-shell .breadcrumb > span,
+  .app-shell .breadcrumb > svg {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-shell {
+    --sidebar-width: 288px;
+    --header-height: 72px;
+  }
+  .app-shell .main {
+    margin-left: 0;
+  }
+  .app-shell .sidebar {
+    max-width: calc(100vw - 24px);
+    z-index: 50;
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+  .app-shell .sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  .app-shell .sidebar-edge-toggle {
+    display: none;
+  }
+  .app-shell .sidebar-close,
+  .app-shell .header-menu-toggle {
+    display: grid;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+  }
+  .app-shell .sidebar-close {
+    margin-left: auto;
+  }
+  .app-shell .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    border: 0;
+    background: rgb(10 18 12 / 50%);
+  }
+  .app-shell .header {
+    padding: 12px 20px;
+    gap: 16px;
+  }
+  .app-shell .content {
+    padding: 28px 24px 40px;
+  }
+  /* The header backdrop creates a containing block; anchor menus within its width. */
+  .app-shell .notification-panel {
+    position: fixed;
+    top: calc(100% + 8px);
+    right: 20px;
+    left: auto;
+    width: min(400px, calc(100vw - 40px));
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell {
+    --header-height: 120px;
+  }
+  .app-shell .header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px 16px;
+  }
+  .app-shell .header-right {
+    width: 100%;
+    gap: 8px;
+    margin-left: 0;
+  }
+  .app-shell .header-right > .badge {
+    margin-right: auto;
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+  .app-shell .account-actions {
+    gap: 8px;
+  }
+  .app-shell .theme-divider {
+    display: none;
+  }
+  .app-shell .breadcrumb strong {
+    font-size: 16px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .app-shell .content {
+    padding: 24px 16px 32px;
+  }
+  .app-shell .notification-panel {
+    inset: calc(100% + 8px) 12px auto;
+    width: auto;
+  }
+}

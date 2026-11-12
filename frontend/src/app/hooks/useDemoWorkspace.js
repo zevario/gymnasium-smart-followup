@@ -6,17 +6,14 @@ import { mayOpenPage } from '../../features/auth/services/pageAccess.js';
 import { canContact } from '../../features/followups/services/followupRules.js';
 import { isProfilePhoto, defaultProfilePhoto } from '../../features/profile/utils/profilePhoto.js';
 import { profilePhotoStorageKey } from '../../shared/storage/keys.js';
-import {
-  DESKTOP_MEDIA_QUERY,
-  isDesktopViewport,
-  isMobileViewport,
-} from '../../shared/utils/viewport.js';
+import { isMobileViewport } from '../../shared/utils/viewport.js';
+import { useSidebarNavigation } from './useSidebarNavigation.js';
 
 export function useDemoWorkspace(account) {
   const [page, setPage] = useState('Dashboard');
   const [customers, setCustomers] = useState(initialCustomers);
   const [selected, setSelected] = useState(null);
-  const [mobileNav, setMobileNav] = useState(isDesktopViewport);
+  const { open: mobileNav, setOpen: setMobileNav, drawerOpen } = useSidebarNavigation();
   const [toast, setToast] = useState('');
   const [profilePhotos, setProfilePhotos] = useState(() => {
     const photos = {};
@@ -43,16 +40,9 @@ export function useDemoWorkspace(account) {
   const access = permissions(account);
   const activePage = mayOpenPage(account, page) ? page : access.system ? 'Pengaturan' : 'Dashboard';
   useEffect(() => {
-    const desktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
-    const syncSidebar = () => setMobileNav(desktop.matches);
-    desktop.addEventListener('change', syncSidebar);
-    return () => desktop.removeEventListener('change', syncSidebar);
-  }, []);
-  useEffect(() => {
     const escape = (e) => {
       if (e.key === 'Escape') {
         setSelected(null);
-        setMobileNav(false);
       }
     };
     window.addEventListener('keydown', escape);
@@ -97,6 +87,7 @@ export function useDemoWorkspace(account) {
     selected,
     setSelected,
     mobileNav,
+    drawerOpen,
     setMobileNav,
     toast,
     profilePhoto,

@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { fileURLToPath } from 'node:url';
 import auth from './modules/authentication/authentication.routes.js';
 import authentication from './middleware/authentication.js';
+import { PILOT_LOCATION } from './modules/pilot/pilot.constants.js';
 import { pilotScope, pilotUsers } from './modules/pilot/pilot.scope.js';
 import pilot from './modules/pilot/pilot.routes.js';
 import pool from './database/pool.js';
@@ -31,7 +32,7 @@ app.use('/api', apiLimiter);
 app.use(express.json({ limit: '1mb' }));
 app.get('/api/health', async (_req, res) => {
   await pool.query('SELECT 1 FROM pilot_cycles LIMIT 1');
-  res.json({ data: { status: 'ok', location: 'bintaro', channel: 'manual' } });
+  res.json({ data: { status: 'ok', location: PILOT_LOCATION, channel: 'manual' } });
 });
 app.use('/api/auth', auth);
 app.get('/api/session', authentication, pilotScope, (req, res) =>

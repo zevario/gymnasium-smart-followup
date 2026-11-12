@@ -1,3 +1,4 @@
+import { initialsOf } from '../../../shared/utils/text.js';
 import { useT } from '../../../shared/i18n/useLanguage.js';
 
 import { accountRoles } from '../../auth/services/demoAccounts.js';
@@ -28,12 +29,7 @@ export function DemoAccountForm({ draft, setMessage, accounts, saveAccounts, set
               name,
               email,
               role: draft.role,
-              initials: name
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((part) => part[0])
-                .join('')
-                .toUpperCase(),
+              initials: initialsOf(name).toUpperCase(),
             },
           ])
         )

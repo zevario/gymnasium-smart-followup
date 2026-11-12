@@ -93,21 +93,25 @@ const uploadOwnProfilePhoto = async (req, res, next) => {
   }
 };
 
+// Streams a stored photo row as binary; both the own-profile and admin routes share it.
+const sendProfilePhoto = (res, photo) => {
+  if (!photo) return response.error(res, 'User not found', 404);
+  if (!photo.profile_photo) {
+    return response.error(res, 'Profile photo not found', 404);
+  }
+
+  res.set({
+    'Content-Type': photo.profile_photo_mime_type,
+    'Content-Length': photo.profile_photo.length,
+    'Cache-Control': 'private, no-store',
+    'X-Content-Type-Options': 'nosniff',
+  });
+  return res.status(200).send(photo.profile_photo);
+};
+
 const getOwnProfilePhoto = async (req, res, next) => {
   try {
-    const photo = await UserRepositories.getOwnProfilePhoto(req.user.id);
-    if (!photo) return response.error(res, 'User not found', 404);
-    if (!photo.profile_photo) {
-      return response.error(res, 'Profile photo not found', 404);
-    }
-
-    res.set({
-      'Content-Type': photo.profile_photo_mime_type,
-      'Content-Length': photo.profile_photo.length,
-      'Cache-Control': 'private, no-store',
-      'X-Content-Type-Options': 'nosniff',
-    });
-    return res.status(200).send(photo.profile_photo);
+    return sendProfilePhoto(res, await UserRepositories.getOwnProfilePhoto(req.user.id));
   } catch (error) {
     return next(error);
   }
@@ -115,19 +119,7 @@ const getOwnProfilePhoto = async (req, res, next) => {
 
 const getUserProfilePhoto = async (req, res, next) => {
   try {
-    const photo = await UserRepositories.getProfilePhoto(req.params.id);
-    if (!photo) return response.error(res, 'User not found', 404);
-    if (!photo.profile_photo) {
-      return response.error(res, 'Profile photo not found', 404);
-    }
-
-    res.set({
-      'Content-Type': photo.profile_photo_mime_type,
-      'Content-Length': photo.profile_photo.length,
-      'Cache-Control': 'private, no-store',
-      'X-Content-Type-Options': 'nosniff',
-    });
-    return res.status(200).send(photo.profile_photo);
+    return sendProfilePhoto(res, await UserRepositories.getProfilePhoto(req.params.id));
   } catch (error) {
     return next(error);
   }

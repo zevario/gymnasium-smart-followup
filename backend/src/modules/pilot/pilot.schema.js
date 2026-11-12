@@ -1,9 +1,10 @@
 import Joi from 'joi';
+import { PILOT_LOCATION } from './pilot.constants.js';
 
 const key = Joi.string().trim().min(1).max(100);
 const instant = Joi.string().isoDate().required();
 const record = Joi.object({
-  location: Joi.string().valid('bintaro').required(),
+  location: Joi.string().valid(PILOT_LOCATION).required(),
   customerId: key.required(),
   name: Joi.string().trim().min(2).max(100).required(),
   phone: Joi.string()

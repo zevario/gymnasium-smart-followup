@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import authentication from '../../middleware/authentication.js';
 import authorization from '../../middleware/authorization.js';
+import validate from '../../middleware/validate.js';
 
 import {
   getCustomers,
@@ -19,22 +20,6 @@ import {
 } from './customer.schema.js';
 
 const router = Router();
-
-const validate =
-  (schema, source = 'body') =>
-  (req, res, next) => {
-    const { error, value } = schema.validate(req[source]);
-
-    if (error) {
-      return res.status(400).json({
-        status: 'error',
-        message: error.details[0].message,
-      });
-    }
-
-    req.validated = value;
-    next();
-  };
 
 const validateId = validate(customerIdSchema, 'params');
 

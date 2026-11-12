@@ -1,6 +1,8 @@
+import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
+
 export function followupDelay() {
   try {
-    const days = Number(localStorage.getItem('gymnasyum-followup-days'));
+    const days = Number(localStorage.getItem(STORAGE_KEYS.followupDays));
     return days >= 3 && days <= 7 ? days : 3;
   } catch {
     return 3;

@@ -1,6 +1,7 @@
 import { FollowUpCycleRules } from './FollowUpCycleRules.jsx';
 import { ContactTimingFields } from './ContactTimingFields.jsx';
 import { useT } from '../../../shared/i18n/useLanguage.js';
+import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
 
 import { Button } from '../../../shared/components/Button.jsx';
 
@@ -20,7 +21,7 @@ export function ContactRulesPanel({ delay, setDelay, readOnly, notify }) {
           onClick={() => {
             if (!readOnly) {
               try {
-                localStorage.setItem('gymnasyum-followup-days', String(delay));
+                localStorage.setItem(STORAGE_KEYS.followupDays, String(delay));
                 notify('Pengaturan demo berhasil disimpan');
               } catch {
                 notify('Pengaturan gagal disimpan di browser');

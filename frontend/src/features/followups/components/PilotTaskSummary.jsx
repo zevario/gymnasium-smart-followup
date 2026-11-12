@@ -2,7 +2,7 @@ import { useT } from '../../../shared/i18n/useLanguage.js';
 
 import { Avatar } from '../../../shared/components/Avatar.jsx';
 
-import { dateTime } from '../../../shared/api/pilotApi.js';
+import { dateTime } from '../../../shared/utils/format.js';
 
 export function PilotTaskSummary({ task }) {
   const t = useT();

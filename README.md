@@ -10,13 +10,31 @@ Gunakan Node.js 24 dan PostgreSQL dengan database khusus aplikasi. Pada instalas
 npm ci
 npm ci --prefix backend
 npm ci --prefix frontend
-npm --prefix backend run migrate:up
+npm run db:migrate
 npm --prefix backend run seed:admin
-npm --prefix frontend run build
-npm --prefix backend run pilot
+npm start
 ```
 
-Buka [aplikasi lokal](http://127.0.0.1:3001). Server yang sama menyajikan halaman dan API. Saat mengedit React, jalankan juga `npm --prefix frontend run dev` dan buka URL dari Vite. Permintaan `/api` diteruskan ke port 3001. Jika port API berubah, atur `PILOT_PORT` di backend dan `PILOT_API_URL` saat menjalankan Vite. Perintah `start` lama di backend tetap menjalankan API aplikasi terdahulu.
+Buka [portal staf](http://127.0.0.1:3001) atau [portal customer](http://127.0.0.1:3001/customer). Setelah pengaturan pertama, jalankan PostgreSQL lalu gunakan `npm start` dari akar proyek untuk membangun frontend dan menjalankan server aplikasi. Customer dapat mendaftar dan mengajukan layanan. Petugas dapat menjawab melalui **Pelanggan → Permintaan customer**. Status dan jawaban tersimpan di PostgreSQL dan dapat dilihat melalui **Layanan & bantuan → Riwayat permintaan**. Server yang sama menyajikan halaman dan API. Saat mengedit React, jalankan juga `npm --prefix frontend run dev` dan buka URL dari Vite. Permintaan `/api` diteruskan ke port 3001. Jika port API berubah, atur `PILOT_PORT` di backend dan `PILOT_API_URL` saat menjalankan Vite. Perintah `start` lama di backend tetap menjalankan API aplikasi terdahulu.
+
+## Aktivasi email dan pemulihan akun
+
+Setelah registrasi, Customer membuka tautan di email dan memilih **Konfirmasi email** sebelum masuk. Tautan aktivasi berlaku 24 jam. Jika email terlewat, gunakan **Kirim ulang email aktivasi**. Akun Customer yang sudah ada sebelum migrasi tetap bisa masuk. Akun Employee dibuat oleh administrator.
+
+**Lupa password** tersedia pada kedua tab login. Pilih jenis akun yang sesuai dan masukkan email terdaftar. Tautan berlaku 30 menit dan hanya dapat digunakan sekali. Setelah password disimpan, semua sesi lama akun tersebut berakhir.
+
+Untuk memakai Gmail sebagai pengirim, klik dua kali **Hubungkan Gmail.command** di folder proyek pada Mac. Alamat pengirim otomatis memakai `aripibrahim001@gmail.com`. Masukkan alamat HTTPS aplikasi dan sandi aplikasi Google untuk akun tersebut. Pengaturan disimpan setelah koneksi SMTP berhasil diverifikasi. Server yang sedang berjalan memuat pengaturan email secara otomatis.
+
+Pengaturan pengiriman tersimpan di `backend/.env`.
+
+| Pengaturan               | Nilai                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `APP_PUBLIC_URL`         | Alamat aplikasi yang dapat dibuka penerima. Gunakan HTTPS untuk produksi.     |
+| `MAIL_FROM`              | Alamat pengirim yang sudah disetujui penyedia SMTP.                           |
+| `SMTP_HOST`, `SMTP_PORT` | Server penyedia. Gunakan port 587 untuk STARTTLS atau 465 untuk TLS langsung. |
+| `SMTP_USER`, `SMTP_PASS` | Kredensial SMTP dari penyedia.                                                |
+
+Untuk pengujian di komputer sendiri, contoh konfigurasi menggunakan **Mailpit**. Jalankan `mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025` bersamaan dengan aplikasi, lalu buka [kotak masuk lokal](http://127.0.0.1:8025). Alamat itu menangkap seluruh email uji di komputer. Pakai SMTP penyedia untuk mengirim ke kotak masuk pribadi. Permintaan pengiriman disimpan di PostgreSQL. Server mencoba ulang jika SMTP sementara gagal, hingga 24 jam sejak permintaan.
 
 ## Alur pertama
 

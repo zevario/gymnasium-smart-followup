@@ -2,9 +2,12 @@ import 'dotenv/config';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { spawn, execFileSync } from 'node:child_process';
+import { spawn, execFile, execFileSync } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { promisify } from 'node:util';
+import { SMTPServer } from 'smtp-server';
+import { setTimeout as delay } from 'node:timers/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import pg from 'pg';
@@ -51,6 +54,57 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   if (now > Date.now()) now -= 86400000;
   const temp = await mkdtemp(path.join(tmpdir(), 'gym-pilot-test-'));
   t.after(() => rm(temp, { recursive: true, force: true }));
+  const mailInbox = [];
+  const smtp = new SMTPServer({
+    authOptional: true,
+    disabledCommands: ['AUTH', 'STARTTLS'],
+    logger: false,
+    onData(stream, session, callback) {
+      const chunks = [];
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('error', callback);
+      stream.on('end', async () => {
+        try {
+          const message = {
+            email: session.envelope.rcptTo[0].address,
+            text: Buffer.concat(chunks)
+              .toString('utf8')
+              .replace(/=\r?\n/g, '')
+              .replace(/=3D/gi, '='),
+          };
+          mailInbox.push(message);
+          if (process.env.PILOT_BROWSER_CHECK)
+            await writeFile(path.join(temp, 'inbox.json'), JSON.stringify(mailInbox));
+          callback();
+        } catch (error) {
+          callback(error);
+        }
+      });
+    },
+  });
+  await new Promise((resolve) => smtp.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve) => smtp.close(resolve)));
+  Object.assign(env, {
+    NODE_ENV: 'test',
+    SMTP_HOST: '127.0.0.1',
+    SMTP_PORT: String(smtp.server.address().port),
+    SMTP_USER: '',
+    SMTP_PASS: '',
+    MAIL_FROM: 'noreply@gym.test',
+    APP_PUBLIC_URL: 'http://gym.test',
+  });
+  async function emailedToken(email, route, after = 0) {
+    for (let i = 0; i < 100; i++) {
+      const mail = mailInbox.slice(after).find((m) => m.email === email && m.text.includes(route));
+      if (mail) {
+        const value = mail.text.match(/#([a-f0-9]{64})/);
+        assert.ok(value, 'email includes a complete link token');
+        return value[1];
+      }
+      await delay(100);
+    }
+    assert.fail('Expected local SMTP delivery for ' + route);
+  }
   const clock = path.join(temp, 'clock.mjs');
   await writeFile(clock, 'Date.now=()=>' + now + ';');
   const child = spawn(process.execPath, ['--import', clock, 'src/pilot-server.js'], {
@@ -101,6 +155,236 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   assert.equal(
     (await call('/session', createdLogin.data.accessToken)).data.user.pilot_location,
     'bintaro',
+  );
+  const memberEmail = 'portal@example.com';
+  const memberCredentials = { email: memberEmail, password };
+  assert.equal(
+    (
+      await call('/members/register', null, {
+        ...memberCredentials,
+        name: 'Portal Member',
+        phone: '+6281234567801',
+        contact: true,
+      })
+    ).data,
+    true,
+  );
+  const pending = await call('/members/login', null, memberCredentials);
+  assert.equal(pending.code, 'EMAIL_ACTIVATION_REQUIRED');
+  assert.equal(pending.data, undefined);
+  const firstLink = await emailedToken(memberEmail, '/activate-email');
+  await db.query(
+    "UPDATE account_email_links SET expires_at=now()-interval '1 minute',requested_at=now()-interval '2 minutes' WHERE email=$1",
+    [memberEmail],
+  );
+  assert.equal((await call('/auth/activate-email', null, { token: firstLink })).status, 410);
+  const beforeResend = mailInbox.length;
+  assert.equal((await call('/auth/resend-activation', null, { email: memberEmail })).status, 202);
+  const activation = await emailedToken(memberEmail, '/activate-email', beforeResend);
+  assert.notEqual(activation, firstLink);
+  const confirmations = await Promise.all(
+    [1, 2].map(() => call('/auth/activate-email', null, { token: activation })),
+  );
+  assert.deepEqual(confirmations.map((r) => r.status).sort(), [200, 410]);
+  const memberToken = (await call('/members/login', null, memberCredentials)).data.token;
+  assert.equal((await call('/members/me', memberToken)).data.email, memberEmail);
+  assert.equal(
+    (await call('/members/requests', memberToken, { kind: 'package', note: 'Paket satu bulan' }))
+      .data,
+    true,
+  );
+  const inbox = (await call('/member-requests', tokens.staff)).data;
+  const memberRequest = inbox.find((item) => item.note === 'Paket satu bulan');
+  assert.ok(memberRequest);
+  assert.equal(
+    (
+      await call('/member-requests/' + memberRequest.id, tokens.staff, {
+        state: 'confirmed',
+        response: 'Paket telah aktif',
+        package: 'Bulanan',
+        date: new Date(now + 30 * 86400000).toISOString().slice(0, 10),
+      })
+    ).data,
+    true,
+  );
+  const portal = (await call('/members/me', memberToken)).data;
+  assert.equal(portal.cycles[0].package, 'Bulanan');
+  assert.equal(portal.requests[0].state, 'confirmed');
+  const booking = {
+    kind: 'booking',
+    note: 'Latihan pagi',
+    starts_at: new Date(Date.now() + 86400000).toISOString(),
+    ends_at: new Date(Date.now() + 90000000).toISOString(),
+  };
+  assert.equal((await call('/members/requests', memberToken, booking)).data, true);
+  const booked = (await call('/members/me', memberToken)).data.requests.find(
+    (r) => r.kind === 'booking',
+  );
+  assert.equal(
+    (
+      await call('/member-requests/' + booked.id, tokens.staff, {
+        state: 'confirmed',
+        response: 'Reservasi tersedia',
+        amount: 25000,
+      })
+    ).data,
+    true,
+  );
+  assert.equal(
+    (await call('/member-requests/' + booked.id + '/paid', tokens.staff, {})).data,
+    true,
+  );
+  assert.ok(
+    (await call('/members/me', memberToken)).data.requests.find((r) => r.id === booked.id).paid_at,
+  );
+  assert.equal(
+    (await call('/members/settings', memberToken, { promoEmail: true, method: 'Tunai' }, 'PATCH'))
+      .data,
+    true,
+  );
+  assert.equal((await call('/members/acknowledge', memberToken, {})).data, true);
+  assert.equal((await call('/members/me', memberToken)).data.settings.promoEmail, true);
+  // Customer profile changes are atomic and never grant staff access.
+  assert.equal((await call('/member-requests', memberToken)).status, 'error');
+  const updatedProfile = {
+    name: 'Portal Updated',
+    phone: '+6281234567888',
+    contact: false,
+    settings: { birth: '2000-01-01', gender: '', country: 'Indonesia', address: 'Bintaro' },
+  };
+  assert.equal((await call('/members/me', memberToken, updatedProfile, 'PUT')).data, true);
+  let memberState = (await call('/members/me', memberToken)).data;
+  assert.equal(memberState.contact, false);
+  assert.equal(memberState.settings.country, 'Indonesia');
+  assert.equal(
+    (
+      await call(
+        '/members/me',
+        memberToken,
+        { ...updatedProfile, name: 'Should rollback', settings: { birth: '2999-01-01' } },
+        'PUT',
+      )
+    ).status,
+    400,
+  );
+  assert.equal((await call('/members/me', memberToken)).data.name, 'Portal Updated');
+  assert.equal(
+    (await call('/members/settings', memberToken, { photo: 'javascript:alert(1)' }, 'PATCH'))
+      .status,
+    400,
+  );
+  assert.equal(
+    (await call('/members/settings', memberToken, { photo: '/images/avatar-blue.svg' }, 'PATCH'))
+      .data,
+    true,
+  );
+  assert.equal(
+    (await call('/members/me', memberToken)).data.settings.photo,
+    '/images/avatar-blue.svg',
+  );
+  assert.equal(
+    (await call('/members/requests', memberToken, { kind: 'help', note: 'Cancel me' })).data,
+    true,
+  );
+  memberState = (await call('/members/me', memberToken)).data;
+  const cancellable = memberState.requests.find((r) => r.note === 'Cancel me');
+  assert.equal(
+    (await call('/members/requests/' + cancellable.id + '/cancel', memberToken, {})).data,
+    true,
+  );
+  assert.equal(
+    (
+      await call('/member-requests/' + cancellable.id, tokens.staff, {
+        state: 'confirmed',
+        response: 'Too late',
+      })
+    ).status,
+    409,
+  );
+  assert.equal((await call('/members/requests/invalid/cancel', memberToken, {})).status, 400);
+  const secondMember = (await call('/members/login', null, memberCredentials)).data.token;
+  assert.equal(
+    (
+      await call(
+        '/members/credentials',
+        memberToken,
+        { current: password, email: memberEmail, password: 'UpdatedMemberPassword123!' },
+        'PUT',
+      )
+    ).data,
+    true,
+  );
+  assert.equal((await call('/members/me', secondMember)).status, 401);
+  assert.equal((await call('/members/login', null, memberCredentials)).status, 401);
+  assert.ok(
+    (
+      await call('/members/login', null, {
+        email: memberEmail,
+        password: 'UpdatedMemberPassword123!',
+      })
+    ).data.token,
+  );
+  assert.equal((await call('/members/logout', memberToken, {})).data, true);
+  assert.equal((await call('/members/me', memberToken)).status, 401);
+  // Both roles recover independently, even when their registered address is identical.
+  await db.query('UPDATE users SET email=$1 WHERE email=$2', [memberEmail, 'new@example.com']);
+  const activeMember = (
+    await call('/members/login', null, {
+      email: memberEmail,
+      password: 'UpdatedMemberPassword123!',
+    })
+  ).data.token;
+  const resetPassword = 'RecoveredCustomer123!';
+  const recovery = (account, email = memberEmail) =>
+    call('/auth/forgot-password', null, { email, account });
+  assert.deepEqual(await recovery('employee', 'missing@example.com'), await recovery('employee'));
+  const employeeReset = await emailedToken(memberEmail, 'account=employee');
+  assert.equal(
+    (
+      await call('/auth/reset-password', null, {
+        account: 'customer',
+        token: employeeReset,
+        password: resetPassword,
+      })
+    ).status,
+    410,
+  );
+  assert.equal(
+    (
+      await call('/auth/reset-password', null, {
+        account: 'employee',
+        token: employeeReset,
+        password: 'aaaaaaaaaa',
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await call('/auth/reset-password', null, {
+        account: 'employee',
+        token: employeeReset,
+        password: 'RecoveredEmployee123!',
+      })
+    ).status,
+    200,
+  );
+  assert.equal((await call('/session', createdLogin.data.accessToken)).status, 'error');
+  assert.equal(
+    (await call('/auth/login', null, { email: memberEmail, password: 'RecoveredEmployee123!' }))
+      .status,
+    'success',
+  );
+  assert.equal((await call('/members/me', activeMember)).status, 200);
+  assert.equal((await recovery('customer')).status, 202);
+  const memberReset = await emailedToken(memberEmail, '/reset-password?account=customer');
+  const change = { account: 'customer', token: memberReset, password: resetPassword };
+  assert.equal((await call('/auth/reset-password', null, change)).status, 200);
+  assert.equal((await call('/auth/reset-password', null, change)).status, 410);
+  assert.equal((await call('/members/me', activeMember)).status, 401);
+  assert.ok(
+    (await call('/members/login', null, { email: memberEmail, password: resetPassword })).data
+      .token,
   );
   const record = {
     location: 'bintaro',
@@ -340,9 +624,10 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
 
   // Optional local browser smoke command, using only this isolated fixture.
   if (process.env.PILOT_BROWSER_CHECK)
-    execFileSync(process.execPath, [process.env.PILOT_BROWSER_CHECK], {
+    await promisify(execFile)(process.execPath, [process.env.PILOT_BROWSER_CHECK], {
       env: {
         ...env,
+        PILOT_TEST_INBOX: path.join(temp, 'inbox.json'),
         PILOT_TEST_NOW: String(now),
         PILOT_TEST_URL: base,
         PILOT_TEST_PASSWORD: password,
@@ -351,14 +636,11 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
       timeout: 40000,
     });
   for (let attempt = 0; attempt < 10; attempt++) {
-    assert.equal(
-      (
-        await secureCall('/auth/login', {
-          body: { email: 'unknown@example.com', password: 'incorrect' },
-        })
-      ).code,
-      401,
-    );
+    const attemptResult = await secureCall('/auth/login', {
+      body: { email: 'unknown@example.com', password: 'incorrect' },
+    });
+    if (attemptResult.code === 429) break;
+    assert.equal(attemptResult.code, 401);
   }
   assert.equal(
     (

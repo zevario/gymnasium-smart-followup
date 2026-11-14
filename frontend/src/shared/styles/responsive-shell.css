@@ -108,7 +108,7 @@
 .app-shell .sidebar-edge-toggle {
   width: 36px;
   height: 36px;
-  top: 20px;
+  top: calc(var(--header-height) - 18px);
   left: calc(var(--sidebar-width) - 18px);
 }
 .app-shell .header-profile-dropdown {

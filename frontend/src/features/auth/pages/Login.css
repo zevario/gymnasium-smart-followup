@@ -307,18 +307,16 @@
   margin-bottom: 24px;
 }
 .login-page .form-group label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
+  line-height: 1.5;
 }
 .login-page .form-group input {
   width: 100%;
-  height: 45px;
-  padding: 0 0 8px;
-  border: 0;
-  border-bottom: 1px solid var(--login-border);
-  border-radius: 0;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--login-border);
+  border-radius: 8px;
   outline: none;
   background: transparent;
   color: var(--login-text);
@@ -327,7 +325,7 @@
 }
 .login-page .form-group input:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 1px 0 var(--accent-color);
+  box-shadow: 0 0 0 3px var(--bg-hover);
 }
 .login-page .form-group input::placeholder {
   color: var(--login-secondary);
@@ -341,8 +339,8 @@
 }
 .login-page .toggle-password {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 6px;
+  top: 3px;
   min-height: 40px;
   border: 0;
   background: transparent;
@@ -370,19 +368,17 @@
 }
 .login-button {
   display: block;
-  width: 170px;
+  width: 100%;
   max-width: 100%;
   height: 44px;
-  margin: 0 auto;
+  margin: 0;
   border: 0;
-  border-radius: 3px;
+  border-radius: 8px;
   background: var(--accent-color);
   color: var(--accent-text);
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: filter 0.2s;
 }
@@ -585,17 +581,17 @@
   }
 
   .login-card {
-    padding: clamp(24px, 4.5vh, 44px) clamp(22px, 2vw, 34px);
+    padding: 28px;
   }
 
   .login-welcome {
-    margin-bottom: clamp(24px, 4.5vh, 44px);
+    margin-bottom: 28px;
   }
 }
 
 .login-card form {
   display: grid;
-  row-gap: clamp(16px, 2.5vh, 24px);
+  row-gap: 18px;
 }
 
 .login-card .form-group {
@@ -706,4 +702,144 @@
   .login-card {
     padding-inline: 20px;
   }
+}
+
+.login-customer-access {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--login-border);
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.login-customer-access a {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+.login-customer-access a:hover {
+  text-decoration: underline;
+}
+.login-page.dark-mode .login-customer-access a {
+  color: #c2df9d;
+}
+.login-card .login-help {
+  font-size: 12px;
+}
+.login-card .login-logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+.login-card .login-welcome {
+  margin-bottom: 28px;
+}
+.login-demos {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Rounded sign-in fields and actions matching the supplied reference. */
+.login-page .form-group label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.login-page .form-group input {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: #f4f4f6;
+  font-size: 14px;
+}
+.login-page.dark-mode .form-group input {
+  background: #28352c;
+}
+.login-page .form-group input::placeholder {
+  color: #777782;
+  opacity: 1;
+}
+.login-page.dark-mode .form-group input::placeholder {
+  color: var(--login-secondary);
+}
+.login-page .password-wrapper input {
+  padding-right: 48px;
+}
+.login-page .toggle-password {
+  display: grid;
+  place-items: center;
+  right: 6px;
+  top: 4px;
+  width: 40px;
+  height: 40px;
+  min-height: 0;
+  padding: 0;
+  color: #92929d;
+}
+.login-card .login-help {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  margin-top: -8px;
+}
+.login-card .login-help a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.login-card .login-help a:hover {
+  text-decoration: underline;
+}
+.login-card .login-button {
+  background: var(--accent-color);
+  border-radius: 12px;
+  font-size: 16px;
+  height: 48px;
+}
+.login-customer-access {
+  border: 0;
+  margin-top: 20px;
+  padding-top: 0;
+  font-size: 14px;
+  color: var(--login-secondary);
+}
+.login-customer-access a {
+  color: var(--accent-color);
+}
+.login-page.dark-mode .login-customer-access a,
+.login-page.dark-mode .login-help a {
+  color: #c2df9d;
+}
+@media (max-width: 600px) {
+  .login-page .form-group input {
+    font-size: 16px;
+  }
+}
+
+.login-account-types {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: var(--bg-hover);
+}
+.login-account-types button {
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--login-secondary);
+  background: transparent;
+}
+.login-account-types button[aria-pressed='true'] {
+  background: var(--accent-color);
+  color: var(--accent-text);
+  font-weight: 600;
 }

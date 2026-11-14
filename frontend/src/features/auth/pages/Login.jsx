@@ -1,3 +1,4 @@
+import { loginMember } from '../../customers/services/memberApi.js';
 import { LoginForm } from '../components/LoginForm.jsx';
 
 import { LoginPreferences } from '../components/LoginPreferences.jsx';
@@ -9,8 +10,9 @@ import { english } from '../data/loginContent.js';
 import { useLanguage } from '../../../shared/i18n/useLanguage.js';
 import { useState } from 'react';
 import './Login.css';
-function Login({ accounts, demoPassword, authenticate }) {
+function Login({ accounts, demoPassword, authenticate, initialLoginType = 'employee' }) {
   const { language, setLanguage } = useLanguage();
+  const [loginType, setLoginType] = useState(initialLoginType);
   const [isDarkMode, setDark] = useState(false);
   const t = (key) => (language === 'en' ? (english[key] ?? key) : key);
   return (
@@ -33,12 +35,45 @@ function Login({ accounts, demoPassword, authenticate }) {
                 GYMNASYUM<span>SMART FOLLOW-UP SYSTEM</span>
               </h1>
             </header>
+            <div className="login-account-types" role="group" aria-label={t('Jenis akun')}>
+              {['customer', 'employee'].map((type) => (
+                <button
+                  type="button"
+                  key={type}
+                  aria-pressed={loginType === type}
+                  onClick={() => setLoginType(type)}
+                >
+                  {type === 'customer' ? 'Customer' : 'Employee'}
+                </button>
+              ))}
+            </div>
             <LoginForm
-              accounts={accounts}
+              key={loginType}
+              loginType={loginType}
+              accounts={accounts.filter(
+                (account) => (account.role === 'Customer') === (loginType === 'customer'),
+              )}
               demoPassword={demoPassword}
-              authenticate={authenticate}
+              authenticate={async (email, password, setError, demo) => {
+                if (loginType === 'employee' || demo) {
+                  await authenticate(email, password, setError, demo);
+                  return;
+                }
+                try {
+                  await loginMember(email, password);
+                  location.href = '/customer';
+                } catch (error) {
+                  setError(error);
+                }
+              }}
               t={t}
             />
+            {loginType === 'customer' && (
+              <div className="login-customer-access">
+                <span>{t('Kamu belum memiliki akun?')}</span>{' '}
+                <a href="/customer?register">{t('Registrasi')}</a>
+              </div>
+            )}
           </div>
           <LoginSocialLinks />
           <p className="login-copyright">

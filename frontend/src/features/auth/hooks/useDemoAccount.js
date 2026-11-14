@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { demoAccounts } from '../services/demoAccounts.js';
+import { demoAccounts, demoCustomer } from '../services/demoAccounts.js';
 import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
 
 export function useDemoAccount() {
@@ -8,7 +8,7 @@ export function useDemoAccount() {
       const saved = sessionStorage.getItem(STORAGE_KEYS.demoLogin);
       const disabled = JSON.parse(localStorage.getItem(STORAGE_KEYS.disabledAccounts) || '[]');
       return (
-        demoAccounts.find(
+        [demoCustomer, ...demoAccounts].find(
           (user) =>
             !disabled.includes(user.email) &&
             (user.email === saved || (saved === 'active' && user === demoAccounts[0])),

@@ -12,6 +12,7 @@ export function useLoginForm(authenticate, demoPassword) {
 
   function changeEmail(value) {
     setDemo(false);
+    setError('');
     setEmail(value);
     setShowAccounts(false);
   }

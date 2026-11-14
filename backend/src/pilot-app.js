@@ -12,6 +12,8 @@ import { pilotScope, pilotUsers } from './modules/pilot/pilot.scope.js';
 import pilot from './modules/pilot/pilot.routes.js';
 import pool from './database/pool.js';
 
+import memberRoutes, { staffRequests } from './modules/members/member.routes.js';
+import accountEmailRoutes from './modules/authentication/account-email.routes.js';
 const app = express();
 configureSecurity(app);
 app.use(
@@ -31,10 +33,14 @@ app.use(
 app.use('/api', apiLimiter);
 app.use(express.json({ limit: '1mb' }));
 app.get('/api/health', async (_req, res) => {
-  await pool.query('SELECT 1 FROM pilot_cycles LIMIT 1');
+  await pool.query(
+    'SELECT 1 FROM pilot_cycles, member_accounts, member_sessions, member_requests, account_email_links LIMIT 0',
+  );
   res.json({ data: { status: 'ok', location: PILOT_LOCATION, channel: 'manual' } });
 });
-app.use('/api/auth', auth);
+app.use('/api/auth', auth, accountEmailRoutes);
+app.use('/api/members', memberRoutes);
+app.use('/api/member-requests', staffRequests);
 app.get('/api/session', authentication, pilotScope, (req, res) =>
   res.json({ data: { user: req.user } }),
 );
@@ -43,7 +49,9 @@ app.use('/api/pilot', pilot);
 app.use('/api', (_req, res) => res.status(404).json({ message: 'Endpoint tidak ditemukan.' }));
 const dist = fileURLToPath(new URL('../../frontend/dist/', import.meta.url));
 app.use(express.static(dist));
-app.get('/', (_req, res) => res.sendFile('index.html', { root: dist }));
+app.get(['/', '/customer', '/forgot-password', '/reset-password', '/activate-email'], (_req, res) =>
+  res.sendFile('index.html', { root: dist }),
+);
 app.use(createErrorHandler({ includeStatus: false }));
 
 export default app;

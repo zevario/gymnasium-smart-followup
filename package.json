@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prestart": "npm run build",
+    "start": "npm --prefix backend run pilot",
+    "db:migrate": "npm --prefix backend run migrate:up",
     "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
     "test": "npm --prefix backend test",
     "build": "npm --prefix frontend run build",
     "check": "npm run format:check && npm run lint && npm test && npm run build",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "email:gmail": "python3 backend/scripts/setup-gmail.py"
   },
   "devDependencies": {
     "prettier": "3.6.2"

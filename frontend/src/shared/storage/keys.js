@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   theme: 'gymnasyum-theme',
   language: 'gymnasyum-language',
   pilotSession: 'gymnasyum-pilot-session',
+  memberDemo: 'gymnasyum-member-demo-rina-v1',
   demoLogin: 'gymnasyum-demo-login',
   demoAccounts: 'gymnasyum-demo-accounts-v2',
   disabledAccounts: 'gymnasyum-disabled-accounts',

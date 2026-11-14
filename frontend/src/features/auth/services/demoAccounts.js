@@ -1,5 +1,12 @@
 import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
 
+export const demoCustomer = {
+  name: 'Rina Pramesti',
+  email: 'rina.customer@example.com',
+  role: 'Customer',
+  memberId: 1,
+};
+
 const initialDemoAccounts = [
   {
     name: 'Alya Putri',
@@ -66,7 +73,9 @@ export let demoAccounts = (() => {
 export const demoPassword = 'GymnasyumDemo123!';
 
 export function authenticateDemo(email, password, onSuccess, setError) {
-  const user = demoAccounts.find((user) => user.email === email.trim().toLowerCase());
+  const user = [demoCustomer, ...demoAccounts].find(
+    (user) => user.email === email.trim().toLowerCase(),
+  );
   let disabled = [];
   try {
     disabled = JSON.parse(localStorage.getItem(STORAGE_KEYS.disabledAccounts) || '[]');

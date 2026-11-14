@@ -1,3 +1,4 @@
+import { MemberInbox } from '../components/MemberInbox.jsx';
 import { PilotCustomerList } from '../components/PilotCustomerList.jsx';
 import { useState } from 'react';
 
@@ -19,6 +20,7 @@ export function PilotCustomers({ rows, open }) {
         title={t('Pelanggan')}
         subtitle={t('Member dan siklus follow-up di lokasi ini.')}
       />
+      <MemberInbox />
       <PilotCustomerList filter={filter} setFilter={setFilter} people={people} open={open} />
     </>
   );

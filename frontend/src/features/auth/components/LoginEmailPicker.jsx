@@ -27,13 +27,13 @@ export function LoginEmailPicker({
         type="email"
         autoComplete="off"
         required
-        placeholder="nama@gymnasyum.id"
+        placeholder={t('Email')}
         value={email}
         onFocus={() => setShowAccounts(true)}
         onClick={() => setShowAccounts(true)}
         onChange={(event) => onEmailChange(event.target.value)}
       />
-      {showAccounts && (
+      {showAccounts && accounts.length > 0 && (
         <div className="login-demos" role="group" aria-label={t('Pilih akun demo')}>
           <small>{t('Pilih akun demo')}</small>
           {accounts.map((user) => (

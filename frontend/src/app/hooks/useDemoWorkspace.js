@@ -1,17 +1,40 @@
 import { useEffect, useState } from 'react';
 import { initialCustomers } from '../../features/customers/data/demoCustomers.js';
-import { demoAccounts } from '../../features/auth/services/demoAccounts.js';
+import { demoAccounts, demoCustomer } from '../../features/auth/services/demoAccounts.js';
 import { permissions, mayEditTask } from '../../features/auth/services/access.js';
 import { mayOpenPage } from '../../features/auth/services/pageAccess.js';
 import { canContact } from '../../features/followups/services/followupRules.js';
 import { isProfilePhoto, defaultProfilePhoto } from '../../features/profile/utils/profilePhoto.js';
-import { profilePhotoStorageKey } from '../../shared/storage/keys.js';
+import { profilePhotoStorageKey, STORAGE_KEYS } from '../../shared/storage/keys.js';
 import { isMobileViewport } from '../../shared/utils/viewport.js';
 import { useSidebarNavigation } from './useSidebarNavigation.js';
 
 export function useDemoWorkspace(account) {
   const [page, setPage] = useState('Dashboard');
-  const [customers, setCustomers] = useState(initialCustomers);
+  const [staffCustomers, setCustomers] = useState(initialCustomers);
+  const [memberDemo, setMemberDemo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.memberDemo)) || {};
+    } catch {
+      return {};
+    }
+  });
+  const saveMemberDemo = (change) => {
+    const next = { ...memberDemo, ...change };
+    localStorage.setItem(STORAGE_KEYS.memberDemo, JSON.stringify(next));
+    setMemberDemo(next);
+  };
+  const customers = staffCustomers.map((member) => {
+    if (member.id !== demoCustomer.memberId) return member;
+    const history = [...(member.history || [])];
+    if (memberDemo.requested)
+      history.unshift('Customer mengajukan perpanjangan melalui portal demo.');
+    return {
+      ...member,
+      history,
+      permission: memberDemo.contact === false ? 'Opt-out' : member.permission,
+    };
+  });
   const [selected, setSelected] = useState(null);
   const { open: mobileNav, setOpen: setMobileNav, drawerOpen } = useSidebarNavigation();
   const [toast, setToast] = useState('');
@@ -81,6 +104,8 @@ export function useDemoWorkspace(account) {
     if (access.operational) setSelected(customer);
   };
   return {
+    memberDemo,
+    saveMemberDemo,
     activePage,
     setPage,
     customers,

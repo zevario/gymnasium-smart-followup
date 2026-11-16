@@ -8,12 +8,15 @@ import tempfile
 from urllib.parse import urlsplit
 
 backend = Path(__file__).resolve().parents[1]
-sender = "aripibrahim001@gmail.com"
+sender = "id.arifibrahim@gmail.com"
 print(f"Pengirim Gymnasyum: {sender}")
 origin = input("Alamat aplikasi yang dapat dibuka penerima (https://...): ").strip()
 url = urlsplit(origin)
-if url.scheme != "https" or not url.hostname or url.username or url.password or url.path not in ("", "/") or url.query or url.fragment or any(c.isspace() or c in "#'\"\\" for c in origin):
-    raise SystemExit("Masukkan alamat HTTPS aplikasi, misalnya https://portal.contoh.id.")
+# Pengujian di komputer sendiri memakai alamat lokal; penerima di luar tetap butuh HTTPS.
+local = url.hostname in ("127.0.0.1", "localhost", "::1")
+scheme_ok = url.scheme == "https" or (local and url.scheme == "http")
+if not scheme_ok or not url.hostname or url.username or url.password or url.path not in ("", "/") or url.query or url.fragment or any(c.isspace() or c in "#'\"\\" for c in origin):
+    raise SystemExit("Masukkan alamat HTTPS aplikasi, misalnya https://portal.contoh.id, atau http://127.0.0.1:3001 untuk pengujian lokal.")
 password = getpass.getpass("Sandi aplikasi Google (tersembunyi): ").replace(" ", "")
 if not re.fullmatch(r"[A-Za-z0-9]{16}", password):
     raise SystemExit("Gunakan sandi aplikasi 16 karakter dari Google.")

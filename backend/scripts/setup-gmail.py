@@ -8,7 +8,7 @@ import tempfile
 from urllib.parse import urlsplit
 
 backend = Path(__file__).resolve().parents[1]
-sender = "id.arifibrahim@gmail.com"
+sender = "gymnasyum.id@gmail.com"
 print(f"Pengirim Gymnasyum: {sender}")
 origin = input("Alamat aplikasi yang dapat dibuka penerima (https://...): ").strip()
 url = urlsplit(origin)

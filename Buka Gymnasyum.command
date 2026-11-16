@@ -1,6 +1,7 @@
 #!/bin/zsh
 set -eu
 cd "${0:A:h}/backend"
+unset PGHOST PGPORT PGUSER PGDATABASE PGPASSWORD PGSERVICE
 if ! curl -fsS http://127.0.0.1:3001/api/health >/dev/null 2>&1; then
   export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
   node src/pilot-server.js &

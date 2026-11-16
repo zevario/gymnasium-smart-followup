@@ -104,8 +104,35 @@ async function deliverOne() {
     const isReset = job.purpose === 'reset';
     const lifetime = isReset ? '30 minutes' : '24 hours';
     const kind = job.member_id ? 'customer' : 'employee';
+    let origin, from, transport;
     try {
-      const { origin, from, transport } = mailConfiguration();
+      ({ origin, from, transport } = mailConfiguration());
+    } catch (error) {
+      // Tanpa SMTP, email tidak pernah terkirim dan akun tersangkut tanpa jejak.
+      // Saat development, catat tautannya ke log agar alur aktivasi tetap bisa
+      // diselesaikan. Jalur ini berhenti sendiri begitu SMTP dikonfigurasi.
+      if (process.env.NODE_ENV !== 'development') throw error;
+      const fallback = new URL(
+        isReset ? '/reset-password' : '/activate-email',
+        process.env.APP_PUBLIC_URL,
+      );
+      fallback.searchParams.set('account', kind);
+      fallback.hash = token;
+      console.warn(
+        '[DEV] SMTP belum dikonfigurasi. Tautan ' +
+          job.purpose +
+          ' untuk ' +
+          job.email +
+          ': ' +
+          fallback.href,
+      );
+      await db.query(
+        'UPDATE account_email_links SET token_hash=$2, expires_at=clock_timestamp()+$3::interval, next_attempt_at=NULL WHERE id=$1',
+        [job.id, hashToken(token), lifetime],
+      );
+      return true;
+    }
+    try {
       const url = new URL(isReset ? '/reset-password' : '/activate-email', origin);
       url.searchParams.set('account', kind);
       // The secret fragment is sent only in the subsequent POST, never in server access logs.
@@ -139,7 +166,7 @@ async function deliverOne() {
         ],
       });
     } catch (error) {
-      console.error('Account email delivery failed', error.code || error.name);
+      console.error('Account email delivery failed', error.code || error.name, error.message || '');
       await db.query(
         `UPDATE account_email_links SET attempts=attempts+1,
          next_attempt_at=now()+least(3600, 30*power(2,least(attempts,7))) * interval '1 second' WHERE id=$1`,

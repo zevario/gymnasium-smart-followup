@@ -1,3 +1,4 @@
+import { resendActivation } from '../../auth/services/activationDelivery.js';
 import { Eye, EyeOff } from 'lucide-react';
 import LanguageSwitcher from '../../../shared/components/LanguageSwitcher.jsx';
 import { ThemeToggle } from '../../../shared/components/ThemeToggle.jsx';
@@ -54,7 +55,7 @@ export function CustomerPortal() {
     [register] = useState(() => new URLSearchParams(location.search).has('register')),
     [busy, setBusy] = useState(false),
     [registeredEmail, setRegisteredEmail] = useState(''),
-    [resent, setResent] = useState(false),
+    [resent, setResent] = useState(''),
     [message, setMessage] = useState('');
   const refresh = async () => setPerson(await request('me'));
   useEffect(() => {
@@ -144,18 +145,9 @@ export function CustomerPortal() {
                 onClick={async () => {
                   setBusy(true);
                   setMessage('');
+                  setResent('');
                   try {
-                    const res = await fetch('/api/auth/resend-activation', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ email: registeredEmail }),
-                    });
-                    if (!res.ok)
-                      throw new Error(
-                        (await res.json().catch(() => ({}))).message ||
-                          'Email aktivasi belum dapat dikirim ulang.',
-                      );
-                    setResent(true);
+                    setResent(await resendActivation(registeredEmail));
                   } catch (error) {
                     setMessage(error.message);
                   } finally {
@@ -165,9 +157,7 @@ export function CustomerPortal() {
               >
                 Kirim ulang email aktivasi
               </button>
-              {resent && (
-                <p>Email aktivasi dikirim ulang. Jika belum masuk, tunggu sekitar 1 menit.</p>
-              )}
+              {resent && <p>{resent}</p>}
             </div>
           ) : (
             <form className="registration-form" onSubmit={registerAccount}>

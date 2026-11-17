@@ -22,3 +22,7 @@ logs/
 *.njsproj
 *.sln
 *.sw?
+
+# Local backups and diagnostics written by the setup scripts
+*.bak
+diagnosa-db.txt

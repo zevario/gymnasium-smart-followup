@@ -30,7 +30,7 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  background: center / cover url('../../../assets/images/login-slide-1.png');
+  background: center / cover url('../../../assets/images/login-slide-1.webp');
 }
 .login-photos img {
   position: absolute;

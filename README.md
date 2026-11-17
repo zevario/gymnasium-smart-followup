@@ -23,7 +23,7 @@ Setelah registrasi, Customer membuka tautan di email dan memilih **Konfirmasi em
 
 **Lupa password** tersedia pada kedua tab login. Pilih jenis akun yang sesuai dan masukkan email terdaftar. Tautan berlaku 30 menit dan hanya dapat digunakan sekali. Setelah password disimpan, semua sesi lama akun tersebut berakhir.
 
-Untuk memakai Gmail sebagai pengirim, klik dua kali **Hubungkan Gmail.command** di folder proyek pada Mac. Alamat pengirim otomatis memakai `id.arifibrahim@gmail.com`. Masukkan alamat HTTPS aplikasi dan sandi aplikasi Google untuk akun tersebut. Pengaturan disimpan setelah koneksi SMTP berhasil diverifikasi. Server yang sedang berjalan memuat pengaturan email secara otomatis.
+Untuk memakai Gmail sebagai pengirim, klik dua kali **Hubungkan Gmail.command** di folder proyek pada Mac. Alamat pengirim otomatis memakai `gymnasyum.id@gmail.com`. Masukkan alamat HTTPS aplikasi dan sandi aplikasi Google untuk akun tersebut. Pengaturan disimpan setelah koneksi SMTP berhasil diverifikasi. Server yang sedang berjalan memuat pengaturan email secara otomatis.
 
 Pengaturan pengiriman tersimpan di `backend/.env`.
 

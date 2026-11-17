@@ -22,7 +22,7 @@ export function ProfileCard({
           <Icon name="users" size={22} />
         </span>
         <div>
-          <h2>{t('Informasi akun &amp; profil')}</h2>
+          <h2>{t('Informasi akun & profil')}</h2>
           <p>{t('Kelola foto profil dan lihat informasi akun Anda.')}</p>
         </div>
         <Badge tone="demo">{t('Akun demo')}</Badge>

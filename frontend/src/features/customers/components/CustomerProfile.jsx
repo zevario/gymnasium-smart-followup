@@ -109,6 +109,12 @@ export function CustomerProfile({ person, settings, save, busy, demo, commit }) 
                   defaultValue={person.phone}
                   pattern={'\\+[1-9][0-9]{7,14}'}
                   required
+                  onInvalid={(e) =>
+                    e.currentTarget.setCustomValidity(
+                      'Gunakan kode negara tanpa angka 0 di depan, contoh +628123456789.',
+                    )
+                  }
+                  onInput={(e) => e.currentTarget.setCustomValidity('')}
                 />
                 <small>Gunakan kode negara, contoh +628123456789.</small>
               </label>

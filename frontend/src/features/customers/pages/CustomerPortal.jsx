@@ -162,6 +162,12 @@ export function CustomerPortal() {
                   pattern={'\\+[1-9][0-9]{7,14}'}
                   required
                   aria-describedby="registration-phone-hint"
+                  onInvalid={(e) =>
+                    e.currentTarget.setCustomValidity(
+                      'Gunakan kode negara tanpa angka 0 di depan, contoh +628123456789.',
+                    )
+                  }
+                  onInput={(e) => e.currentTarget.setCustomValidity('')}
                 />
               </label>
               <label className="registration-field registration-wide">
@@ -192,7 +198,7 @@ export function CustomerPortal() {
             </form>
           )}
           <p className="registration-signin">
-            Sudah memiliki akun? <a href={registeredEmail ? '/customer' : '/'}>Masuk</a>
+            Sudah memiliki akun? <a href="/customer">Masuk</a>
           </p>
         </section>
       </main>

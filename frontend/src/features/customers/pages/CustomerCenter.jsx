@@ -198,7 +198,10 @@ export function CustomerCenter({ person, commit, refresh, logout, demo = false }
               !r.paid_at)) && (
             <button
               disabled={busy}
-              onClick={() => run(() => commit('requests/' + r.id + '/cancel', 'POST', {}))}
+              onClick={() => {
+                if (window.confirm('Batalkan permintaan ini? Pembatalan tidak dapat diurungkan.'))
+                  run(() => commit('requests/' + r.id + '/cancel', 'POST', {}));
+              }}
             >
               Batalkan permintaan
             </button>

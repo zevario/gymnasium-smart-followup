@@ -88,6 +88,15 @@ export function MemberInbox() {
                 <button
                   disabled={busy}
                   onClick={async () => {
+                    const amount = 'Rp ' + r.amount.toLocaleString('id-ID');
+                    if (
+                      !window.confirm(
+                        'Tandai tagihan ' +
+                          amount +
+                          ' sudah dibayar? Status Lunas tidak dapat diurungkan.',
+                      )
+                    )
+                      return;
                     setBusy(true);
                     try {
                       await api('/member-requests/' + r.id + '/paid', 'POST', {});

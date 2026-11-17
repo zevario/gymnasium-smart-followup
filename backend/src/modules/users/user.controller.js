@@ -52,7 +52,7 @@ const changeOwnPassword = async (req, res, next) => {
 
     const currentPasswordValid = await bcrypt.compare(req.validated.currentPassword, passwordHash);
     if (!currentPasswordValid) {
-      return response.error(res, 'Current password is incorrect.', 400);
+      return response.error(res, 'Kata sandi saat ini salah.', 400);
     }
 
     const samePassword = await bcrypt.compare(req.validated.newPassword, passwordHash);

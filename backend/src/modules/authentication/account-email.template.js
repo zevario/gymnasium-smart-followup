@@ -11,6 +11,18 @@ const escape = (value) =>
       })[char],
   );
 
+// Sent to the current address when a customer asks to move the account to another email.
+export function changeEmailNoticeText({ name, newEmail }) {
+  return [
+    name ? 'Halo ' + name + ',' : 'Halo,',
+    'Ada permintaan untuk mengganti email akun Gymnasyum Anda menjadi ' + newEmail + '.',
+    'Email akun belum berubah sampai tautan yang dikirim ke alamat baru dikonfirmasi.',
+    'Jika Anda tidak mengajukan perubahan ini, segera ganti kata sandi akun Anda dan hubungi petugas Gymnasyum.',
+    'Salam, Tim Gymnasyum',
+    'Email otomatis. Mohon tidak membalas email ini.',
+  ].join('\n\n');
+}
+
 export function accountEmailTemplate({ name, purpose, url }) {
   const reset = purpose === 'reset';
   const change = purpose === 'change-email';

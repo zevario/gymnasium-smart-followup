@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { accountEmailTemplate } from './account-email.template.js';
+import { accountEmailTemplate, changeEmailNoticeText } from './account-email.template.js';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'node:crypto';
 import { hashToken } from './token.service.js';
@@ -150,6 +150,20 @@ async function deliverOne() {
           : 'SELECT name FROM users WHERE id=$1',
         [job.member_id ?? job.employee_id],
       );
+      if (job.purpose === 'change-email') {
+        const {
+          rows: [account],
+        } = await db.query('SELECT email FROM member_accounts WHERE person_id=$1', [job.member_id]);
+        // Warn the current address so a hijacked session cannot move the account silently.
+        // shortcut: a failed confirmation send retries the whole job, so the notice may repeat.
+        if (account && account.email !== job.email)
+          await transport.sendMail({
+            from,
+            to: { address: account.email, name: person?.name || '' },
+            subject: 'Permintaan ganti email Gymnasyum',
+            text: changeEmailNoticeText({ name: person?.name, newEmail: job.email }),
+          });
+      }
       await transport.sendMail({
         from,
         to: { address: job.email, name: person?.name || '' },

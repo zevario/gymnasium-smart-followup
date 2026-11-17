@@ -5,7 +5,8 @@ import { once } from 'node:events';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { createRequestLimiter } from '../src/middleware/rate-limit.js';
-import { createErrorHandler } from '../src/middleware/error-handler.js';
+import Joi from 'joi';
+import { createErrorHandler, joiMessage } from '../src/middleware/error-handler.js';
 import { validateSecurityEnvironment } from '../src/config/security.js';
 import { createTokens, verifyToken } from '../src/modules/authentication/token.service.js';
 
@@ -57,6 +58,35 @@ test('JWT verification rejects wrong algorithm, audience, kind and missing sessi
     audience: 'gymnasyum-api',
   });
   assert.throws(() => verifyToken(unbound, 'access'));
+});
+
+test('Validation errors are shown in Indonesian without field paths', () => {
+  const first = (schema, value) => joiMessage(schema.validate(value).error.details[0]);
+  assert.equal(
+    first(Joi.object({ password: Joi.string().min(8) }), { password: 'a' }),
+    'Kata sandi minimal 8 karakter.',
+  );
+  assert.equal(
+    first(
+      Joi.object({ records: Joi.array().items(Joi.object({ location: Joi.valid('bintaro') })) }),
+      { records: [{ location: 'jakarta' }] },
+    ),
+    'Data ke-1: Lokasi harus salah satu dari: bintaro.',
+  );
+  assert.equal(
+    first(
+      Joi.object({ newPassword: Joi.string(), confirmPassword: Joi.valid(Joi.ref('newPassword')) }),
+      { newPassword: 'a', confirmPassword: 'b' },
+    ),
+    'Konfirmasi kata sandi belum cocok.',
+  );
+  // Messages already written for users are kept.
+  assert.equal(
+    first(Joi.object({ name: Joi.string().messages({ 'string.base': 'Nama harus teks.' }) }), {
+      name: 1,
+    }),
+    'Nama harus teks.',
+  );
 });
 
 test('Request limiting returns 429 and retry metadata', async (t) => {

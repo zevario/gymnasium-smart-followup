@@ -324,6 +324,22 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
       })
     ).data.token,
   );
+  // Changing the email warns the current address before the new one is confirmed.
+  const changeFrom = mailInbox.length;
+  assert.equal(
+    (
+      await call(
+        '/members/credentials',
+        memberToken,
+        { current: 'UpdatedMemberPassword123!', email: 'moved@example.com', password: '' },
+        'PUT',
+      )
+    ).data,
+    true,
+  );
+  await emailedToken('moved@example.com', '/activate-email', changeFrom);
+  const notice = mailInbox.slice(changeFrom).find((m) => m.email === memberEmail);
+  assert.ok(notice?.text.includes('moved@example.com'), 'current address is warned');
   assert.equal((await call('/members/logout', memberToken, {})).data, true);
   assert.equal((await call('/members/me', memberToken)).status, 401);
   // Both roles recover independently, even when their registered address is identical.

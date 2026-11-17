@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import { accountEmailTemplate, changeEmailNoticeText } from './account-email.template.js';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'node:crypto';
@@ -169,15 +168,6 @@ async function deliverOne() {
         to: { address: job.email, name: person?.name || '' },
         subject: title + ' Gymnasyum',
         ...accountEmailTemplate({ name: person?.name, purpose: job.purpose, url: url.href }),
-        attachments: [
-          {
-            filename: 'gymnasyum-logo.png',
-            path: fileURLToPath(
-              new URL('../../../../frontend/public/images/gymnasyum-logo.png', import.meta.url),
-            ),
-            cid: 'gymnasyum-logo',
-          },
-        ],
       });
     } catch (error) {
       console.error('Account email delivery failed', error.code || error.name, error.message || '');

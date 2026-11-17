@@ -1,3 +1,4 @@
+import '../../../shared/styles/operational-pages.css';
 import { PilotReportCard } from '../components/PilotReportCard.jsx';
 import { useEffect, useState } from 'react';
 import { api } from '../../../shared/api/pilotApi.js';
@@ -14,19 +15,22 @@ export function PilotReports() {
       .catch((e) => setError(e.message));
   }, []);
   return (
-    <>
+    <div className="pilot-reports-page">
       <PageIntro
         eyebrow="BINTARO"
         title={t('Laporan')}
         subtitle={t('Hasil per siklus berdasarkan transaksi yang dikonfirmasi sumber.')}
       />
       {error && <p role="alert">{error}</p>}
-      {data &&
-        (data.length ? (
-          data.map((row) => <PilotReportCard key={row.goal} row={row} />)
-        ) : (
-          <p>{t('Belum ada siklus dalam laporan.')}</p>
-        ))}
-    </>
+      {!data && !error && <p role="status">{t('Memuat laporan…')}</p>}
+      <div className="pilot-report-grid">
+        {data &&
+          (data.length ? (
+            data.map((row) => <PilotReportCard key={row.goal} row={row} />)
+          ) : (
+            <p>{t('Belum ada siklus dalam laporan.')}</p>
+          ))}
+      </div>
+    </div>
   );
 }

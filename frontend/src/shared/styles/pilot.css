@@ -54,3 +54,172 @@
 .pilot-drawer .history p {
   margin-block: 8px;
 }
+
+/* Paket aktif dan pengingat (MVP PRD v3) */
+.package-panel {
+  margin-block: 16px;
+}
+.package-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.package-columns {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(280px, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 820px) {
+  .package-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.package-list,
+.package-customer-list,
+.reminder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.package-card,
+.reminder-row {
+  border: 1px solid var(--line, #e4e4e7);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.package-card-soon {
+  border-color: #c2410c;
+}
+.package-card-head,
+.reminder-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.package-sessions {
+  margin-block: 6px 2px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.package-meta,
+.reminder-meta,
+.reminder-package,
+.reminder-phone,
+.package-hint {
+  margin-block: 2px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.package-warning {
+  margin-block: 6px 0;
+  font-size: 0.85rem;
+  color: #c2410c;
+}
+.package-status,
+.reminder-status,
+.priority-badge {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.package-status {
+  border: 1px solid currentcolor;
+}
+.package-status-used_up,
+.package-status-expired,
+.package-status-cancelled {
+  opacity: 0.65;
+}
+.package-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.package-table th,
+.package-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line, #e4e4e7);
+  vertical-align: top;
+}
+.package-table td small {
+  display: block;
+  opacity: 0.7;
+}
+.package-days-urgent {
+  color: #c2410c;
+  font-weight: 600;
+}
+.package-customer-list button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.package-customer-list button.active {
+  outline: 2px solid currentcolor;
+}
+.package-customer-list small {
+  display: block;
+  opacity: 0.7;
+}
+.package-assign {
+  margin-top: 16px;
+}
+.reminder-filters {
+  display: grid;
+  gap: 8px;
+}
+.reminder-priority {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.reminder-priority legend {
+  padding: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.reminder-priority button.active {
+  outline: 2px solid currentcolor;
+}
+.priority-badge {
+  border: 1px solid currentcolor;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.priority-badge small {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+.priority-badge-high {
+  color: #b91c1c;
+}
+.priority-badge-medium {
+  color: #c2410c;
+}
+.priority-badge-low {
+  opacity: 0.75;
+}
+.priority-badge-none {
+  opacity: 0.6;
+  border-style: dashed;
+}
+/* Prioritas dari aturan sederhana tidak setara dengan keluaran model. */
+.priority-badge.is-baseline {
+  border-style: dashed;
+}

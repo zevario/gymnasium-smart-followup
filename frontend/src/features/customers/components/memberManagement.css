@@ -1,0 +1,231 @@
+.member-inbox,
+.staff-member-list {
+  color: var(--ink);
+  min-width: 0;
+}
+.member-inbox .member-inbox-heading,
+.staff-member-list > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.member-inbox-heading h2,
+.staff-member-list > header h2 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+}
+.member-inbox-heading p,
+.staff-member-list > header > span {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.member-inbox button.inbox-refresh {
+  background: var(--surface-raised);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+  min-height: 40px;
+}
+.member-inbox article.inbox-request {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 12px;
+}
+.inbox-request-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.inbox-request-heading h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-weight: 650;
+  font-size: 15px;
+}
+.inbox-kind {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+.inbox-state {
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.inbox-state-pending {
+  background: var(--status-warning-bg);
+  color: var(--status-warning);
+}
+.inbox-state-confirmed {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+}
+.inbox-request > p {
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  margin-top: 10px;
+}
+.inbox-request .inbox-note {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+.inbox-response {
+  padding: 12px;
+  background: var(--surface-raised);
+  border-radius: 8px;
+}
+.inbox-response strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.inbox-review {
+  margin-top: 16px;
+}
+.inbox-review summary {
+  cursor: pointer;
+  color: var(--neon);
+  font-weight: 600;
+  font-size: 13px;
+  padding-block: 10px;
+}
+.member-inbox .inbox-review form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  max-width: 800px;
+  margin-top: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.member-inbox .inbox-review label {
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 0;
+}
+.member-inbox .inbox-review :is(input, select, textarea) {
+  font-size: 14px;
+  font-weight: 400;
+  padding: 10px 12px;
+  margin-top: 7px;
+  min-height: 44px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.member-inbox .inbox-review textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+.inbox-wide,
+.inbox-form-footer {
+  grid-column: 1 / -1;
+}
+.inbox-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.inbox-form-footer small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.member-inbox .inbox-form-footer button {
+  font-size: 13px;
+  min-height: 42px;
+  font-weight: 600;
+}
+.member-inbox button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.inbox-empty {
+  padding: 28px 16px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+}
+.inbox-feedback,
+.inbox-error {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.inbox-feedback {
+  color: var(--status-success);
+  background: var(--status-success-bg);
+}
+.inbox-error {
+  color: var(--status-danger);
+  background: var(--status-danger-bg);
+}
+.staff-member-list .staff-member-search {
+  display: block;
+  max-width: 420px;
+  font-size: 13px;
+}
+.staff-member-search input {
+  margin-top: 7px;
+  width: 100%;
+}
+.staff-member-list .staff-member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.staff-member-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-width: 0;
+}
+.staff-member-card h3 {
+  font-size: 15px;
+  font-weight: 650;
+}
+.staff-member-card p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 5px 0 16px;
+}
+.staff-member-schedules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.staff-member-schedules .btn {
+  margin: 0;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.6;
+  font-size: 12px;
+}
+@media (max-width: 640px) {
+  .member-inbox article.inbox-request {
+    padding: 16px;
+  }
+  .member-inbox .inbox-review form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .inbox-request-heading {
+    flex-wrap: wrap;
+  }
+  .inbox-form-footer button {
+    width: 100%;
+  }
+}

@@ -42,7 +42,6 @@ export const english = {
   Paket: 'Plan',
   WhatsApp: 'WhatsApp',
   'SMART FOLLOW-UP': 'SMART FOLLOW-UP',
-  'Pilih akun demo': 'Choose demo account',
   'Ubah tema': 'Switch theme',
   'Email atau kata sandi tidak sesuai. Gunakan akun demo di bawah.':
     'Incorrect email or password. Choose a demo account below.',

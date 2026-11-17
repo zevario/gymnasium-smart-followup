@@ -8,6 +8,7 @@ import attendanceRoutes from '../modules/attendances/attendance.routes.js';
 import followupRoutes from '../modules/followups/followup.routes.js';
 import reminderRoutes from '../modules/reminders/reminder.routes.js';
 import reportRoutes from '../modules/reports/report.routes.js';
+import packageRoutes, { customerPackageRouter } from '../modules/packages/package.routes.js';
 
 const router = Router();
 
@@ -21,11 +22,15 @@ router.get('/health', (req, res) => {
 
 router.use('/auth', authenticationRoutes);
 router.use('/users', userRoutes);
+// Dipasang sebelum '/customers' agar jalur paket pelanggan tidak tertelan
+// router pelanggan.
+router.use('/customers/:id/packages', customerPackageRouter);
 router.use('/customers', customerRoutes);
 router.use('/schedules', scheduleRoutes);
 router.use('/attendances', attendanceRoutes);
 router.use('/followups', followupRoutes);
 router.use('/reminders', reminderRoutes);
 router.use('/reports', reportRoutes);
+router.use('/packages', packageRoutes);
 
 export default router;

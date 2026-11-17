@@ -1,4 +1,5 @@
 import pool from '../../database/pool.js';
+import PackageServices from '../packages/package.service.js';
 
 const findAll = async ({ search = '', recordedBy }) => {
   const values = [];
@@ -128,8 +129,17 @@ const create = async ({ scheduleId, customerId, recordedBy }) => {
       [scheduleId, customerId, recordedBy],
     );
 
+    // Kehadiran memakai satu sesi paket. Pemakaian berada di transaksi yang
+    // sama dengan pencatatan kehadiran agar keduanya tidak pernah terpisah.
+    const sessionUsage = await PackageServices.consumeSession(client, {
+      customerId,
+      scheduleType: schedule.type,
+      attendanceId: result.rows[0].id,
+      recordedBy,
+    });
+
     await client.query('COMMIT');
-    return { attendance: await findById(result.rows[0].id) };
+    return { attendance: await findById(result.rows[0].id), sessionUsage };
   } catch (error) {
     await client.query('ROLLBACK');
     if (error.code === '23505') {
@@ -141,5 +151,68 @@ const create = async ({ scheduleId, customerId, recordedBy }) => {
   }
 };
 
-const AttendanceRepositories = { findAll, findById, create };
+/**
+ * Mengubah status kehadiran dan menyesuaikan sisa sesi paket.
+ *
+ * Keluar dari hadir mengembalikan sesi, masuk ke hadir memakainya kembali.
+ * Keduanya berada dalam satu transaksi dengan perubahan status.
+ */
+const updateStatus = async ({ id, status }) => {
+  const client = await pool.connect();
+  const counted = (value) => value === 'present' || value === 'late';
+
+  try {
+    await client.query('BEGIN');
+    const current = await client.query(
+      `SELECT attendance.id, attendance.status, attendance.customer_id AS "customerId",
+         attendance.recorded_by AS "recordedBy", schedule.type AS "scheduleType"
+       FROM attendances attendance
+       JOIN schedules schedule ON schedule.id = attendance.schedule_id
+       WHERE attendance.id = $1
+       FOR UPDATE OF attendance`,
+      [id],
+    );
+    if (!current.rowCount) {
+      await client.query('ROLLBACK');
+      return { notFound: true };
+    }
+
+    const before = current.rows[0];
+    if (before.status === status) {
+      await client.query('ROLLBACK');
+      return { attendance: await findById(id), sessionUsage: null, unchanged: true };
+    }
+
+    await client.query(
+      `UPDATE attendances
+       SET status = $2,
+         checked_in_at = CASE WHEN $2 IN ('present', 'late') THEN checked_in_at ELSE NULL END,
+         updated_at = NOW()
+       WHERE id = $1`,
+      [id, status],
+    );
+
+    let sessionUsage = null;
+    if (counted(before.status) && !counted(status)) {
+      sessionUsage = await PackageServices.returnSession(client, { attendanceId: id });
+    } else if (!counted(before.status) && counted(status)) {
+      sessionUsage = await PackageServices.consumeSession(client, {
+        customerId: before.customerId,
+        scheduleType: before.scheduleType,
+        attendanceId: id,
+        recordedBy: before.recordedBy,
+      });
+    }
+
+    await client.query('COMMIT');
+    return { attendance: await findById(id), sessionUsage };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const AttendanceRepositories = { findAll, findById, create, updateStatus };
 export default AttendanceRepositories;

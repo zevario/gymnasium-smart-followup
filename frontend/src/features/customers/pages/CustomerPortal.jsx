@@ -205,7 +205,6 @@ export function CustomerPortal() {
     );
   return (
     <LoginPage
-      accounts={[]}
       initialLoginType="customer"
       authenticate={async (email, password, setError) => {
         try {

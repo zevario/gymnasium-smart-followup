@@ -1,0 +1,221 @@
+.packages-page {
+  min-width: 0;
+}
+.packages-page .package-panel {
+  padding: 24px;
+  margin: 0;
+  min-width: 0;
+}
+.packages-page > .package-panel {
+  margin-bottom: 24px;
+}
+.packages-page .package-panel h2 {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+}
+.packages-page .package-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.packages-page .package-panel-head > label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.packages-page .package-panel :is(input, select) {
+  min-height: 44px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  max-width: 100%;
+}
+.packages-page .package-columns {
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 24px;
+}
+.packages-page .package-picker > label {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 20px 0 8px;
+}
+.packages-page .package-picker > input {
+  width: 100%;
+}
+.packages-page .package-panel input::placeholder {
+  color: var(--subtle);
+}
+.packages-page .package-empty {
+  padding: 32px 16px;
+  margin-top: 20px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.package-empty strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 550;
+  margin-bottom: 4px;
+}
+.packages-page .package-selection-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+  text-align: center;
+  gap: 12px;
+}
+.package-selection-empty svg {
+  color: var(--neon);
+}
+.package-selection-empty p {
+  font-size: 14px;
+  color: var(--muted);
+}
+.packages-page .package-customer-list {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  max-height: 480px;
+  overflow-y: auto;
+}
+.packages-page .package-customer-list button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.packages-page .package-customer-list button:hover {
+  background: var(--surface-raised);
+}
+.packages-page .package-customer-list button.active {
+  background: var(--neon-wash);
+  color: var(--neon);
+}
+.packages-page .package-list {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+.packages-page .package-card {
+  padding: 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.packages-page .package-card-soon {
+  border-color: var(--status-warning-border);
+}
+.package-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+.packages-page .package-sessions {
+  font-size: 20px;
+  font-weight: 650;
+  margin: 12px 0 6px;
+}
+.packages-page .package-meta,
+.packages-page .package-warning {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.packages-page .package-meta {
+  color: var(--muted);
+}
+.packages-page .package-status {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+}
+.packages-page .package-status-active {
+  color: var(--status-success);
+  background: var(--status-success-bg);
+}
+.packages-page .package-assign {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--surface-raised);
+}
+.packages-page .package-assign h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.packages-page .package-assign label {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.packages-page .package-assign .package-hint {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.packages-page .package-assign button {
+  justify-self: start;
+  margin-top: 10px;
+  padding: 10px 18px;
+  min-height: 44px;
+  border-radius: 8px;
+  background: var(--neon);
+  color: var(--customer-button-text, #17210d);
+  font-weight: 600;
+  cursor: pointer;
+}
+.packages-page .package-assign button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.packages-page [role='alert'] {
+  color: var(--status-danger);
+  padding-block: 12px;
+  font-size: 14px;
+}
+.packages-page [role='status'] {
+  padding-block: 12px;
+  font-size: 14px;
+}
+@media (max-width: 820px) {
+  .packages-page .package-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .packages-page .package-panel {
+    padding: 18px;
+  }
+  .packages-page .package-panel-head {
+    align-items: flex-start;
+  }
+  .packages-page .package-selection-empty {
+    min-height: 220px;
+  }
+  .packages-page .package-assign {
+    padding: 16px;
+  }
+}

@@ -54,6 +54,8 @@ export function Sidebar({
     ['Dashboard', 'dashboard'],
     ['Semua follow-up', 'list'],
     ['Pelanggan', 'users'],
+    ['Paket', 'calendar'],
+    ['Pengingat', 'clock'],
     ['Laporan', 'chart'],
     ['Pengaturan', 'settings'],
   ];

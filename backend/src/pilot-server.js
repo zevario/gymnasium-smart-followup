@@ -1,6 +1,7 @@
 import app from './pilot-app.js';
 import pool from './database/pool.js';
 import { startLifecycle } from './modules/pilot/pilot.lifecycle.js';
+import ReminderSchedulerService from './modules/reminders/reminder-scheduler.service.js';
 
 import { watchFile, unwatchFile, readFileSync } from 'node:fs';
 import dotenv from 'dotenv';
@@ -30,6 +31,8 @@ const server = app.listen(port, process.env.PILOT_HOST || '127.0.0.1', () =>
 );
 reportMailConfiguration();
 const stopLifecycle = startLifecycle();
+// Menyiapkan kandidat reminder, pengingat paket H-7, dan klasifikasi prioritas.
+ReminderSchedulerService.startReminderScheduler();
 const stopAccountMailer = startAccountMailer();
 const envFile = new URL('../.env', import.meta.url);
 watchFile(envFile, { interval: 1000, persistent: false }, () => {
@@ -44,6 +47,7 @@ for (const signal of ['SIGTERM', 'SIGINT'])
   process.on(signal, () =>
     server.close(async () => {
       stopLifecycle();
+      ReminderSchedulerService.stopReminderScheduler();
       unwatchFile(envFile);
       stopAccountMailer();
       await pool.end();

@@ -16,7 +16,7 @@ export function PilotImportForm({
   const t = useT();
   return (
     <form
-      className="card pilot-form"
+      className="card pilot-form data-import-card"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -68,10 +68,16 @@ export function PilotImportForm({
       </Button>
       <label>
         {t('Pratinjau data')}
-        <textarea required rows={10} value={body} onChange={(e) => setBody(e.target.value)} />
+        <textarea
+          spellCheck={false}
+          required
+          rows={10}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
       </label>
-      <Button disabled={busy} type="submit">
-        {t('Impor data')}
+      <Button disabled={busy || !body.trim()} type="submit">
+        {t(busy ? 'Mengimpor…' : 'Impor data')}
       </Button>
       <p role="status">{message}</p>
     </form>

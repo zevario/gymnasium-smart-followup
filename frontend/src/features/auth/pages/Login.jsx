@@ -10,7 +10,7 @@ import { english } from '../data/loginContent.js';
 import { useLanguage } from '../../../shared/i18n/useLanguage.js';
 import { useState } from 'react';
 import './Login.css';
-function Login({ accounts, demoPassword, authenticate, initialLoginType = 'employee' }) {
+function Login({ authenticate, initialLoginType = 'employee' }) {
   const { language, setLanguage } = useLanguage();
   const [loginType, setLoginType] = useState(initialLoginType);
   const [isDarkMode, setDark] = useState(false);
@@ -50,13 +50,9 @@ function Login({ accounts, demoPassword, authenticate, initialLoginType = 'emplo
             <LoginForm
               key={loginType}
               loginType={loginType}
-              accounts={accounts.filter(
-                (account) => (account.role === 'Customer') === (loginType === 'customer'),
-              )}
-              demoPassword={demoPassword}
-              authenticate={async (email, password, setError, demo) => {
-                if (loginType === 'employee' || demo) {
-                  await authenticate(email, password, setError, demo);
+              authenticate={async (email, password, setError) => {
+                if (loginType === 'employee') {
+                  await authenticate(email, password, setError);
                   return;
                 }
                 try {

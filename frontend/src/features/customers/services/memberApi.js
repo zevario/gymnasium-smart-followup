@@ -19,9 +19,10 @@ export async function request(path, method = 'GET', body) {
     }
     throw Object.assign(
       new Error(
-        res.status === 409
-          ? 'Data sudah tercatat. Periksa email atau permintaan yang masih menunggu.'
-          : json.message,
+        json.message ||
+          (res.status === 409
+            ? 'Data sudah tercatat. Periksa email atau permintaan yang masih menunggu.'
+            : 'Layanan belum tersedia. Silakan coba lagi.'),
       ),
       { code: json.code },
     );

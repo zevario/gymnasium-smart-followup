@@ -1,14 +1,3 @@
-import { STORAGE_KEYS } from '../../../shared/storage/keys.js';
-
-export function followupDelay() {
-  try {
-    const days = Number(localStorage.getItem(STORAGE_KEYS.followupDays));
-    return days >= 3 && days <= 7 ? days : 3;
-  } catch {
-    return 3;
-  }
-}
-
 export function canContact(c) {
   return (
     c.status === 'Perlu ditinjau' && c.permission === 'Aktif' && !c.blockReason && !c.nextEligible

@@ -1,6 +1,6 @@
 import pool from '../../database/pool.js';
 
-const findAll = async ({ status, approval_status, search = '', user }) => {
+const findAll = async ({ status, approval_status, priority, search = '', user }) => {
   const values = [];
   const conditions = [];
 
@@ -15,6 +15,10 @@ const findAll = async ({ status, approval_status, search = '', user }) => {
   if (approval_status) {
     values.push(approval_status);
     conditions.push(`reminder.approval_status = $${values.length}`);
+  }
+  if (priority) {
+    values.push(priority);
+    conditions.push(`latest_priority.priority = $${values.length}`);
   }
   if (search.trim()) {
     values.push(`%${search.trim()}%`);
@@ -52,6 +56,13 @@ const findAll = async ({ status, approval_status, search = '', user }) => {
        customer.pic_id AS "picId",
        pic.name AS "picName",
        pic.role AS "picRole",
+       reminder.customer_package_id AS "customerPackageId",
+       customer_package.expires_at AS "packageExpiresAt",
+       customer_package.total_sessions - customer_package.used_sessions
+         AS "packageRemainingSessions",
+       package.name AS "packageName",
+       latest_priority.priority,
+       latest_priority.source AS "prioritySource",
        reminder.created_at AS "createdAt",
        reminder.updated_at AS "updatedAt"
      FROM reminders reminder
@@ -64,8 +75,25 @@ const findAll = async ({ status, approval_status, search = '', user }) => {
        ON pic.id = customer.pic_id
        AND pic.is_active = TRUE
        AND pic.role IN ('spv', 'staff')
+     LEFT JOIN customer_packages customer_package
+       ON customer_package.id = reminder.customer_package_id
+     LEFT JOIN packages package ON package.id = customer_package.package_id
+     LEFT JOIN LATERAL (
+       SELECT log.priority, log.source
+       FROM prediction_logs log
+       WHERE log.customer_id = reminder.customer_id
+       ORDER BY log.predicted_at DESC
+       LIMIT 1
+     ) latest_priority ON TRUE
      ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
-     ORDER BY reminder.scheduled_at NULLS LAST, reminder.created_at DESC`,
+     ORDER BY CASE latest_priority.priority
+         WHEN 'high' THEN 0
+         WHEN 'medium' THEN 1
+         WHEN 'low' THEN 2
+         ELSE 3
+       END,
+       reminder.scheduled_at NULLS LAST,
+       reminder.created_at DESC`,
     values,
   );
   return result.rows;

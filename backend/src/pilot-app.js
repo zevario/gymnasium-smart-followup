@@ -13,6 +13,17 @@ import pilot from './modules/pilot/pilot.routes.js';
 import pool from './database/pool.js';
 
 import memberRoutes, { staffRequests } from './modules/members/member.routes.js';
+
+// Route aplikasi MVP. Dipasang di server yang sama dengan frontend supaya
+// antarmuka cukup memanggil /api tanpa base URL kedua. '/api/auth' dan
+// '/api/users' tetap milik pilot, jadi tidak ada jalur yang bertabrakan.
+import customerRoutes from './modules/customers/customer.routes.js';
+import scheduleRoutes from './modules/schedules/schedule.routes.js';
+import attendanceRoutes from './modules/attendances/attendance.routes.js';
+import followupRoutes from './modules/followups/followup.routes.js';
+import reminderRoutes from './modules/reminders/reminder.routes.js';
+import reportRoutes from './modules/reports/report.routes.js';
+import packageRoutes, { customerPackageRouter } from './modules/packages/package.routes.js';
 import accountEmailRoutes from './modules/authentication/account-email.routes.js';
 const app = express();
 configureSecurity(app);
@@ -46,6 +57,14 @@ app.get('/api/session', authentication, pilotScope, (req, res) =>
 );
 app.use('/api/users', authentication, pilotScope, pilotUsers);
 app.use('/api/pilot', pilot);
+app.use('/api/customers/:id/packages', customerPackageRouter);
+app.use('/api/customers', customerRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/attendances', attendanceRoutes);
+app.use('/api/followups', followupRoutes);
+app.use('/api/reminders', reminderRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/packages', packageRoutes);
 app.use('/api', (_req, res) => res.status(404).json({ message: 'Endpoint tidak ditemukan.' }));
 const dist = fileURLToPath(new URL('../../frontend/dist/', import.meta.url));
 app.use(express.static(dist));

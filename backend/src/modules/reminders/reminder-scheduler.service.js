@@ -1,5 +1,7 @@
 import pool from '../../database/pool.js';
 import RecommendationService from '../followups/recommendation.service.js';
+import PackageServices from '../packages/package.service.js';
+import PredictionServices from '../predictions/prediction.service.js';
 
 const appendScheduleEvent = async (client, reminder, eventType, newStatus, note) => {
   await client.query(
@@ -207,12 +209,67 @@ const createUpcomingReminders = async (client) => {
   }
 };
 
+/**
+ * Pengingat paket H-7: paket aktif yang berakhir dalam tujuh hari ke depan dan
+ * masih punya sisa sesi. Indeks unik pada `customer_package_id` menjaga satu
+ * paket hanya memicu satu pengingat.
+ */
+const createPackageReminders = async (client) => {
+  const result = await client.query(
+    `INSERT INTO reminders
+       (customer_id, customer_package_id, type, channel, message, status,
+        scheduled_at, lead_minutes, approval_status, assigned_to, created_by)
+     SELECT customer_package.customer_id,
+       customer_package.id,
+       'package',
+       'whatsapp',
+       NULL,
+       'scheduled',
+       (customer_package.expires_at - 7)::timestamptz,
+       10080,
+       'pending',
+       CASE
+         WHEN pic.is_active = TRUE AND pic.role = 'staff' THEN pic.id
+         ELSE NULL
+       END,
+       NULL
+     FROM customer_packages customer_package
+     JOIN customers customer ON customer.id = customer_package.customer_id
+     LEFT JOIN users pic ON pic.id = customer.pic_id
+     WHERE customer_package.status = 'active'
+       AND customer_package.expires_at IS NOT NULL
+       AND customer_package.expires_at >= CURRENT_DATE
+       AND customer_package.expires_at <= CURRENT_DATE + 7
+       AND customer_package.used_sessions < customer_package.total_sessions
+       AND customer.status = 'active'
+       AND customer.contact_permission = TRUE
+     ON CONFLICT (customer_package_id) WHERE customer_package_id IS NOT NULL
+     DO NOTHING
+     RETURNING id, customer_id, customer_package_id`,
+  );
+
+  for (const reminder of result.rows) {
+    await client.query(
+      `INSERT INTO reminder_events
+         (reminder_id, customer_id, pic_id, event_type, new_status, approval_status, note)
+       SELECT $1, $2, customer.pic_id, 'created', 'scheduled', 'pending', $3
+       FROM customers customer
+       WHERE customer.id = $2`,
+      [
+        reminder.id,
+        reminder.customer_id,
+        'Automatically generated package reminder; approval is required.',
+      ],
+    );
+  }
+};
+
 const moveSentRemindersToNoResponse = async (client) => {
   const result = await client.query(
     `UPDATE reminders
      SET status = 'no_response', updated_at = NOW()
      WHERE status = 'sent'
-       AND sent_at <= NOW() - INTERVAL '24 hours'
+       AND sent_at <= NOW() - INTERVAL '48 hours'
      RETURNING id, customer_id, assigned_to, message`,
   );
   for (const reminder of result.rows) {
@@ -221,7 +278,7 @@ const moveSentRemindersToNoResponse = async (client) => {
          (reminder_id, customer_id, pic_id, event_type, previous_status,
           new_status, approval_status, message_snapshot, note, performed_by)
        SELECT $1, $2, customer.pic_id, 'no_response', 'sent', 'no_response',
-         'approved', $3, 'No customer response recorded within 24 hours.', NULL
+         'approved', $3, 'No customer response recorded within 48 hours.', NULL
        FROM customers customer
        WHERE customer.id = $2`,
       [reminder.id, reminder.customer_id, reminder.message],
@@ -293,8 +350,11 @@ const runReminderScheduler = async () => {
     if (!hasLock) return;
 
     await client.query('BEGIN');
+    await PackageServices.expirePassedPackages(client);
     await createUpcomingReminders(client);
+    await createPackageReminders(client);
     await moveSentRemindersToNoResponse(client);
+    await PredictionServices.classifyActiveCustomers(client);
     await RecommendationService.generateRecommendations(client);
     await createDailyStaffDigests(client);
     await client.query('COMMIT');

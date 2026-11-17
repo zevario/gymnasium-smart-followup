@@ -1,54 +1,17 @@
-export function LoginEmailPicker({
-  accounts,
-  email,
-  onEmailChange,
-  showAccounts,
-  setShowAccounts,
-  onSelectAccount,
-  t,
-}) {
+export function LoginEmailPicker({ email, onEmailChange, t }) {
   return (
-    <div
-      className="form-group email-picker"
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setShowAccounts(false);
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          event.currentTarget.querySelector('input')?.focus();
-          setShowAccounts(false);
-        }
-      }}
-    >
+    <div className="form-group">
       <label htmlFor="email">Email</label>
       <input
         id="email"
         name="email"
         type="email"
-        autoComplete="off"
+        autoComplete="username"
         required
         placeholder={t('Email')}
         value={email}
-        onFocus={() => setShowAccounts(true)}
-        onClick={() => setShowAccounts(true)}
         onChange={(event) => onEmailChange(event.target.value)}
       />
-      {showAccounts && accounts.length > 0 && (
-        <div className="login-demos" role="group" aria-label={t('Pilih akun demo')}>
-          <small>{t('Pilih akun demo')}</small>
-          {accounts.map((user) => (
-            <button
-              type="button"
-              key={user.email}
-              onPointerDown={(event) => event.preventDefault()}
-              onClick={() => onSelectAccount(user)}
-            >
-              <strong>{user.name}</strong> · {user.role}
-              <small>{user.email}</small>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

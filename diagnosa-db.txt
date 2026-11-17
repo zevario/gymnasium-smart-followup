@@ -1,5 +1,5 @@
 === socket yang tersedia ===
-/Users/arip/Documents/Codex/2026-11-15/hi/gymnasium-smart-followup/cek-db.command:6: no matches found: /var/run/postgresql/.s.PGSQL.*
+/Users/arip/Downloads/gymnasium-smart-followup/cek-db.command:6: no matches found: /var/run/postgresql/.s.PGSQL.*
 (tidak ada socket di /tmp atau /var/run/postgresql)
 
 === coba lewat socket tanpa password ===

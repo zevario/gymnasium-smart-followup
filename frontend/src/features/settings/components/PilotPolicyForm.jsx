@@ -16,7 +16,7 @@ export function PilotPolicyForm({
   const t = useT();
   return (
     <form
-      className="card pilot-form"
+      className="card pilot-form contact-policy-card"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);

@@ -1,0 +1,81 @@
+.staff-accounts-page { min-width: 0; }
+.staff-accounts-page > .card { padding: 24px; margin-bottom: 24px; }
+.staff-accounts-list > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+}
+.staff-accounts-page h2 { font-size: 18px; font-weight: 650; letter-spacing: -.3px; }
+.staff-accounts-list > header > span { color: var(--muted); font-size: 13px; }
+.staff-accounts-page .pilot-account {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 72px minmax(220px, 300px) 120px;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+.staff-account-identity { min-width: 0; overflow-wrap: anywhere; }
+.staff-account-identity strong { font-size: 14px; font-weight: 600; }
+.staff-account-identity p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.staff-account-self { margin-left: 8px; color: var(--neon); font-size: 11px; font-weight: 500; }
+.staff-account-status { justify-self: start; padding: 4px 8px; font-size: 12px; border-radius: 6px; background: var(--surface-raised); color: var(--muted); }
+.staff-account-status.is-active { background: var(--status-success-bg); color: var(--status-success); }
+.staff-accounts-page :is(input, select) {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.staff-accounts-page .pilot-account select:disabled { opacity: .65; cursor: default; }
+.staff-accounts-page .btn { min-height: 44px; font-size: 13px; margin: 0; }
+.staff-accounts-page .btn-secondary { background: var(--surface-raised); color: var(--ink); border: 1px solid var(--border-strong); }
+.staff-accounts-page .btn-primary { background: var(--neon); color: var(--customer-button-text, #17210d); }
+.staff-accounts-page .btn:disabled { opacity: .45; cursor: default; }
+.staff-accounts-page .staff-account-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.staff-account-form > header, .staff-account-form-footer { grid-column: 1 / -1; }
+.staff-account-form header p { margin-top: 6px; color: var(--muted); font-size: 13px; }
+.staff-accounts-page .staff-account-form > label { display: block; font-size: 13px; font-weight: 500; min-width: 0; }
+.staff-account-form label > :is(input, select), .staff-account-password { margin-top: 8px; }
+.staff-account-form small { color: var(--muted); display: block; font-size: 12px; margin-top: 6px; font-weight: 400; }
+.staff-account-password { position: relative; display: block; }
+.staff-accounts-page .staff-account-password input { padding-right: 48px; margin: 0; }
+.staff-accounts-page .staff-account-password button {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.staff-account-form-footer { border-top: 1px solid var(--border); padding-top: 20px; }
+.account-feedback { padding: 14px 16px; font-size: 14px; border-radius: 8px; background: var(--status-success-bg); color: var(--status-success); }
+.account-feedback.is-error { color: var(--status-danger); background: var(--status-danger-bg); }
+@media (max-width: 1100px) {
+  .staff-accounts-page .pilot-account { grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
+  .staff-account-status { justify-self: end; }
+}
+@media (max-width: 600px) {
+  .staff-accounts-page > .card { padding: 18px; }
+  .staff-accounts-page .staff-account-form { grid-template-columns: minmax(0, 1fr); }
+  .staff-account-form-footer .btn { width: 100%; }
+}

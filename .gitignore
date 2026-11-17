@@ -1,7 +1,25 @@
 # Dependencies and generated output
 node_modules/
+dist/
+dist-ssr/
+coverage/
 
-# Private machine configuration
+# OS and editor files
+.DS_Store
+.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local backups and diagnostics written by the setup scripts
+*.bak
+diagnosa-db.txt
+
+# Private machine configuration; keep only the public example
 .env
 .env.*
 !.env.example

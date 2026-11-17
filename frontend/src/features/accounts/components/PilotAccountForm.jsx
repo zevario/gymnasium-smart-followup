@@ -17,14 +17,23 @@ export function PilotAccountForm({ save, busy }) {
         if (await save('/users', 'POST', Object.fromEntries(new FormData(form)))) form.reset();
       }}
     >
-      <header><h2>{t('Tambah akun')}</h2><p>{t('Isi identitas dan tentukan peran karyawan.')}</p></header>
+      <header>
+        <h2>{t('Tambah akun')}</h2>
+        <p>{t('Isi identitas dan tentukan peran karyawan.')}</p>
+      </header>
       <label>
         {t('Nama')}
         <input required name="name" autoComplete="name" placeholder={t('Nama lengkap')} />
       </label>
       <label>
         Email
-        <input required type="email" name="email" autoComplete="email" placeholder="nama@email.com" />
+        <input
+          required
+          type="email"
+          name="email"
+          autoComplete="email"
+          placeholder="nama@email.com"
+        />
       </label>
       <label>
         {t('Peran')}
@@ -39,16 +48,30 @@ export function PilotAccountForm({ save, busy }) {
       <label>
         {t('Kata sandi awal')}
         <span className="staff-account-password">
-          <input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete="new-password" name="password" aria-describedby="staff-password-hint" />
-          <button type="button" aria-label={t(showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi')} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>
+          <input
+            required
+            minLength={8}
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            name="password"
+            aria-describedby="staff-password-hint"
+          />
+          <button
+            type="button"
+            aria-label={t(showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi')}
+            aria-pressed={showPassword}
+            onClick={() => setShowPassword(!showPassword)}
+          >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </span>
         <small id="staff-password-hint">{t('Minimal 8 karakter.')}</small>
       </label>
-      <div className="staff-account-form-footer"><Button disabled={busy} type="submit">
-        {t(busy ? 'Menyimpan…' : 'Buat akun')}
-      </Button></div>
+      <div className="staff-account-form-footer">
+        <Button disabled={busy} type="submit">
+          {t(busy ? 'Menyimpan…' : 'Buat akun')}
+        </Button>
+      </div>
     </form>
   );
 }

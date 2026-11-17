@@ -456,7 +456,17 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   await act(row, owner, 'reply', { note: 'Customer requested a callback' });
   [row] = await list();
   assert.equal(row.status, 'Dalam penanganan');
+  await act(row, owner, 'snooze', {
+    note: 'Call back tomorrow',
+    until: new Date(now + 86400000).toISOString(),
+  });
+  [row] = await list();
+  assert.equal(row.status, 'Ditunda');
   await act(row, owner, 'optout', { note: 'Customer withdrew consent' });
+  [row] = await list();
+  // The earlier snooze no longer shows once the customer opts out.
+  assert.equal(row.nextAt, null);
+  assert.equal(row.reason, 'Customer withdrew consent');
   const renewal = {
     ...record,
     cycleId: 'other',

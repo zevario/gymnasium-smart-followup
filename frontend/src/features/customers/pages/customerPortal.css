@@ -1545,6 +1545,15 @@
   background: var(--surface-raised);
   overflow-wrap: anywhere;
 }
-.registration-activation a {
+.registration-activation a,
+.registration-activation button {
   color: var(--neon);
+}
+.registration-activation button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }

@@ -54,6 +54,7 @@ export function CustomerPortal() {
     [register] = useState(() => new URLSearchParams(location.search).has('register')),
     [busy, setBusy] = useState(false),
     [registeredEmail, setRegisteredEmail] = useState(''),
+    [resent, setResent] = useState(false),
     [message, setMessage] = useState('');
   const refresh = async () => setPerson(await request('me'));
   useEffect(() => {
@@ -137,7 +138,36 @@ export function CustomerPortal() {
                 Buka tautan aktivasi di kotak masuk {registeredEmail} sebelum masuk. Periksa juga
                 folder spam.
               </p>
-              <a href="/activate-email">Kirim ulang email aktivasi</a>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  setMessage('');
+                  try {
+                    const res = await fetch('/api/auth/resend-activation', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: registeredEmail }),
+                    });
+                    if (!res.ok)
+                      throw new Error(
+                        (await res.json().catch(() => ({}))).message ||
+                          'Email aktivasi belum dapat dikirim ulang.',
+                      );
+                    setResent(true);
+                  } catch (error) {
+                    setMessage(error.message);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Kirim ulang email aktivasi
+              </button>
+              {resent && (
+                <p>Email aktivasi dikirim ulang. Jika belum masuk, tunggu sekitar 1 menit.</p>
+              )}
             </div>
           ) : (
             <form className="registration-form" onSubmit={registerAccount}>

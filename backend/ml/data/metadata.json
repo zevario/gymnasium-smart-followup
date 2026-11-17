@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "seed": 20261117,
+  "rows": 6000,
+  "classCounts": {
+    "low": 3031,
+    "medium": 2152,
+    "high": 817
+  },
+  "labelPolicy": "Hypothetical engagement/expiry urgency + uniform noise; missing values introduced after labeling.",
+  "limitations": "No real customer data or observed renewal labels. Metrics only measure agreement with the synthetic policy."
+}

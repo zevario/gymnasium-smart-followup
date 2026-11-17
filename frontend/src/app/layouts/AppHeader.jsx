@@ -26,7 +26,7 @@ export function Header({
         <button
           type="button"
           className="header-menu-toggle icon-button"
-          aria-label={t('Perluas sidebar')}
+          aria-label={t(navOpen ? 'Tutup sidebar' : 'Perluas sidebar')}
           aria-expanded={navOpen}
           aria-controls="app-sidebar"
           onClick={onToggleNav}

@@ -20,7 +20,8 @@ pilotUsers.get('/', authorization('admin'), async (req, res) => {
 });
 pilotUsers.use('/:target', async (req, res, next) => {
   if (req.params.target === 'me') return next();
-  if (req.user.role !== 'admin') return res.sendStatus(403);
+  if (req.user.role !== 'admin')
+    return res.status(403).json({ message: 'Hanya administrator yang dapat mengelola akun.' });
   const exists = await pool.query('SELECT 1 FROM users WHERE id::text=$1 AND pilot_location=$2', [
     req.params.target,
     req.pilotLocation,

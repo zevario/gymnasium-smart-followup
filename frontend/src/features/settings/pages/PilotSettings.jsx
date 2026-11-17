@@ -1,3 +1,4 @@
+import '../../../shared/styles/operational-pages.css';
 import { PilotImportForm } from '../components/PilotImportForm.jsx';
 import { PilotPolicyForm } from '../components/PilotPolicyForm.jsx';
 import { PilotContactRules } from '../components/PilotContactRules.jsx';
@@ -60,7 +61,7 @@ export function PilotSettings({ supervisor, refresh }) {
     );
   }
   return (
-    <>
+    <div className="pilot-settings-page">
       <PageIntro
         eyebrow="BINTARO"
         title={t('Pengaturan')}
@@ -92,6 +93,6 @@ export function PilotSettings({ supervisor, refresh }) {
           message={message}
         />
       )}
-    </>
+    </div>
   );
 }

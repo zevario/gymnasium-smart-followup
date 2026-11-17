@@ -3,7 +3,7 @@ import { useT } from '../../../shared/i18n/useLanguage.js';
 export function PilotContactRules() {
   const t = useT();
   return (
-    <section className="card pilot-form">
+    <section className="card pilot-form contact-rules-card">
       <h2>{t('Aturan kontak')}</h2>
       <p>09.00–18.00 WIB · {t('Jeda minimal 48 jam lintas tujuan.')}</p>
       <p>

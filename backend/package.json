@@ -17,7 +17,12 @@
     "seed:demo": "node src/database/seeds/seed-demo-data.js",
     "pilot": "node src/pilot-server.js",
     "test:pilot": "node --test test/pilot*.test.js",
-    "seed:spv": "node src/database/seeds/create-spv.js"
+    "seed:spv": "node src/database/seeds/create-spv.js",
+    "ml:generate": "node ml/generate.js",
+    "ml:train": "node ml/train.js",
+    "ml:prepare": "npm run ml:generate && npm run ml:train",
+    "ml:serve": "node ml/server.js",
+    "test:ml": "node --test test/prediction*.test.js"
   },
   "keywords": [],
   "author": "",

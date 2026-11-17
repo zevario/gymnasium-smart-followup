@@ -20,6 +20,7 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
     PGOPTIONS: '-c search_path=' + schema,
     PILOT_PORT: '0',
     PILOT_AI_MODEL: '',
+    INFERENCE_API_URL: '',
     PILOT_HOST: '127.0.0.1',
   };
   const db = new pg.Client();
@@ -118,8 +119,13 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
       await done;
     }
   });
-  const [startup] = await once(child.stdout, 'data');
-  const port = String(startup).match(/listening on (\d+)/)?.[1];
+  let startup = '';
+  let port;
+  for await (const chunk of child.stdout.iterator({ destroyOnReturn: false })) {
+    startup += chunk;
+    port = startup.match(/listening on (\d+)/)?.[1];
+    if (port) break;
+  }
   assert.ok(port, 'API must start');
   const base = 'http://127.0.0.1:' + port;
   async function call(path, token, body, method = body ? 'POST' : 'GET') {
@@ -637,6 +643,51 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   );
   assert.equal((await secureCall('/session', { token: resetSession.accessToken })).code, 401);
   await db.query('UPDATE users SET password_hash=$1 WHERE email=$2', [hash, credentials.email]);
+
+  // Account deletion is administrator-only and preserves referenced history.
+  const disposable = await call('/users', tokens.system, {
+    name: 'Delete test',
+    email: 'delete-test@example.com',
+    role: 'staff',
+    password,
+  });
+  const disposableId = disposable.data.id;
+  const deletePath = '/users/' + disposableId;
+  const disposableSession = await call('/auth/login', null, {
+    email: 'delete-test@example.com',
+    password,
+  });
+  assert.equal((await secureCall(deletePath, { method: 'DELETE' })).code, 401);
+  assert.equal((await secureCall(deletePath, { token: tokens.lead, method: 'DELETE' })).code, 403);
+  const systemId = (await db.query("SELECT id FROM users WHERE email='system@example.com'")).rows[0]
+    .id;
+  assert.equal(
+    (await secureCall('/users/' + systemId, { token: tokens.system, method: 'DELETE' })).code,
+    400,
+  );
+  await db.query('INSERT INTO pilot_rule_events(actor_id,paused,note) VALUES($1,false,$2)', [
+    disposableId,
+    'Deletion guard test',
+  ]);
+  assert.equal(
+    (await secureCall(deletePath, { token: tokens.system, method: 'DELETE' })).code,
+    409,
+  );
+  assert.equal((await db.query('SELECT id FROM users WHERE id=$1', [disposableId])).rowCount, 1);
+  await db.query('DELETE FROM pilot_rule_events WHERE actor_id=$1', [disposableId]);
+  assert.equal(
+    (await secureCall(deletePath, { token: tokens.system, method: 'DELETE' })).code,
+    200,
+  );
+  assert.equal((await db.query('SELECT id FROM users WHERE id=$1', [disposableId])).rowCount, 0);
+  assert.equal(
+    (await secureCall('/session', { token: disposableSession.data.accessToken })).code,
+    401,
+  );
+  assert.equal(
+    (await secureCall(deletePath, { token: tokens.system, method: 'DELETE' })).code,
+    404,
+  );
 
   // Optional local browser smoke command, using only this isolated fixture.
   if (process.env.PILOT_BROWSER_CHECK)

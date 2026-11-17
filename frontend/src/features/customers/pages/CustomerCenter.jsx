@@ -567,9 +567,13 @@ export function CustomerCenter({ person, commit, refresh, logout, demo = false }
                 href={
                   'data:text/plain;charset=utf-8,' +
                   encodeURIComponent(
-                    [person.name, statement, person.acknowledged_at || 'Belum disetujui'].join(
-                      '\n',
-                    ),
+                    [
+                      person.name,
+                      statement,
+                      person.acknowledged_at
+                        ? 'Disetujui pada ' + moment(person.acknowledged_at) + ' WIB'
+                        : 'Belum disetujui',
+                    ].join('\n'),
                   )
                 }
               >

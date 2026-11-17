@@ -1,3 +1,4 @@
+import { resendActivation } from '../../auth/services/activationDelivery.js';
 import { Eye, EyeOff } from 'lucide-react';
 import LanguageSwitcher from '../../../shared/components/LanguageSwitcher.jsx';
 import { ThemeToggle } from '../../../shared/components/ThemeToggle.jsx';
@@ -54,6 +55,7 @@ export function CustomerPortal() {
     [register] = useState(() => new URLSearchParams(location.search).has('register')),
     [busy, setBusy] = useState(false),
     [registeredEmail, setRegisteredEmail] = useState(''),
+    [resent, setResent] = useState(''),
     [message, setMessage] = useState('');
   const refresh = async () => setPerson(await request('me'));
   useEffect(() => {
@@ -137,7 +139,25 @@ export function CustomerPortal() {
                 Buka tautan aktivasi di kotak masuk {registeredEmail} sebelum masuk. Periksa juga
                 folder spam.
               </p>
-              <a href="/activate-email">Kirim ulang email aktivasi</a>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  setMessage('');
+                  setResent('');
+                  try {
+                    setResent(await resendActivation(registeredEmail));
+                  } catch (error) {
+                    setMessage(error.message);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Kirim ulang email aktivasi
+              </button>
+              {resent && <p>{resent}</p>}
             </div>
           ) : (
             <form className="registration-form" onSubmit={registerAccount}>

@@ -42,7 +42,13 @@ export async function draftFor(row) {
   });
   const fact =
     row.goal === 'trial'
-      ? 'Terima kasih telah mengikuti trial ' + row.facts.package + ' pada ' + day + '.'
+      ? 'Terima kasih telah mengikuti ' +
+        // Package names such as "Trial Bintaro" already say trial.
+        (/trial/i.test(row.facts.package) ? '' : 'trial ') +
+        row.facts.package +
+        ' pada ' +
+        day +
+        '.'
       : 'Tanggal akhir paket ' + row.facts.package + ' yang tercatat adalah ' + day + '.';
   return {
     message:

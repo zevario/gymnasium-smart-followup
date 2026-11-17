@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DAY, HOUR, evaluate, schedule } from '../src/modules/pilot/pilot.policy.js';
+import { draftFor } from '../src/modules/pilot/pilot.drafts.js';
 const now = Date.parse('2026-10-14T10:00:00+07:00');
 const at = (time) => new Date(time).toISOString();
 function task(goal, offset) {
@@ -82,4 +83,12 @@ test('Trial waits 72h, renewal waits 48h and H−2 on the same cycle', () => {
   assert.equal(evaluate(task('trial', -4 * DAY), [sent(72, 'trial')], now).canPrepare, true);
   assert.equal(evaluate(task('renewal', 3 * DAY), [sent(48, 'renewal')], now).status, 'Mendatang');
   assert.equal(evaluate(task('renewal', 2 * DAY), [sent(48, 'renewal')], now).canPrepare, true);
+});
+
+test('Trial draft does not repeat "trial" when the package name already says it', async () => {
+  const facts = { anchor: '2026-11-14T03:00:00Z' };
+  const draft = (pkg) =>
+    draftFor({ goal: 'trial', name: 'Andi', facts: { ...facts, package: pkg } });
+  assert.match((await draft('Trial Bintaro')).message, /mengikuti Trial Bintaro pada/);
+  assert.match((await draft('Kelas Yoga')).message, /mengikuti trial Kelas Yoga pada/);
 });

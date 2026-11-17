@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../../../shared/api/pilotApi.js';
 import './memberManagement.css';
 import { kinds, states } from '../memberLabels.js';
+import { dateTime } from '../../../shared/utils/format.js';
 
 export function MemberInbox() {
   const [items, setItems] = useState([]),
@@ -75,8 +76,7 @@ export function MemberInbox() {
           <p className="inbox-note">{r.note}</p>
           {r.starts_at && (
             <p>
-              {new Date(r.starts_at).toLocaleString('id-ID')} –{' '}
-              {new Date(r.ends_at).toLocaleString('id-ID')}
+              {dateTime(r.starts_at)} – {dateTime(r.ends_at)}
             </p>
           )}
           {r.state === 'confirmed' && r.amount > 0 && (

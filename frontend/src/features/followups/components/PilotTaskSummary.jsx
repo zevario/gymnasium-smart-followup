@@ -85,7 +85,7 @@ export function PilotTaskSummary({ task }) {
             </dt>
             <dd>{dateTime(task.observedAt)}</dd>
           </div>
-          {task.nextAt && (
+          {task.nextAt && task.status === 'Ditunda' && (
             <div className="task-fact-wide">
               <dt>{t('Jadwal berikutnya')}</dt>
               <dd>{dateTime(task.nextAt)}</dd>

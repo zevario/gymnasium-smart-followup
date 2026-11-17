@@ -10,6 +10,7 @@ import { SMTPServer } from 'smtp-server';
 import { setTimeout as delay } from 'node:timers/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
 
@@ -29,8 +30,14 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
     await db.end();
   });
   execFileSync(
-    './node_modules/.bin/node-pg-migrate',
-    ['up', '--schema', schema, '--create-schema'],
+    process.execPath,
+    [
+      'node_modules/node-pg-migrate/bin/node-pg-migrate.js',
+      'up',
+      '--schema',
+      schema,
+      '--create-schema',
+    ],
     { env, stdio: 'pipe' },
   );
   await db.query('SET search_path TO ' + schema);
@@ -107,10 +114,14 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   }
   const clock = path.join(temp, 'clock.mjs');
   await writeFile(clock, 'Date.now=()=>' + now + ';');
-  const child = spawn(process.execPath, ['--import', clock, 'src/pilot-server.js'], {
-    env,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  const child = spawn(
+    process.execPath,
+    ['--import', pathToFileURL(clock).href, 'src/pilot-server.js'],
+    {
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  );
   t.after(async () => {
     if (child.exitCode === null) {
       const done = once(child, 'exit');

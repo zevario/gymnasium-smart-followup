@@ -25,10 +25,11 @@ const reportMailConfiguration = () => {
 };
 
 const port = Number(process.env.PILOT_PORT || 3001);
-const server = app.listen(port, process.env.PILOT_HOST || '127.0.0.1', () =>
-  console.log('Gymnasyum pilot listening on ' + server.address().port),
-);
-reportMailConfiguration();
+// Print this line first: test/pilot-http.test.js reads the port from the first output.
+const server = app.listen(port, process.env.PILOT_HOST || '127.0.0.1', () => {
+  console.log('Gymnasyum pilot listening on ' + server.address().port);
+  reportMailConfiguration();
+});
 const stopLifecycle = startLifecycle();
 const stopAccountMailer = startAccountMailer();
 const envFile = new URL('../.env', import.meta.url);

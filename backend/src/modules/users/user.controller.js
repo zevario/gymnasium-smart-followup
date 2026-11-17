@@ -205,7 +205,7 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     if (req.params.id === req.user.id) {
-      return response.error(res, 'Cannot deactivate your own account', 400);
+      return response.error(res, 'Anda tidak dapat menghapus akun sendiri.', 400);
     }
 
     const user = await UserRepositories.delete(req.params.id);
@@ -214,6 +214,13 @@ const deleteUser = async (req, res, next) => {
 
     return response.success(res, 'User deleted', user);
   } catch (error) {
+    if (error.code === '23503') {
+      return response.error(
+        res,
+        'Akun memiliki riwayat aktivitas atau tugas terkait. Gunakan Nonaktifkan untuk menutup aksesnya.',
+        409,
+      );
+    }
     next(error);
   }
 };

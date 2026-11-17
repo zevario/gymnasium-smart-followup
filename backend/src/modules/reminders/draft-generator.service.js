@@ -32,8 +32,9 @@ export const requestDraft = async (facts) => {
   try {
     const httpResponse = await fetch(new URL('/draft', endpoint), {
       method: 'POST',
-      // Draft follow-up dibuat di dalam transaksi, jadi batas waktunya dibuat ketat.
-      signal: AbortSignal.timeout(Number(process.env.DRAFT_TIMEOUT_MS || 6000)),
+      // Gemini gratis bisa butuh 2-14 detik; layanan AI menyerah di 12 detik lalu memakai template.
+      // Draft follow-up dibuat di dalam transaksi, jadi baris tugas terkunci selama menunggu.
+      signal: AbortSignal.timeout(Number(process.env.DRAFT_TIMEOUT_MS || 15000)),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(facts),
     });
@@ -139,7 +140,7 @@ const getDraftGeneratorStatus = async () => {
   if (!endpoint) return { available: false, provider: null, reason: notConfigured.reason };
   try {
     const httpResponse = await fetch(new URL('/health', endpoint), {
-      signal: AbortSignal.timeout(Number(process.env.DRAFT_TIMEOUT_MS || 6000)),
+      signal: AbortSignal.timeout(Number(process.env.DRAFT_TIMEOUT_MS || 15000)),
     });
     const status = (await httpResponse.json())?.draft;
     if (!httpResponse.ok || !status) throw new Error('unexpected');

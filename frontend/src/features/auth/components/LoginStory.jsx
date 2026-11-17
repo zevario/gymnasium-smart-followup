@@ -2,9 +2,9 @@ import { LoginContactDetails } from './LoginContactDetails.jsx';
 import { LoginSiteLinks } from './LoginSiteLinks.jsx';
 import { LoginBenefits } from './LoginBenefits.jsx';
 import { website } from '../data/loginContent.js';
-import slide1 from '../../../assets/images/login-slide-1.png';
-import slide2 from '../../../assets/images/login-slide-2.png';
-import slide3 from '../../../assets/images/login-slide-3.png';
+import slide1 from '../../../assets/images/login-slide-1.webp';
+import slide2 from '../../../assets/images/login-slide-2.webp';
+import slide3 from '../../../assets/images/login-slide-3.webp';
 
 export function LoginStory({ t }) {
   return (

@@ -1,3 +1,5 @@
+import './task-detail.css';
+import { ShieldAlert } from 'lucide-react';
 import { PilotTaskSummary } from './PilotTaskSummary.jsx';
 import { PilotTaskComposer } from './PilotTaskComposer.jsx';
 import { PilotTaskActions } from './PilotTaskActions.jsx';
@@ -88,7 +90,15 @@ export function PilotTask({ task, user, people, refresh, close }) {
         </header>
         <div className="drawer-content">
           <PilotTaskSummary task={task} />
-          {task.blockReason && <p className="blocked-banner">{t(task.blockReason)}</p>}
+          {task.blockReason && (
+            <div className="task-block-notice" role="status">
+              <ShieldAlert size={20} aria-hidden="true" />
+              <div>
+                <strong>{t('Kontak belum dapat dilakukan')}</strong>
+                <p>{t(task.blockReason)}</p>
+              </div>
+            </div>
+          )}
           {!task.ownerId && !closed && (
             <Button disabled={busy} onClick={() => submit('claim')}>
               {t('Ambil follow-up')}

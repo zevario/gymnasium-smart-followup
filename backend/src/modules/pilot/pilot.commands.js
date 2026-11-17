@@ -56,8 +56,10 @@ export async function execute(db, id, user, input) {
       'UPDATE pilot_people SET opted_out_at=COALESCE(opted_out_at,now()) WHERE id=$1',
       [row.person_id],
     );
+    // Opt-out ends every pending contact, so an earlier snooze must not keep showing.
+    await update('reason=$2', [note]);
     await db.query(
-      'UPDATE pilot_cycles SET draft=NULL,draft_kind=NULL,version=version+1 WHERE person_id=$1',
+      'UPDATE pilot_cycles SET draft=NULL,draft_kind=NULL,next_at=NULL,version=version+1 WHERE person_id=$1',
       [row.person_id],
     );
   } else if (action === 'draft' || action === 'approve') {

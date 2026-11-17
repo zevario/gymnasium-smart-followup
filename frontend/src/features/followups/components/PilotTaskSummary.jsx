@@ -29,7 +29,7 @@ export function PilotTaskSummary({ task }) {
         <p>
           {t('Waktu sumber')} · {dateTime(task.observedAt)}
         </p>
-        {task.nextAt && (
+        {task.nextAt && task.status === 'Ditunda' && (
           <p>
             {t('Jadwal berikutnya')} · {dateTime(task.nextAt)}
           </p>

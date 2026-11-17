@@ -46,6 +46,8 @@ router.post('/register', registrationLimiter, async (req, res) => {
   const data = await Joi.object({ email, password, ...profile }).validateAsync(req.body);
   const hash = await bcrypt.hash(data.password, 12);
   await withTransaction(async (db) => {
+    if ((await db.query('SELECT 1 FROM member_accounts WHERE email=$1', [data.email])).rowCount)
+      reject('Email sudah terdaftar. Silakan masuk atau pilih Lupa password.');
     const {
       rows: [person],
     } = await db.query(

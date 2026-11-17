@@ -1,4 +1,4 @@
-import { accountEmailTemplate } from './account-email.template.js';
+import { accountEmailTemplate, changeEmailNoticeText } from './account-email.template.js';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'node:crypto';
 import { hashToken } from './token.service.js';
@@ -76,7 +76,7 @@ export function credentialBinding(account) {
 // Call with the account locked. Repeated requests coalesce into one pending delivery.
 export async function queueAccountEmail(db, account, kind, purpose, email = account.email) {
   const owner = kind === 'customer' ? 'member_id' : 'employee_id';
-  await db.query(
+  const queued = await db.query(
     `INSERT INTO account_email_links (${owner},purpose,email,credential_binding)
      VALUES ($1,$2,$3,$4)
      ON CONFLICT (${owner},purpose) DO UPDATE SET email=EXCLUDED.email,
@@ -84,9 +84,22 @@ export async function queueAccountEmail(db, account, kind, purpose, email = acco
        attempts=0, token_hash=NULL, expires_at=NULL
      WHERE account_email_links.requested_at < now()-interval '1 minute'
        OR account_email_links.email <> EXCLUDED.email
-       OR account_email_links.credential_binding <> EXCLUDED.credential_binding`,
+       OR account_email_links.credential_binding <> EXCLUDED.credential_binding
+     RETURNING requested_at`,
     [account.person_id ?? account.id, purpose, email, credentialBinding(account)],
   );
+  if (
+    purpose === 'change-email' &&
+    kind === 'customer' &&
+    account.email !== email &&
+    queued.rowCount
+  ) {
+    await db.query(
+      `INSERT INTO account_email_notices(member_id,email,new_email,requested_at)
+       VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
+      [account.person_id, account.email, email, queued.rows[0].requested_at],
+    );
+  }
 }
 
 async function deliverOne() {
@@ -172,6 +185,44 @@ async function deliverOne() {
   });
 }
 
+// Notice delivery is independent: a failed old mailbox must not block the new link.
+async function deliverNotice() {
+  return withTransaction(async (db) => {
+    const {
+      rows: [job],
+    } = await db.query(
+      `SELECT notice.*, person.name FROM account_email_notices notice
+       JOIN pilot_people person ON person.id=notice.member_id
+       WHERE notice.next_attempt_at<=now() AND notice.sent_at IS NULL
+         AND notice.requested_at>now()-interval '24 hours'
+       ORDER BY notice.next_attempt_at,notice.id LIMIT 1 FOR UPDATE OF notice SKIP LOCKED`,
+    );
+    if (!job) return false;
+    try {
+      const { from, transport } = mailConfiguration();
+      await transport.sendMail({
+        from,
+        to: { address: job.email, name: job.name || '' },
+        subject: 'Permintaan ganti email Gymnasyum',
+        text: changeEmailNoticeText({ name: job.name, newEmail: job.new_email }),
+      });
+      await db.query(
+        'UPDATE account_email_notices SET sent_at=clock_timestamp(),next_attempt_at=NULL WHERE id=$1',
+        [job.id],
+      );
+      return true;
+    } catch (error) {
+      console.error('Account email notice failed', error.code || error.name);
+      await db.query(
+        `UPDATE account_email_notices SET attempts=attempts+1,
+         next_attempt_at=now()+least(3600,30*power(2,least(attempts,7)))*interval '1 second' WHERE id=$1`,
+        [job.id],
+      );
+      return false;
+    }
+  });
+}
+
 export function startAccountMailer() {
   let running = false;
   let stopped = false;
@@ -184,6 +235,13 @@ export function startAccountMailer() {
       }
     } catch (error) {
       console.error('Account email worker failed', error.code || error.name);
+    }
+    try {
+      while (!stopped && (await deliverNotice())) {
+        /* drain independent notices */
+      }
+    } catch (error) {
+      console.error('Account notice worker failed', error.code || error.name);
     } finally {
       running = false;
     }

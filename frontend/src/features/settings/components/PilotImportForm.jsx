@@ -19,10 +19,17 @@ export function PilotImportForm({
       className="card pilot-form data-import-card"
       onSubmit={async (e) => {
         e.preventDefault();
+        let records;
+        try {
+          records = JSON.parse(body);
+        } catch {
+          setMessage(t('Format JSON tidak valid. Periksa tanda kutip, koma, dan kurung.'));
+          return;
+        }
         setBusy(true);
         setMessage('');
         try {
-          const result = await api('/pilot/import', 'POST', JSON.parse(body));
+          const result = await api('/pilot/import', 'POST', records);
           setMessage(
             t('Diperbarui') +
               ' ' +

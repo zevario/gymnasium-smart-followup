@@ -24,6 +24,8 @@ export const english = {
   'Aturan kontak': 'Contact rules',
   'Aturan kontak dan sumber data operasional': 'Contact rules and operational data sources',
   'Batas file 1 MB': 'Maximum file size is 1 MB',
+  'Format JSON tidak valid. Periksa tanda kutip, koma, dan kurung.':
+    'Invalid JSON. Check quotes, commas and brackets.',
   'Belum ada data pelanggan.': 'No customer data yet.',
   'Belum ada siklus dalam laporan.': 'No cycles to report yet.',
   'Buka file JSON': 'Open JSON file',

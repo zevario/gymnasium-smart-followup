@@ -47,7 +47,7 @@ const baselineFor = (rows) =>
  * gagal, lewat batas waktu, atau menjawab di luar kontrak; pemanggil lalu
  * memakai baseline.
  */
-const askModel = async (rows) => {
+export const askModel = async (rows) => {
   const endpoint = process.env.INFERENCE_API_URL;
   if (!endpoint) return null;
 
@@ -76,7 +76,8 @@ const askModel = async (rows) => {
       if (!features || !PRIORITIES.includes(prediction.priority)) return null;
 
       const score = typeof prediction.score === 'number' ? prediction.score : null;
-      if (score !== null && (score < 0 || score > 1)) return null;
+      if (score !== null && (!Number.isFinite(score) || score < 0 || score > 1)) return null;
+      byCustomer.delete(prediction.customerId);
 
       accepted.push({
         customerId: prediction.customerId,
@@ -102,7 +103,17 @@ const classifyActiveCustomers = async (client) => {
   const features = await PredictionRepositories.collectFeatures(client);
   if (!features.length) return { count: 0, source: null };
 
-  const predictions = (await askModel(features)) || baselineFor(features);
+  const modelPredictions = [];
+  let failed = false;
+  for (let offset = 0; offset < features.length; offset += 500) {
+    const batch = await askModel(features.slice(offset, offset + 500));
+    if (!batch) {
+      failed = true;
+      break;
+    }
+    modelPredictions.push(...batch);
+  }
+  const predictions = failed ? baselineFor(features) : modelPredictions;
   await PredictionRepositories.saveLogs(client, predictions);
   return { count: predictions.length, source: predictions[0].source };
 };

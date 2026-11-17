@@ -1,4 +1,13 @@
 export const english = {
+  Sistem: 'System',
+  Terbaru: 'Latest',
+  'Belum ada aktivitas pada follow-up ini.': 'No activity on this follow-up yet.',
+  'Memuat riwayat…': 'Loading activity\u2026',
+  'Kontak belum dapat dilakukan': 'Contact is currently blocked',
+  'Penanggung jawab': 'Assigned to',
+  'Nomor kontak': 'Contact number',
+  'Informasi paket': 'Package information',
+  'DETAIL FOLLOW-UP': 'FOLLOW-UP DETAILS',
   'Hapus akun': 'Delete account',
   'Menghapus…': 'Deleting…',
   'Untuk menutup akses sementara, gunakan Nonaktifkan.':

@@ -643,37 +643,6 @@
 .login-welcome img {
   display: inline-block;
 }
-.email-picker {
-  position: relative;
-}
-.login-demos {
-  position: absolute;
-  top: 100%;
-  inset-inline: 0;
-  z-index: 3;
-  padding: 4px;
-  border: 1px solid var(--login-border);
-  border-radius: 10px;
-  background: var(--login-card);
-  box-shadow: 0 6px 20px #0002;
-}
-.login-demos button {
-  display: block;
-  width: 100%;
-  padding: 8px;
-  text-align: left;
-  font-size: 13px;
-  color: var(--login-text);
-  border-radius: 6px;
-}
-.login-demos button:hover,
-.login-demos button:focus-visible {
-  background: var(--bg-hover);
-}
-.login-demos small {
-  display: block;
-  color: var(--login-secondary);
-}
 .login-theme-toggle .theme-toggle {
   font-size: 22px;
 }
@@ -686,7 +655,6 @@
 .login-page .form-group {
   min-width: 0;
 }
-.login-demos button,
 .login-story-footer address a {
   overflow-wrap: anywhere;
 }
@@ -733,10 +701,6 @@
 }
 .login-card .login-welcome {
   margin-bottom: 28px;
-}
-.login-demos {
-  max-height: 260px;
-  overflow-y: auto;
 }
 
 /* Rounded sign-in fields and actions matching the supplied reference. */

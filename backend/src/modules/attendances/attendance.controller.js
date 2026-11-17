@@ -39,10 +39,16 @@ const createAttendance = async (req, res, next) => {
       );
     }
 
+    // Kehadiran tetap tercatat meski pelanggan tidak punya paket yang cocok.
+    // Petugas diberi tahu lewat `sessionWarning` agar bisa menindaklanjuti.
     return response.success(
       res,
       'Attendance recorded successfully',
-      { attendance: result.attendance },
+      {
+        attendance: result.attendance,
+        sessionUsage: result.sessionUsage,
+        sessionWarning: result.sessionUsage ? null : 'no_active_package',
+      },
       201,
     );
   } catch (error) {
@@ -50,4 +56,24 @@ const createAttendance = async (req, res, next) => {
   }
 };
 
-export { getAttendances, createAttendance };
+const updateAttendanceStatus = async (req, res, next) => {
+  try {
+    const result = await AttendanceRepositories.updateStatus({
+      id: req.params.id,
+      status: req.validated.status,
+    });
+
+    if (result.notFound) {
+      return response.error(res, 'Attendance record not found', 404);
+    }
+
+    return response.success(res, 'Attendance status updated successfully', {
+      attendance: result.attendance,
+      sessionUsage: result.sessionUsage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getAttendances, createAttendance, updateAttendanceStatus };

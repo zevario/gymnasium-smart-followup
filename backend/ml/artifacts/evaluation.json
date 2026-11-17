@@ -1,0 +1,112 @@
+{
+  "syntheticOnly": true,
+  "modelVersion": "synthetic-softmax-v1-d67ba90e97d5",
+  "datasetSha256": "fcb60ee9c81bb0f1388070dd85f478dea33e01449154403ad3176b426e313121",
+  "splitSeed": 42,
+  "splitCounts": {
+    "train": 4198,
+    "validation": 901,
+    "test": 901
+  },
+  "training": {
+    "epochs": 350,
+    "selectedEpoch": 350,
+    "learningRate": 0.08,
+    "regularization": 0.001,
+    "validationLogLoss": 0.4590803594429476
+  },
+  "scoreMeaning": "Probability of the predicted priority class, not renewal likelihood; not calibrated on real data.",
+  "test": {
+    "model": {
+      "accuracy": 0.806881243063263,
+      "macroF1": 0.7524300434548715,
+      "classes": ["low", "medium", "high"],
+      "confusionMatrix": [
+        [408, 47, 0],
+        [54, 260, 9],
+        [3, 61, 59]
+      ],
+      "perClass": {
+        "low": {
+          "precision": 0.8774193548387097,
+          "recall": 0.8967032967032967,
+          "f1": 0.8869565217391305,
+          "support": 455
+        },
+        "medium": {
+          "precision": 0.7065217391304348,
+          "recall": 0.804953560371517,
+          "f1": 0.7525325615050651,
+          "support": 323
+        },
+        "high": {
+          "precision": 0.8676470588235294,
+          "recall": 0.4796747967479675,
+          "f1": 0.6178010471204188,
+          "support": 123
+        }
+      }
+    },
+    "baseline": {
+      "accuracy": 0.2241953385127636,
+      "macroF1": 0.20969325341799405,
+      "classes": ["low", "medium", "high"],
+      "confusionMatrix": [
+        [47, 113, 295],
+        [2, 37, 284],
+        [1, 4, 118]
+      ],
+      "perClass": {
+        "low": {
+          "precision": 0.94,
+          "recall": 0.10329670329670329,
+          "f1": 0.1861386138613861,
+          "support": 455
+        },
+        "medium": {
+          "precision": 0.24025974025974026,
+          "recall": 0.11455108359133127,
+          "f1": 0.15513626834381553,
+          "support": 323
+        },
+        "high": {
+          "precision": 0.16929698708751795,
+          "recall": 0.959349593495935,
+          "f1": 0.2878048780487805,
+          "support": 123
+        }
+      }
+    },
+    "majority": {
+      "accuracy": 0.5049944506104328,
+      "macroF1": 0.2236971484759095,
+      "classes": ["low", "medium", "high"],
+      "confusionMatrix": [
+        [455, 0, 0],
+        [323, 0, 0],
+        [123, 0, 0]
+      ],
+      "perClass": {
+        "low": {
+          "precision": 0.5049944506104328,
+          "recall": 1,
+          "f1": 0.6710914454277285,
+          "support": 455
+        },
+        "medium": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "support": 323
+        },
+        "high": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "support": 123
+        }
+      }
+    }
+  },
+  "limitation": "Synthetic policy agreement only. Validate on consented, labeled real data with temporal separation before operational decisions."
+}

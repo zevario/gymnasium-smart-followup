@@ -1,29 +1,16 @@
 import { useRef, useState } from 'react';
 
-export function useLoginForm(authenticate, demoPassword) {
+export function useLoginForm(authenticate) {
   const passwordInput = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showAccounts, setShowAccounts] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [demo, setDemo] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setError] = useState('');
 
   function changeEmail(value) {
-    setDemo(false);
     setError('');
     setEmail(value);
-    setShowAccounts(false);
-  }
-
-  function selectDemoAccount(user) {
-    setDemo(true);
-    setEmail(user.email);
-    setPassword(demoPassword);
-    setError('');
-    setShowAccounts(false);
-    passwordInput.current?.focus();
   }
 
   async function submit(event) {
@@ -32,7 +19,7 @@ export function useLoginForm(authenticate, demoPassword) {
     setBusy(true);
     setError('');
     try {
-      await authenticate(email, password, setError, demo);
+      await authenticate(email, password, setError);
     } finally {
       setBusy(false);
     }
@@ -43,14 +30,11 @@ export function useLoginForm(authenticate, demoPassword) {
     password,
     setPassword,
     passwordInput,
-    showAccounts,
-    setShowAccounts,
     showPassword,
     setShowPassword,
     busy,
     errorMessage,
     changeEmail,
-    selectDemoAccount,
     submit,
   };
 }

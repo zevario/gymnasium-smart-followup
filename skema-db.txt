@@ -1,0 +1,106 @@
+=== migrasi yang sudah dijalankan ===
+                 name                  |           run_on           
+---------------------------------------+----------------------------
+ 1794055029658_create-gymnasyum-schema | 2026-11-16 15:18:32.850656
+ 1794055029659_add-followup-events     | 2026-11-16 15:18:32.850656
+ 1794055029660_add-reminder-workflow   | 2026-11-16 15:18:32.850656
+ 1794055029661_add-user-profile-photo  | 2026-11-16 15:18:32.850656
+ 1794055029662_add-pilot-workflow      | 2026-11-16 15:18:32.850656
+ 1794055029663_add-pilot-cohorts       | 2026-11-16 15:18:32.850656
+ 1794055029664_scope-pilot-accounts    | 2026-11-16 15:18:32.850656
+ 1794055029665_member_portal           | 2026-11-16 15:18:32.850656
+ 1794055029666_member_services         | 2026-11-16 15:18:32.850656
+ 1794055029667_account_email_links     | 2026-11-16 15:18:32.850656
+ 1794055029668_session_packages        | 2026-11-17 13:28:40.527934
+(11 rows)
+
+=== daftar tabel ===
+        tablename         
+--------------------------
+ account_email_links
+ attendances
+ customers
+ followup_events
+ followup_recommendations
+ followups
+ member_accounts
+ member_requests
+ member_sessions
+ pgmigrations
+ pilot_attempts
+ pilot_cycles
+ pilot_events
+ pilot_people
+ pilot_rule_events
+ pilot_runtime
+ reminder_events
+ reminders
+ schedule_members
+ schedules
+ session_packages
+ sessions
+ staff_notifications
+ users
+(24 rows)
+
+=== kolom tabel yang namanya mengandung package/session/prediction ===
+    table_name    |    column_name     |        data_type         
+------------------+--------------------+--------------------------
+ member_sessions  | token_hash         | text
+ member_sessions  | person_id          | bigint
+ member_sessions  | expires_at         | timestamp with time zone
+ session_packages | id                 | uuid
+ session_packages | customer_id        | uuid
+ session_packages | name               | text
+ session_packages | starts_on          | date
+ session_packages | ends_on            | date
+ session_packages | total              | integer
+ session_packages | remaining          | integer
+ session_packages | created_by         | uuid
+ sessions         | id                 | uuid
+ sessions         | user_id            | uuid
+ sessions         | refresh_token_hash | character varying
+ sessions         | expires_at         | timestamp with time zone
+ sessions         | revoked_at         | timestamp with time zone
+ sessions         | created_at         | timestamp with time zone
+(17 rows)
+
+=== jumlah baris ===
+ session_packages | reminder_paket | customers | attendances | reminders 
+------------------+----------------+-----------+-------------+-----------
+                0 |              0 |         0 |           0 |         0
+(1 row)
+
+=== isi session_packages ===
+ id | customer_id | name | starts_on | ends_on | total | remaining | created_by 
+----+-------------+------+-----------+---------+-------+-----------+------------
+(0 rows)
+
+=== constraint reminders ===
+              conname               |                                                                                             pg_get_constraintdef                                                                                              
+------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ reminders_approval_status_check    | CHECK (((approval_status)::text = ANY ((ARRAY['pending'::character varying, 'approved'::character varying, 'rejected'::character varying])::text[])))
+ reminders_approval_status_not_null | NOT NULL approval_status
+ reminders_approved_by_fkey         | FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
+ reminders_assigned_to_fkey         | FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL
+ reminders_channel_check            | CHECK (((channel)::text = ANY ((ARRAY['manual'::character varying, 'email'::character varying, 'whatsapp'::character varying, 'in_app'::character varying])::text[])))
+ reminders_channel_not_null         | NOT NULL channel
+ reminders_created_at_not_null      | NOT NULL created_at
+ reminders_created_by_fkey          | FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+ reminders_customer_id_fkey         | FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT
+ reminders_customer_id_not_null     | NOT NULL customer_id
+ reminders_id_not_null              | NOT NULL id
+ reminders_lead_minutes_check       | CHECK ((lead_minutes = ANY (ARRAY[120, 1440, 10080])))
+ reminders_lead_minutes_not_null    | NOT NULL lead_minutes
+ reminders_package_id_fkey          | FOREIGN KEY (package_id) REFERENCES session_packages(id)
+ reminders_package_id_key           | UNIQUE (package_id)
+ reminders_pkey                     | PRIMARY KEY (id)
+ reminders_schedule_id_fkey         | FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
+ reminders_sent_by_fkey             | FOREIGN KEY (sent_by) REFERENCES users(id) ON DELETE SET NULL
+ reminders_status_check             | CHECK (((status)::text = ANY ((ARRAY['scheduled'::character varying, 'sent'::character varying, 'responded'::character varying, 'no_response'::character varying, 'cancelled'::character varying])::text[])))
+ reminders_status_not_null          | NOT NULL status
+ reminders_type_check               | CHECK (((type)::text = ANY ((ARRAY['schedule'::character varying, 'followup'::character varying, 'general'::character varying])::text[])))
+ reminders_type_not_null            | NOT NULL type
+ reminders_updated_at_not_null      | NOT NULL updated_at
+(23 rows)
+

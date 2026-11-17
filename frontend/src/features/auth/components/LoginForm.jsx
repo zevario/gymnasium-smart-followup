@@ -2,33 +2,22 @@ import { useLoginForm } from '../hooks/useLoginForm.js';
 import { LoginPasswordField } from './LoginPasswordField.jsx';
 import { LoginEmailPicker } from './LoginEmailPicker.jsx';
 
-export function LoginForm({ accounts, demoPassword, authenticate, t, loginType }) {
+export function LoginForm({ authenticate, t, loginType }) {
   const {
     email,
     password,
     setPassword,
     passwordInput,
-    showAccounts,
-    setShowAccounts,
     showPassword,
     setShowPassword,
     busy,
     errorMessage,
     changeEmail,
-    selectDemoAccount,
     submit,
-  } = useLoginForm(authenticate, demoPassword);
+  } = useLoginForm(authenticate);
   return (
     <form onSubmit={submit}>
-      <LoginEmailPicker
-        accounts={accounts}
-        email={email}
-        onEmailChange={changeEmail}
-        showAccounts={showAccounts}
-        setShowAccounts={setShowAccounts}
-        onSelectAccount={selectDemoAccount}
-        t={t}
-      />
+      <LoginEmailPicker email={email} onEmailChange={changeEmail} t={t} />
       <LoginPasswordField
         t={t}
         passwordInput={passwordInput}

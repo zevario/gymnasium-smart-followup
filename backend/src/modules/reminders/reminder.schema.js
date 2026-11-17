@@ -11,6 +11,7 @@ export const listRemindersSchema = Joi.object({
     .valid('scheduled', 'sent', 'responded', 'no_response', 'cancelled')
     .optional(),
   approval_status: Joi.string().valid('pending', 'approved', 'rejected').optional(),
+  priority: Joi.string().valid('low', 'medium', 'high').optional(),
   search: Joi.string().allow('').default(''),
 });
 

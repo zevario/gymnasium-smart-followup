@@ -871,3 +871,162 @@ textarea::placeholder {
   width: 20px;
   height: 20px;
 }
+
+/* Workspace surfaces share a graphite base and the club's lime accent. */
+:root {
+  --canvas: #101416;
+  --sidebar: #141a1c;
+  --surface: #1a2022;
+  --surface-raised: #222a2c;
+  --surface-soft: #283231;
+  --border: #333f40;
+  --border-strong: #536362;
+  --muted: #b2bfbb;
+  --subtle: #93a49f;
+}
+:root[data-theme='light'] {
+  --canvas: #f2f5f3;
+  --surface-raised: #f6f8f6;
+  --surface-soft: #edf2eb;
+  --border: #d6dfd9;
+}
+.main .page-intro {
+  padding-block: 8px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.page-intro h1,
+.login-welcome h1,
+.forgot-password-card h1 {
+  text-wrap: balance;
+}
+.sidebar .nav button.active {
+  background: var(--neon-wash);
+  color: var(--neon);
+  box-shadow: inset 3px 0 var(--neon);
+}
+.main .card,
+.customer-portal section,
+.member-inbox {
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+.login-page .login-card,
+.forgot-password-page .forgot-password-card {
+  box-shadow: 0 16px 48px rgb(0 0 0 / 10%);
+  border-top: 3px solid var(--neon);
+}
+.package-panel {
+  min-width: 0;
+}
+.package-table-scroll {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.package-table-scroll table {
+  min-width: 38rem;
+  margin: 0;
+}
+.package-table-scroll :is(th, td) {
+  padding: 12px 16px;
+  border-color: var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.package-table-scroll th {
+  color: var(--muted);
+  background: var(--surface-raised);
+  font-size: 0.8rem;
+}
+.package-table-scroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+.package-table-scroll tbody tr:hover {
+  background: var(--surface-raised);
+}
+.package-table .package-days-urgent,
+.package-panel .package-warning {
+  color: var(--status-warning);
+}
+.reminder-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+.reminder-list .reminder-row {
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow-wrap: anywhere;
+}
+.reminder-row-head,
+.reminder-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+.reminder-row-head {
+  justify-content: space-between;
+}
+.reminder-meta,
+.reminder-phone {
+  color: var(--muted);
+}
+.reminder-row .priority-badge {
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.8rem;
+}
+.reminder-row .priority-badge-high {
+  color: var(--status-danger);
+  background: var(--status-danger-bg);
+}
+.reminder-row .priority-badge-medium {
+  color: var(--status-warning);
+  background: var(--status-warning-bg);
+}
+.reminder-row .priority-badge-none,
+.reminder-row .priority-badge-low {
+  color: var(--muted);
+  opacity: 1;
+}
+.reminder-priority button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+.reminder-priority button.active,
+.package-customer-list button.active {
+  outline: none;
+  background: var(--neon-wash);
+  color: var(--neon);
+  box-shadow: inset 0 0 0 1px var(--neon);
+}
+:root :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .package-panel-head {
+    flex-wrap: wrap;
+  }
+  .reminder-priority button,
+  .package-panel select {
+    min-height: 44px;
+  }
+  .reminder-list .reminder-row {
+    padding: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-photos img {
+    animation: none;
+    opacity: 0;
+  }
+  .login-photos img:first-child {
+    opacity: 1;
+  }
+}

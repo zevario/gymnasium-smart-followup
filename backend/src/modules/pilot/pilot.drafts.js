@@ -1,5 +1,23 @@
+import { requestDraft } from '../reminders/draft-generator.service.js';
+
 // The generator chooses approved clauses. Names, package and dates are inserted only by the server.
 export async function draftFor(row) {
+  // Draft GenAI (DRAFT_API_URL) bila tersedia; layanan itu sendiri memeriksa fakta dan
+  // punya template cadangan. Bila tidak terjangkau, katalog frasa di bawah tetap dipakai.
+  const generated = await requestDraft({
+    kind: row.goal === 'trial' ? 'followup_trial' : 'followup_renewal',
+    customerName: row.name,
+    packageName: row.facts.package,
+    [row.goal === 'trial' ? 'trialDate' : 'expiresAt']: new Date(
+      row.facts.anchor,
+    ).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }),
+  });
+  if (generated) {
+    return {
+      message: generated.message,
+      kind: generated.source === 'gemini' ? 'AI · Gemini' : 'Template',
+    };
+  }
   const greetings = ['Halo Kak', 'Selamat siang Kak'];
   const endings = [
     'Apakah Kakak ingin dibantu dengan langkah berikutnya?',

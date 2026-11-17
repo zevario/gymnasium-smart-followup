@@ -18,3 +18,8 @@ coverage/
 # Local backups and diagnostics written by the setup scripts
 *.bak
 diagnosa-db.txt
+
+# Private machine configuration; keep only the public example
+.env
+.env.*
+!.env.example

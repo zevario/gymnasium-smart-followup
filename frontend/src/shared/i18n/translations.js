@@ -1,4 +1,14 @@
 export const english = {
+  'Hapus akun': 'Delete account',
+  'Menghapus…': 'Deleting…',
+  'Untuk menutup akses sementara, gunakan Nonaktifkan.':
+    'To temporarily revoke access, use Deactivate.',
+  'Tindakan ini tidak dapat dibatalkan.': 'This action cannot be undone.',
+  'Akun akan dihapus secara permanen dan tidak dapat digunakan untuk masuk kembali.':
+    'The account will be permanently deleted and can no longer be used to sign in.',
+  'Hapus akun ini?': 'Delete this account?',
+  'KELOLA AKUN': 'ACCOUNT MANAGEMENT',
+  'Tutup konfirmasi': 'Close confirmation',
   Aktivitas: 'Activity',
   'Akun karyawan': 'Staff accounts',
   'Alasan perubahan': 'Reason for change',

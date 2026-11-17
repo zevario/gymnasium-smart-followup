@@ -12,6 +12,8 @@ import { PilotSettings } from '../../features/settings/pages/PilotSettings.jsx';
 import { PilotProfile } from '../../features/profile/pages/PilotProfile.jsx';
 import { PilotCustomers } from '../../features/customers/pages/PilotCustomers.jsx';
 import { PilotAccounts } from '../../features/accounts/pages/PilotAccounts.jsx';
+import { Packages } from '../../features/packages/pages/Packages.jsx';
+import { Reminders } from '../../features/reminders/pages/Reminders.jsx';
 import { PilotTask } from '../../features/followups/components/PilotTask.jsx';
 import { defaultProfilePhoto } from '../../features/profile/utils/profilePhoto.js';
 import { useT } from '../../shared/i18n/useLanguage.js';
@@ -121,6 +123,8 @@ export function PilotWorkspace({ identity, onLogout }) {
                 <AllFollowups customers={rows} onOpen={open} live />
               )}
               {rows && page === 'Pelanggan' && <PilotCustomers rows={rows} open={open} />}
+              {page === 'Paket' && <Packages user={user} />}
+              {page === 'Pengingat' && <Reminders />}
             </>
           )}
         </div>

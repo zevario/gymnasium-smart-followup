@@ -12,7 +12,12 @@
     "check": "npm run format:check && npm run lint && npm test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "email:gmail": "python3 backend/scripts/setup-gmail.py"
+    "email:gmail": "python3 backend/scripts/setup-gmail.py",
+    "ml:generate": "npm --prefix backend run ml:generate",
+    "ml:train": "npm --prefix backend run ml:train",
+    "ml:prepare": "npm --prefix backend run ml:prepare",
+    "ml:serve": "npm --prefix backend run ml:serve",
+    "test:ml": "npm --prefix backend run test:ml"
   },
   "devDependencies": {
     "prettier": "3.6.2"

@@ -1,3 +1,6 @@
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -12,6 +15,7 @@ const escape = (value) =>
   );
 
 export function accountEmailTemplate({ name, purpose, url }) {
+  const logoCid = `gymnasyum-logo.${randomUUID()}@gymnasyum.local`;
   const reset = purpose === 'reset';
   const change = purpose === 'change-email';
   const title = reset
@@ -44,7 +48,7 @@ export function accountEmailTemplate({ name, purpose, url }) {
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #dce4d5;border-radius:20px">
 <tr><td style="padding:28px 28px 24px;border-bottom:1px solid #e3e9de">
-<img src="cid:gymnasyum-logo" width="44" height="44" alt="Logo Gymnasyum" style="display:block;margin-bottom:14px">
+<img src="cid:${logoCid}" width="44" height="44" alt="Logo Gymnasyum" style="display:block;margin-bottom:14px">
 <strong style="font-size:22px;letter-spacing:2px">GYMNASYUM</strong><br><span style="font-size:11px;letter-spacing:2px;color:#64735f">SMART FOLLOW-UP SYSTEM</span>
 </td></tr>
 <tr><td style="padding:32px 28px">
@@ -62,5 +66,19 @@ export function accountEmailTemplate({ name, purpose, url }) {
 </td></tr>
 <tr><td style="padding:20px 28px;border-top:1px solid #e3e9de;font-size:12px;line-height:1.8;color:#64735f">Email otomatis. Mohon tidak membalas email ini.<br>© ${new Date().getFullYear()} Gymnasyum · Bintaro</td></tr>
 </table></td></tr></table></body></html>`;
-  return { html, text };
+  return {
+    html,
+    text,
+    attachments: [
+      {
+        filename: 'gymnasyum-logo.png',
+        path: fileURLToPath(
+          new URL('../../../../frontend/public/images/gymnasyum-logo.png', import.meta.url),
+        ),
+        cid: logoCid,
+        contentType: 'image/png',
+        contentDisposition: 'inline',
+      },
+    ],
+  };
 }

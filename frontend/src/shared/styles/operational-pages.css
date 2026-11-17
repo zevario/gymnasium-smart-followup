@@ -1,0 +1,236 @@
+.reminders-page,
+.pilot-reports-page,
+.pilot-settings-page {
+  min-width: 0;
+}
+.reminders-page .reminder-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.2fr) minmax(180px, 0.7fr) minmax(240px, 1.3fr);
+  align-items: end;
+  gap: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.reminders-page .reminder-priority {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.reminders-page .reminder-priority legend,
+.reminder-filter-field label {
+  display: block;
+  padding: 0;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.reminders-page .reminder-priority button {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  min-height: 44px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.reminders-page .reminder-priority button.active {
+  outline: none;
+  background: var(--neon-wash);
+  color: var(--neon);
+  border-color: var(--neon);
+  box-shadow: none;
+}
+.reminder-filter-field {
+  min-width: 0;
+}
+.reminders-page .reminder-filter-field :is(input, select) {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 400;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+}
+.operational-empty {
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.operational-empty h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.operational-empty p {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 8px 0 16px;
+}
+.pilot-report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.pilot-report-grid > .card {
+  padding: 24px;
+  margin: 0;
+  min-width: 0;
+}
+.pilot-report-grid h2,
+.pilot-settings-page .card h2 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+}
+.report-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.report-metrics dt {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  min-height: 38px;
+}
+.report-metrics dd {
+  font-size: 30px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  margin-top: 8px;
+}
+.report-metrics dd small {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.pilot-report-grid .report-conversion-note {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.pilot-settings-page > .card {
+  padding: 24px;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+.pilot-settings-page .card > p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 80ch;
+}
+.pilot-settings-page .card label {
+  font-size: 13px;
+  font-weight: 500;
+}
+.pilot-settings-page .contact-policy-card label {
+  max-width: 640px;
+}
+.pilot-settings-page .contact-policy-card > strong {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+}
+.contact-policy-card > strong::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon);
+}
+.pilot-settings-page .card :is(input, textarea) {
+  font-size: 14px;
+  font-weight: 400;
+  padding: 10px 12px;
+  min-height: 44px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+}
+.pilot-settings-page .data-import-card textarea {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 260px;
+  max-height: 480px;
+  resize: vertical;
+  tab-size: 2;
+  background: var(--surface-raised);
+}
+.pilot-settings-page .data-import-card input[type='file'] {
+  max-width: 560px;
+}
+.data-import-card input::file-selector-button {
+  margin-right: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  cursor: pointer;
+}
+.pilot-settings-page .card .btn {
+  justify-self: start;
+  min-height: 44px;
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .reminders-page .reminder-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .reminders-page .reminder-priority {
+    grid-column: 1 / -1;
+  }
+  .pilot-report-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .reminders-page .reminder-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px;
+    gap: 18px;
+  }
+  .pilot-settings-page > .card,
+  .pilot-report-grid > .card {
+    padding: 18px;
+  }
+  .report-metrics {
+    gap: 10px;
+  }
+  .report-metrics dd {
+    font-size: 26px;
+  }
+}
+.pilot-settings-page .card .btn-primary {
+  background: var(--neon);
+  color: var(--customer-button-text, #17210d);
+  border: 1px solid transparent;
+}
+.pilot-settings-page .card .btn-secondary,
+.reminders-page .operational-empty .btn-secondary {
+  background: var(--surface-raised);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+}
+.pilot-settings-page .card .btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

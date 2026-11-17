@@ -56,6 +56,7 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   const temp = await mkdtemp(path.join(tmpdir(), 'gym-pilot-test-'));
   t.after(() => rm(temp, { recursive: true, force: true }));
   const mailInbox = [];
+  const rejectedRecipients = new Set();
   const smtp = new SMTPServer({
     authOptional: true,
     disabledCommands: ['AUTH', 'STARTTLS'],
@@ -73,6 +74,12 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
               .replace(/=\r?\n/g, '')
               .replace(/=3D/gi, '='),
           };
+          if (rejectedRecipients.has(message.email)) {
+            const rejection = new Error('Synthetic mailbox unavailable');
+            rejection.responseCode = 550;
+            callback(rejection);
+            return;
+          }
           mailInbox.push(message);
           if (process.env.PILOT_BROWSER_CHECK)
             await writeFile(path.join(temp, 'inbox.json'), JSON.stringify(mailInbox));
@@ -332,6 +339,7 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
   );
   // Changing the email warns the current address before the new one is confirmed.
   const changeFrom = mailInbox.length;
+  rejectedRecipients.add(memberEmail);
   assert.equal(
     (
       await call(
@@ -344,8 +352,55 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
     true,
   );
   await emailedToken('moved@example.com', '/activate-email', changeFrom);
+
+  async function waitForNotice(predicate) {
+    for (let i = 0; i < 100; i++) {
+      if (await predicate()) return;
+      await delay(100);
+    }
+    assert.fail('Expected independent notice delivery state');
+  }
+  await waitForNotice(async () =>
+    (
+      await db.query('SELECT attempts FROM account_email_notices WHERE email=$1', [memberEmail])
+    ).rows.some((r) => r.attempts > 0),
+  );
+  assert.ok(
+    !mailInbox.slice(changeFrom).some((m) => m.email === memberEmail),
+    'failed old mailbox does not block new confirmation',
+  );
+  rejectedRecipients.delete(memberEmail);
+  await db.query(
+    'UPDATE account_email_notices SET next_attempt_at=now() WHERE email=$1 AND sent_at IS NULL',
+    [memberEmail],
+  );
+  await waitForNotice(() => mailInbox.slice(changeFrom).some((m) => m.email === memberEmail));
   const notice = mailInbox.slice(changeFrom).find((m) => m.email === memberEmail);
-  assert.ok(notice?.text.includes('moved@example.com'), 'current address is warned');
+  assert.ok(notice.text.includes('moved@example.com'));
+  assert.ok(notice.text.replaceAll('\r\n', '\n').includes('\n\n'), 'notice has paragraph breaks');
+  assert.ok(!notice.text.includes('\\n\\n'), 'notice has no escaped newline text');
+
+  // The reverse failure must not resend the old-address notice on every link retry.
+  const secondChangeFrom = mailInbox.length;
+  rejectedRecipients.add('retry-moved@example.com');
+  assert.equal(
+    (
+      await call(
+        '/members/credentials',
+        memberToken,
+        { current: 'UpdatedMemberPassword123!', email: 'retry-moved@example.com', password: '' },
+        'PUT',
+      )
+    ).data,
+    true,
+  );
+  await waitForNotice(() => mailInbox.slice(secondChangeFrom).some((m) => m.email === memberEmail));
+  rejectedRecipients.delete('retry-moved@example.com');
+  await db.query(
+    "UPDATE account_email_links SET next_attempt_at=now() WHERE email='retry-moved@example.com'",
+  );
+  await emailedToken('retry-moved@example.com', '/activate-email', secondChangeFrom);
+  assert.equal(mailInbox.slice(secondChangeFrom).filter((m) => m.email === memberEmail).length, 1);
   assert.equal((await call('/members/logout', memberToken, {})).data, true);
   assert.equal((await call('/members/me', memberToken)).status, 401);
   // Both roles recover independently, even when their registered address is identical.

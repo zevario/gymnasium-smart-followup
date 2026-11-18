@@ -98,6 +98,14 @@ class TestDraft(unittest.TestCase):
         self.assertIn("sisa sesi: 2 sesi", prompt)
         self.assertNotIn("kelas", prompt.split("Fakta:")[1])
 
+    def test_expired_package_is_not_called_upcoming(self):
+        req = genai.DraftRequest(kind="followup_renewal", customerName="Joko Susilo",
+                                 packageName="Open Gym 4 Sesi", expiresAt="2020-01-10")
+        self.assertIn("sudah berakhir pada", genai.template(req))
+        out, _ = self.run_with(req, "Halo Kak Joko, paket Open Gym 4 Sesi akan berakhir pada "
+                                    "Jumat, 10 Januari 2020. Mau dibantu melanjutkan?")
+        self.assertEqual(out["source"], "template")
+
     def test_every_kind_has_a_template(self):
         for kind in ("schedule_reminder", "package_reminder", "followup_trial", "followup_renewal"):
             req = genai.DraftRequest(kind=kind, customerName="Sari")

@@ -23,3 +23,8 @@ diagnosa-db.txt
 .env
 .env.*
 !.env.example
+
+# Python (folder ai/): lingkungan virtual, cache, dan data sintetis yang bisa dibuat ulang
+.venv/
+__pycache__/
+ai/data/

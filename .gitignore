@@ -28,3 +28,7 @@ diagnosa-db.txt
 .venv/
 __pycache__/
 ai/data/
+
+# Hasil diagnosa database lokal dari scripts/mac/cek-*.command
+skema-db.txt
+diagnosa-db.txt

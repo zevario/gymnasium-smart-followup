@@ -3,6 +3,7 @@ import authentication from '../../middleware/authentication.js';
 import authorization from '../../middleware/authorization.js';
 import validate from '../../middleware/validate.js';
 import {
+  generateReminderDraft,
   getDraftGeneratorStatus,
   getNotifications,
   getReminderEvents,
@@ -29,6 +30,7 @@ router.get('/notifications', getNotifications);
 router.patch('/notifications/:id/read', validateId, markNotificationRead);
 router.get('/draft-status', getDraftGeneratorStatus);
 router.get('/:id/history', validateId, getReminderEvents);
+router.post('/:id/draft', validateId, generateReminderDraft);
 router.patch(
   '/:id/review',
   authorization('admin', 'spv'),

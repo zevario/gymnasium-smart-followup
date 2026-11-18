@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
@@ -16,6 +16,7 @@
     "seed:admin": "node src/database/seeds/create-admin.js",
     "seed:demo": "node src/database/seeds/seed-demo-data.js",
     "seed:ai-demo": "node src/database/seeds/seed-ai-demo.js",
+    "demo:reset": "node scripts/demo-reset.js",
     "pilot": "node src/pilot-server.js",
     "test:pilot": "node --test test/pilot*.test.js",
     "seed:spv": "node src/database/seeds/create-spv.js",

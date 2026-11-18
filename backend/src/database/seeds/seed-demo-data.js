@@ -470,11 +470,18 @@ const seedDemoData = async () => {
     const staffUsers = staffResult.rows;
     const staffFor = (index) => staffUsers[index % staffUsers.length].id;
 
+    // Joi.email() menolak domain .test, sehingga customer demo lama tidak bisa diedit.
+    // Pindahkan data lama ke @example.com agar upsert berikut tidak membuat set kedua.
+    await client.query(
+      `UPDATE customers SET email = replace(email, '@example.test', '@example.com')
+       WHERE email LIKE 'demo.member.%@example.test'`,
+    );
+
     const members = [];
     for (let index = 0; index < demoMembers.length; index += 1) {
       const member = demoMembers[index];
       const memberNumber = index + 1;
-      const email = `demo.member.${String(memberNumber).padStart(2, '0')}@example.test`;
+      const email = `demo.member.${String(memberNumber).padStart(2, '0')}@example.com`;
       const customer = await client.query(
         `INSERT INTO customers
            (name, email, phone, gender, address, notes, membership_package,
@@ -796,7 +803,7 @@ const seedDemoData = async () => {
     const verification = await pool.query(
       `WITH demo_customers AS (
          SELECT id FROM customers
-         WHERE email LIKE 'demo.member.%@example.test'
+         WHERE email LIKE 'demo.member.%@example.com'
        )
        SELECT
          current_database() AS database,
@@ -819,7 +826,7 @@ const seedDemoData = async () => {
       `SELECT recommendation.priority, COUNT(*)::int AS count
        FROM followup_recommendations recommendation
        JOIN customers customer ON customer.id = recommendation.customer_id
-       WHERE customer.email LIKE 'demo.member.%@example.test'
+       WHERE customer.email LIKE 'demo.member.%@example.com'
        GROUP BY recommendation.priority
        ORDER BY CASE recommendation.priority
          WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END`,

@@ -77,6 +77,49 @@ Kebutuhan: Node.js, PostgreSQL, dan Python 3 (untuk layanan AI).
    ```
    Perintah ini membangun frontend lalu menjalankan backend di http://127.0.0.1:3001. Masuk dengan akun supervisor untuk fitur operasional; akun admin untuk pengelolaan akun.
 
+## Mencoba Generative AI (draft pesan Gemini)
+
+Kunci Gemini tidak ikut di repo. Tanpa kunci, draft tetap dibuat dari template; dengan kunci, draft disusun oleh Gemini dan berlabel **"AI · Gemini"**. Gunakan kunci milik sendiri, jangan berbagi kunci, karena kuota versi gratis dihitung per akun.
+
+1. **Buat kunci gratis** di https://aistudio.google.com/apikey (login akun Google → _Create API key_).
+2. **Isi kunci.** Salin `ai/.env.example` menjadi `ai/.env`, lalu isi:
+   ```
+   GEMINI_API_KEY=kunci_dari_langkah_1
+   ```
+   Baris lain biarkan apa adanya. Jangan commit `ai/.env`.
+3. **Cek kunci tanpa website** (dari folder `ai`, setelah `pip install -r requirements.txt`):
+   ```bash
+   python -m api.genai
+   ```
+   Berhasil bila tertulis `"configured": true` dan contoh draft memiliki `"source": "gemini"`.
+4. **Sambungkan ke website.** Pastikan `backend/.env` berisi `DRAFT_API_URL=http://127.0.0.1:8000`, lalu jalankan layanan AI (`uvicorn api.app:app --port 8000`) **sebelum** backend (`npm start`).
+5. **Coba di website.**
+   1. Siapkan data demo: `npm --prefix backend run demo:reset` (nama database harus mengandung "demo").
+   2. Masuk dengan akun supervisor.
+   3. Di **Dashboard**, klik **Tinjau** pada salah satu tugas (Lina, Indra, atau Joko).
+   4. Klik **Ambil follow-up**, lalu **Buat draft pesan**, dan tunggu beberapa detik.
+   5. Draft yang berlabel **"AI · Gemini"** berasal dari Gemini; nama, paket, dan tanggalnya sesuai data.
+
+Draft juga bisa dicoba tanpa website melalui http://127.0.0.1:8000/docs → **POST /draft** → _Try it out_, dengan contoh isi:
+
+```json
+{
+  "kind": "followup_renewal",
+  "customerName": "Joko Susilo",
+  "packageName": "Group Class Regular 8 Sesi",
+  "expiresAt": "2026-11-23"
+}
+```
+
+**Bila draft berlabel template:**
+
+| Penyebab                                                          | Perbaikan                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Kunci belum terbaca                                               | Pastikan nama file persis `ai/.env`, lalu restart `uvicorn`.              |
+| `DRAFT_API_URL` kosong atau layanan AI dinyalakan setelah backend | Isi `DRAFT_API_URL` di `backend/.env`, lalu restart backend.              |
+| Gemini sedang sibuk atau kuota habis                              | Tunggu sebentar, lalu klik **Buat ulang**.                                |
+| Draft Gemini tidak lolos pemeriksaan (angka atau waktu keliru)    | Memang disengaja: template dipakai sebagai cadangan. Klik **Buat ulang**. |
+
 ## Pemeriksaan kode
 
 ```bash

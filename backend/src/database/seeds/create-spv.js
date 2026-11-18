@@ -17,8 +17,8 @@ const createSpv = async () => {
 
   const result = await pool.query(
     `
-      INSERT INTO users (name, email, password_hash, role)
-      VALUES ($1, $2, $3, 'spv')
+      INSERT INTO users (name, email, password_hash, role, pilot_location)
+      VALUES ($1, $2, $3, 'spv', 'bintaro')
       ON CONFLICT DO NOTHING
       RETURNING id, name, email, role
     `,

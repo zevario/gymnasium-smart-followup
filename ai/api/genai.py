@@ -90,7 +90,9 @@ def facts_of(req: DraftRequest) -> dict[str, str]:
     if req.remainingSessions is not None:
         f["sisa sesi"] = f"{req.remainingSessions} sesi"
     if req.expiresAt:
-        f["paket berakhir"] = _date(req.expiresAt)
+        # Paket yang sudah lewat tidak boleh disebut "akan berakhir".
+        ended = req.expiresAt < datetime.now(WIB).date()
+        f["paket sudah berakhir" if ended else "paket berakhir"] = _date(req.expiresAt)
     if req.trialDate:
         f["tanggal trial"] = _date(req.trialDate)
     return f
@@ -103,7 +105,9 @@ GOALS = {
                         "lalu tawarkan bantuan menjadwalkan sesi yang tersisa.",
     "followup_trial": "Ucapkan terima kasih sudah mencoba trial dengan menyebut tanggal trial dari fakta, "
                       "tanyakan pengalamannya, lalu tawarkan bantuan bila ingin melanjutkan latihan.",
-    "followup_renewal": "Beri tahu tanggal paket berakhir dan tawarkan bantuan bila ingin melanjutkan.",
+    "followup_renewal": "Beri tahu tanggal paket berakhir dan tawarkan bantuan bila ingin melanjutkan. "
+                        "Bila fakta berisi 'paket sudah berakhir', tulis bahwa paket sudah berakhir, "
+                        "jangan 'akan berakhir'.",
 }
 TONE = {
     "high": "Customer perlu perhatian lebih: buat lebih personal dan tawarkan bantuan secara aktif.",
@@ -152,7 +156,10 @@ def template(req: DraftRequest) -> str:
         return (f"{hi} Terima kasih sudah mencoba {trial}{when}. Bagaimana pengalaman latihannya? "
                 "Kami siap membantu bila Kakak ingin melanjutkan.")
     pkg = f"paket {f['paket']}" if "paket" in f else "paket Kakak"
-    end = f" tercatat berakhir pada {f['paket berakhir']}" if "paket berakhir" in f else " akan segera berakhir"
+    if "paket sudah berakhir" in f:
+        end = f" sudah berakhir pada {f['paket sudah berakhir']}"
+    else:
+        end = f" berakhir pada {f['paket berakhir']}" if "paket berakhir" in f else " akan segera berakhir"
     return f"{hi} {pkg[0].upper() + pkg[1:]}{end}. Apakah Kakak ingin dibantu untuk melanjutkan?"
 
 
@@ -175,6 +182,9 @@ def check(message: str, req: DraftRequest) -> str | None:
     relative = RELATIVE_TIME.search(message)
     if relative or (req.kind != "schedule_reminder" and re.search(r"\bbesok\b", message, re.IGNORECASE)):
         return "memakai waktu relatif: " + (relative.group(0) if relative else "besok")
+    if "paket sudah berakhir" in facts_of(req) and re.search(r"\b(akan|segera)\b[^.?!]*berakhir", message,
+                                                             re.IGNORECASE):
+        return "menyebut paket yang sudah berakhir sebagai 'akan berakhir'"
     allowed = set(NUMBER.findall(" ".join(facts_of(req).values())))
     invented = sorted(set(NUMBER.findall(message)) - allowed)
     if invented:

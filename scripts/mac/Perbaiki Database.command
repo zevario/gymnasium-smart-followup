@@ -1,6 +1,6 @@
 #!/bin/zsh
 export PATH="/Library/PostgreSQL/18/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-cd "${0:A:h}"
+cd "${0:A:h:h:h}"
 PW=$(grep -m1 '^PGPASSWORD=' backend/.env | cut -d= -f2-)
 if [ -z "$PW" ]; then echo "PGPASSWORD kosong di backend/.env. Isi dulu."; echo; read "?Tekan Enter untuk menutup..."; exit 1; fi
 unset PGHOST PGPORT PGUSER PGDATABASE PGPASSWORD PGSERVICE

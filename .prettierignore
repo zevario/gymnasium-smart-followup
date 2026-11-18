@@ -10,3 +10,6 @@ backend/migrations/
 .env.*
 **/.env
 **/.env.*
+
+# Proyek Python; sebagian dokumen dibuat otomatis oleh ai/src/train.py
+ai/

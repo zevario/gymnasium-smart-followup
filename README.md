@@ -48,13 +48,22 @@ Kebutuhan: Node.js, PostgreSQL, dan Python 3 (untuk layanan AI).
    ```
    Kunci Gemini disimpan di `ai/.env` (`GEMINI_API_KEY`). File `.env` tidak pernah di-commit.
 3. **Database dan data demo**
+
    ```bash
    npm run db:migrate
    npm --prefix backend run seed:admin
    npm --prefix backend run seed:spv
    npm --prefix backend run seed:ai-demo
    ```
-   `seed:ai-demo` mengisi 12 customer fiktif (`@example.com`) yang membuat model memberi campuran Low, Medium, dan High, beserta paket, pengingat, dan tugas follow-up. Jalankan hanya di database demo atau lokal.
+
+   `seed:ai-demo` mengisi 12 customer fiktif (`@example.com`) yang membuat model memberi campuran Low, Medium, dan High, beserta paket, pengingat, tugas follow-up, riwayat untuk Laporan, dan akun portal customer yang sudah aktif (bila `DEMO_CUSTOMER_PASSWORD` diisi). Jalankan hanya di database demo atau lokal.
+
+   Untuk demo, keempat langkah di atas bisa diganti satu perintah yang membuat ulang database dari nol. Perintah ini hanya berjalan bila nama database (`PGDATABASE`) mengandung kata "demo", misalnya `gymnasyum_demo`:
+
+   ```bash
+   npm --prefix backend run demo:reset
+   ```
+
 4. **Layanan AI** (jalankan lebih dulu dari backend)
    ```bash
    cd ai
@@ -79,7 +88,7 @@ cd ai && python -m unittest tests/test_ml.py tests/test_genai.py -v
 
 - **Model dilatih dengan data sintetis.** Data latih dibangkitkan dari simulasi yang meniru alur website ([ai/docs/asumsi_dataset.md](ai/docs/asumsi_dataset.md)), dan labelnya berasal dari aturan poin tim. Akurasi uji 0,902 mengukur seberapa baik model meniru aturan itu, bukan perilaku member sungguhan. Model perlu dilatih ulang setelah ada data asli.
 - **Fitur kehadiran dan respons dihitung sepanjang masa keanggotaan**, sehingga member lama cenderung memiliki hitungan absen dan tanpa-balasan yang lebih besar.
-- **Dua jenis prioritas.** Skor di Dashboard dan Semua follow-up dihitung dari aturan tenggat dan minat siklus trial/perpanjangan, sedangkan prioritas model ditampilkan di halaman Pengingat.
+- **Dua jenis prioritas.** Skor di Dashboard dan Semua follow-up dihitung dari aturan tenggat dan minat siklus trial/perpanjangan. Prioritas model ditampilkan sebagai lencana "AI" di samping skor itu dan di halaman Pengingat, tetapi tidak mengubah urutan antrean.
 - **Akun yang mendaftar lewat portal belum terhubung ke data customer**, sehingga belum mendapat prediksi model.
 - **Belum ada halaman staf untuk membuat jadwal dan mencatat absensi.** API-nya tersedia (`/api/schedules`, `/api/attendances`); data kehadiran demo diisi lewat seed.
 - **Generative AI memakai Gemini versi gratis.** Jangan kirim data member asli; draft selalu ditinjau staf, dan template dipakai bila Gemini gagal atau draft tidak lolos pemeriksaan.

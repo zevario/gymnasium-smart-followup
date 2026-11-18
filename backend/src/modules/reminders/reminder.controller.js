@@ -145,7 +145,19 @@ const getDraftGeneratorStatus = async (req, res) => {
   return response.success(res, 'Draft generator status retrieved', status);
 };
 
+/** Draft pesan GenAI untuk satu reminder. Tidak disimpan: petugas meninjau lalu memakainya saat review. */
+const generateReminderDraft = async (req, res, next) => {
+  try {
+    const result = await DraftGeneratorService.generateReminderDraft(req.params.id, req.user);
+    if (result.notFound) return response.error(res, 'Reminder not found', 404);
+    return response.success(res, 'Reminder draft generated', result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
+  generateReminderDraft,
   getReminders,
   getReminderEvents,
   reviewReminder,

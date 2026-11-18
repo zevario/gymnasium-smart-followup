@@ -93,6 +93,21 @@ class TestDraft(unittest.TestCase):
             genai.draft(SCHEDULE)
         self.assertEqual(mock.call_count, 1)
 
+    def test_relative_word_right_after_date_is_removed(self):
+        trial = genai.DraftRequest(kind="followup_trial", customerName="Lina Marlina",
+                                   trialDate="2026-11-17")
+        out, _ = self.run_with(trial, "Halo Kak Lina, terima kasih sudah mencoba trial pada "
+                                      "Selasa, 17 November 2026 kemarin. Bagaimana latihannya?")
+        self.assertEqual(out["source"], "gemini")
+        self.assertIn("17 November 2026. Bagaimana", out["message"])
+
+    def test_template_fallback_is_not_cached(self):
+        self.run_with(PACKAGE, error=TimeoutError("lambat"))
+        reply = ("Halo Kak Dimas, paket Open Gym 4 Sesi masih ada 2 sesi dan berakhir pada "
+                 "Selasa, 24 November 2026. Mau kami bantu jadwalkan?")
+        out, mock = self.run_with(PACKAGE, reply)   # "Buat ulang" harus mencoba Gemini lagi
+        self.assertEqual((out["source"], mock.call_count), ("gemini", 1))
+
     def test_prompt_contains_only_given_facts(self):
         prompt = genai.build_prompt(PACKAGE)
         self.assertIn("sisa sesi: 2 sesi", prompt)

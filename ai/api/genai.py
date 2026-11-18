@@ -18,7 +18,6 @@ import json
 import os
 import re
 from datetime import date, datetime
-from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 from zoneinfo import ZoneInfo
@@ -167,6 +166,14 @@ NUMBER = re.compile(r"\d+")
 FORBIDDEN = re.compile(r"(https?://|www\.|\bRp\b|rupiah|diskon|promo|potongan harga|\+?62\d{6,}|\b08\d{6,})",
                        re.IGNORECASE)
 RELATIVE_TIME = re.compile(r"\b(kemarin|tadi|lusa|minggu lalu|bulan lalu|pekan lalu|hari ini)\b", re.IGNORECASE)
+# Kata waktu relatif yang menempel tepat setelah tanggal fakta ("17 November 2026 kemarin").
+# Tanggal pastinya sudah ada, jadi kata itu dibuang; waktu relatif di tempat lain tetap ditolak check().
+AFTER_DATE = re.compile(r"(\d{4})[ ,]+(?:kemarin|tadi|lusa|hari ini|minggu lalu|pekan lalu|bulan lalu)\b",
+                        re.IGNORECASE)
+
+
+def tidy(message: str) -> str:
+    return AFTER_DATE.sub(r"\1", message)
 
 
 def check(message: str, req: DraftRequest) -> str | None:
@@ -211,19 +218,37 @@ def call_gemini(prompt: str) -> str:
     return "".join(p.get("text", "") for p in parts).strip().strip('"').strip()
 
 
-@lru_cache(maxsize=512)
+_CACHE: dict[str, tuple[str, str, str | None]] = {}
+
+
 def _generate(payload: str) -> tuple[str, str, str | None]:
+    # Hanya draft Gemini yang disimpan: hasil template (Gemini gagal/ditolak) tidak di-cache,
+    # supaya tombol "Buat ulang" benar-benar mencoba Gemini lagi.
+    if payload in _CACHE:
+        return _CACHE[payload]
+    result = _attempt(payload)
+    if result[1] == "gemini":
+        if len(_CACHE) >= 512:
+            _CACHE.pop(next(iter(_CACHE)))
+        _CACHE[payload] = result
+    return result
+
+
+_generate.cache_clear = _CACHE.clear
+
+
+def _attempt(payload: str) -> tuple[str, str, str | None]:
     req = DraftRequest.model_validate_json(payload)
     if not os.environ.get("GEMINI_API_KEY"):
         return template(req), "template", "GEMINI_API_KEY belum diisi"
     prompt = build_prompt(req)
     try:
-        message = call_gemini(prompt)
+        message = tidy(call_gemini(prompt))
         reason = check(message, req)
         if reason:
             # Satu kali perbaikan: kesalahan seperti "kemarin" biasanya hilang bila alasannya disebut.
-            message = call_gemini(f"{prompt}\n\nDraft sebelumnya ditolak karena {reason}. "
-                                  "Tulis ulang dengan mematuhi semua aturan.")
+            message = tidy(call_gemini(f"{prompt}\n\nDraft sebelumnya ditolak karena {reason}. "
+                                       "Tulis ulang dengan mematuhi semua aturan."))
             reason = check(message, req)
     except Exception as error:  # jaringan, kuota (429), kunci salah, atau respons tak terduga
         return template(req), "template", f"Gemini tidak tersedia ({type(error).__name__})"

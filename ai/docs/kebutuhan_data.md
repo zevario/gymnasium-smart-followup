@@ -47,6 +47,6 @@ Respons (urutan sama dengan request):
 
 ## 3. Hal yang perlu diketahui tim web
 
-- **Data demo (`npm run seed:demo`) belum mengisi `customer_packages`.** Tanpa paket aktif, `remainingSessions` dan `daysToExpiry` selalu `null`. Model tetap bekerja, tetapi untuk demo sebaiknya beberapa customer diberi paket lewat menu Paket.
+- **Data demo bawaan (`npm run seed:demo`) tidak mengisi paket aktif dan hampir semua customernya terlihat tidak aktif.** Untuk demo AI, jalankan juga `npm --prefix backend run seed:ai-demo`: 12 customer fiktif (4 rajin, 4 sedang, 4 perlu perhatian) dengan paket aktif, izin, dan riwayat reminder. Model memberi 4 Low, 4 Medium, 4 High; penjadwal membuat 2 pengingat paket H-7 dan 4 reminder kelas (sekitar 20 jam lagi). Aman dijalankan ulang (customer yang sudah ada dilewati).
 - Model dan baseline sama-sama menulis ke `prediction_logs`, sehingga keduanya bisa dibandingkan dari kolom `source`.
 - Pipeline Node.js di `backend/ml` (port 8001) tetap berfungsi sebagai alternatif. Model ini menggantikannya sebagai model utama, karena dievaluasi dengan validasi silang per customer, interval kepercayaan, dan pembanding baseline sesuai Project Plan. Lihat `README.md` dan `docs/evaluasi_model.md`.

@@ -4,6 +4,7 @@ import { priorityLabel } from '../../followups/services/followupRules.js';
 import { Avatar } from '../../../shared/components/Avatar.jsx';
 import { Badge } from '../../../shared/components/Badge.jsx';
 import { Icon } from '../../../shared/components/Icon.jsx';
+import { PriorityBadge } from '../../reminders/components/PriorityBadge.jsx';
 
 export function CustomerRow({ customer: c, onOpen }) {
   const t = useT();
@@ -26,6 +27,11 @@ export function CustomerRow({ customer: c, onOpen }) {
         <span>
           <b>{t(c.score)}</b>
           <Badge tone={label.toLowerCase()}>{t(label)}</Badge>
+        </span>
+        {/* Skor di atas dari aturan tenggat/minat; lencana ini dari model klasifikasi (halaman Pengingat). */}
+        <span className="ai-priority">
+          {t('AI')}
+          <PriorityBadge priority={c.aiPriority} source={c.aiSource} />
         </span>
       </div>
       <div className="row-cell">

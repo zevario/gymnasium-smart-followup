@@ -15,4 +15,4 @@ unset PGHOST PGPORT PGUSER PGDATABASE PGPASSWORD PGSERVICE
   echo
   echo "=== coba TCP tanpa password, user postgres ==="
   PGCONNECT_TIMEOUT=5 psql -w -h 127.0.0.1 -p 5432 -U postgres -d postgres -tAc "select version()" 2>&1 | head -1 | cut -c1-90
-} 2>&1 | tee "${0:A:h}/diagnosa-db.txt"
+} 2>&1 | tee "${0:A:h:h:h}/diagnosa-db.txt"

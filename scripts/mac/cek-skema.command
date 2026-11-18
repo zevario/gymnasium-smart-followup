@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Membaca daftar migrasi dan tabel yang benar-benar ada di database.
 export PATH="/Library/PostgreSQL/18/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-cd "${0:A:h}"
+cd "${0:A:h:h:h}"
 PW=$(grep -m1 '^PGPASSWORD=' backend/.env | cut -d= -f2-)
 USR=$(grep -m1 '^PGUSER=' backend/.env | cut -d= -f2-)
 DB=$(grep -m1 '^PGDATABASE=' backend/.env | cut -d= -f2-)
@@ -20,5 +20,5 @@ psql() { PGPASSWORD="$PW" command psql -w -h 127.0.0.1 -p 5432 -U "$USR" -d "$DB
   psql -c "SELECT * FROM session_packages LIMIT 10"
   echo "=== constraint reminders ==="
   psql -c "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='reminders'::regclass ORDER BY conname"
-} > skema-db.txt 2>&1
+} > "${0:A:h:h:h}/skema-db.txt" 2>&1
 echo "Selesai. Hasil ada di skema-db.txt"

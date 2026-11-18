@@ -5,7 +5,7 @@
 # 3. Menyalakan API aplikasi di port 3000.
 # Portal staf dan customer tetap dilayani 'Buka Gymnasyum.command' di port 3001.
 export PATH="/Library/PostgreSQL/18/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-cd "${0:A:h}"
+cd "${0:A:h:h:h}"
 PW=$(grep -m1 '^PGPASSWORD=' backend/.env | cut -d= -f2-)
 USR=$(grep -m1 '^PGUSER=' backend/.env | cut -d= -f2-)
 DB=$(grep -m1 '^PGDATABASE=' backend/.env | cut -d= -f2-)

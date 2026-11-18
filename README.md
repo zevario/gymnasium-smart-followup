@@ -75,6 +75,16 @@ npm run check                                   # format, lint, tes backend, bui
 cd ai && python -m unittest tests/test_ml.py tests/test_genai.py -v
 ```
 
+## Keterbatasan
+
+- **Model dilatih dengan data sintetis.** Data latih dibangkitkan dari simulasi yang meniru alur website ([ai/docs/asumsi_dataset.md](ai/docs/asumsi_dataset.md)), dan labelnya berasal dari aturan poin tim. Akurasi uji 0,902 mengukur seberapa baik model meniru aturan itu, bukan perilaku member sungguhan. Model perlu dilatih ulang setelah ada data asli.
+- **Fitur kehadiran dan respons dihitung sepanjang masa keanggotaan**, sehingga member lama cenderung memiliki hitungan absen dan tanpa-balasan yang lebih besar.
+- **Dua jenis prioritas.** Skor di Dashboard dan Semua follow-up dihitung dari aturan tenggat dan minat siklus trial/perpanjangan, sedangkan prioritas model ditampilkan di halaman Pengingat.
+- **Akun yang mendaftar lewat portal belum terhubung ke data customer**, sehingga belum mendapat prediksi model.
+- **Belum ada halaman staf untuk membuat jadwal dan mencatat absensi.** API-nya tersedia (`/api/schedules`, `/api/attendances`); data kehadiran demo diisi lewat seed.
+- **Generative AI memakai Gemini versi gratis.** Jangan kirim data member asli; draft selalu ditinjau staf, dan template dipakai bila Gemini gagal atau draft tidak lolos pemeriksaan.
+- **Hanya diuji secara lokal.** Aplikasi tidak di-deploy; fitur email membutuhkan konfigurasi SMTP di `backend/.env`.
+
 ## Tim
 
 Capstone DB15-G007.

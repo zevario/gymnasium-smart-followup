@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import pool from '../pool.js';
+import { importBatch } from '../../modules/pilot/pilot.service.js';
 
 /**
  * Data demo untuk bagian AI: 12 customer fiktif dengan riwayat yang sengaja dirancang
@@ -18,6 +19,7 @@ const P = (n) => Array.from({ length: n }, () => 'present');
 
 // visits: status booking lama (paling lama dulu), dibagi rata ke `spanDays` terakhir.
 // replies: hasil reminder yang sudah terkirim. pkg: paket aktif (null = tidak ada).
+// followup: tugas di Dashboard/Semua follow-up (trial selesai atau paket akan/baru habis).
 const scenarios = [
   // Rajin: diharapkan Low
   {
@@ -92,6 +94,7 @@ const scenarios = [
     replies: ['responded', 'no_response', 'no_response', 'no_response', 'no_response'],
     pkg: { name: 'Group Class Regular 8 Sesi', used: 5, expiresIn: 5 },
     tomorrow: true,
+    followup: { goal: 'renewal', anchorDays: 5, interest: 'none', visits: 1 },
   },
   {
     name: 'Joko Susilo',
@@ -100,6 +103,7 @@ const scenarios = [
     lastVisitDaysAgo: 25,
     replies: ['no_response', 'no_response', 'no_response'],
     pkg: null,
+    followup: { goal: 'renewal', anchorDays: -5, interest: 'none', visits: 0 },
   },
   {
     name: 'Kartika Sari',
@@ -116,6 +120,7 @@ const scenarios = [
     spanDays: 4,
     replies: ['no_response'],
     pkg: { name: 'Trial Personal Training Junior Coach', used: 0, expiresIn: 3 },
+    followup: { goal: 'trial', anchorDays: -1.5, interest: 'information', visits: 0 },
   },
 ];
 
@@ -142,6 +147,7 @@ const seed = async () => {
     );
 
     let created = 0;
+    const followups = [];
     for (const [index, s] of scenarios.entries()) {
       const number = String(index + 1).padStart(2, '0');
       const pkg = s.pkg && catalog[s.pkg.name];
@@ -153,14 +159,14 @@ const seed = async () => {
          ON CONFLICT (email) DO NOTHING RETURNING id`,
         [
           s.name,
-          `ai.demo.${number}@example.test`,
+          `ai.demo.${number}@example.com`,
           `08130000${number}`,
           index % 2 ? 'male' : 'female',
           `Alamat demo AI ${number}`,
           'Customer fiktif untuk demo AI (seed-ai-demo.js).',
           s.pkg?.name ?? 'Group Class Regular 8 Sesi',
           at(-(s.spanDays + 5)),
-          s.pkg ? at(s.pkg.expiresIn) : at(-10),
+          s.pkg ? at(s.pkg.expiresIn) : at(-5),
           staff.id,
           admin.id,
         ],
@@ -168,6 +174,28 @@ const seed = async () => {
       if (!customer.rowCount) continue; // sudah ada
       const customerId = customer.rows[0].id;
       created += 1;
+      if (s.followup) {
+        const { goal, anchorDays, interest, visits } = s.followup;
+        followups.push({
+          location: 'bintaro',
+          customerId: String(customerId),
+          name: s.name,
+          phone: `+628130000${number}`,
+          consent: 'granted',
+          consentRef: 'demo-ai',
+          consentAt: at(-(s.spanDays + 5)).toISOString(),
+          complaint: false,
+          observedAt: new Date().toISOString(),
+          cycleId: `demo-ai-${number}`,
+          goal,
+          package: s.pkg?.name ?? 'Group Class Regular 8 Sesi',
+          anchor: new Date(Date.now() + anchorDays * DAY).toISOString(),
+          interest,
+          visits,
+          transaction: null,
+          ...(goal === 'renewal' ? { membershipState: 'renewable' } : {}),
+        });
+      }
 
       // Booking lama: tersebar sampai `lastVisitDaysAgo` (default 1) hari lalu.
       const last = s.lastVisitDaysAgo ?? 1;
@@ -253,6 +281,11 @@ const seed = async () => {
     }
     await client.query('COMMIT');
     console.log(`Data demo AI: ${created} customer baru, ${scenarios.length - created} sudah ada.`);
+    // Lewat impor resmi backend (sama dengan menu Pengaturan → Impor), agar skor dan status tugas ikut dihitung.
+    if (followups.length) {
+      const result = await importBatch(followups, staff.id);
+      console.log(`Tugas follow-up demo: ${result.updated} dibuat.`);
+    }
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;

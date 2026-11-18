@@ -10,9 +10,21 @@ export async function event(db, id, actor, action, note = '') {
     note,
   ]);
 }
+// Prioritas model terbaru ikut ditampilkan di samping skor aturan. source_id berisi id
+// customer bila tugas berasal dari data customer; akun portal ('portal-…') belum punya prediksi.
+// CASE menjamin cast ke uuid hanya dijalankan untuk source_id berbentuk uuid.
 const selectTasks = `SELECT c.*, p.name,p.phone,p.consent,p.complaint,p.opted_out_at,p.observed_at AS person_observed,
-  u.name AS owner_name FROM pilot_cycles c JOIN pilot_people p ON p.id=c.person_id
-  LEFT JOIN users u ON u.id=c.owner_id WHERE p.location='bintaro'`;
+  u.name AS owner_name, ai.priority AS ai_priority, ai.source AS ai_source
+  FROM pilot_cycles c JOIN pilot_people p ON p.id=c.person_id
+  LEFT JOIN users u ON u.id=c.owner_id
+  LEFT JOIN LATERAL (
+    SELECT log.priority, log.source FROM prediction_logs log
+    WHERE log.customer_id = CASE
+      WHEN p.source_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      THEN p.source_id::uuid END
+    ORDER BY log.predicted_at DESC LIMIT 1
+  ) ai ON TRUE
+  WHERE p.location='bintaro'`;
 export async function tasks(db, id) {
   const result = await db.query(
     selectTasks +
@@ -69,6 +81,8 @@ export function present(row, history) {
     openedAt: row.opens_at,
     expiresAt: row.expires_at,
     nextAt: row.next_at,
+    aiPriority: row.ai_priority ?? null,
+    aiSource: row.ai_source ?? null,
   };
 }
 export async function importRecord(db, data, actor) {

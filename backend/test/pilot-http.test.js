@@ -23,6 +23,9 @@ test('Pilot HTTP workflow in an isolated PostgreSQL schema', { timeout: 60000 },
     PILOT_AI_MODEL: '',
     INFERENCE_API_URL: '',
     PILOT_HOST: '127.0.0.1',
+    // Secret khusus tes bila backend/.env belum ada (misalnya di clone baru).
+    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'test-access-' + randomUUID(),
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'test-refresh-' + randomUUID(),
   };
   const db = new pg.Client();
   await db.connect();

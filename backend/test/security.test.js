@@ -35,7 +35,23 @@ test('Production refuses weak/shared secrets and non-HTTPS origins', () => {
   }
 });
 
-test('JWT verification rejects wrong algorithm, audience, kind and missing session binding', () => {
+test('JWT verification rejects wrong algorithm, audience, kind and missing session binding', (t) => {
+  // Secret khusus tes agar tidak bergantung pada backend/.env (yang tidak ada di clone baru).
+  const saved = {
+    access: process.env.JWT_ACCESS_SECRET,
+    refresh: process.env.JWT_REFRESH_SECRET,
+  };
+  process.env.JWT_ACCESS_SECRET = 'test-access-' + randomUUID();
+  process.env.JWT_REFRESH_SECRET = 'test-refresh-' + randomUUID();
+  t.after(() => {
+    for (const [key, value] of [
+      ['JWT_ACCESS_SECRET', saved.access],
+      ['JWT_REFRESH_SECRET', saved.refresh],
+    ]) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
   const user = { id: randomUUID() };
   const tokens = createTokens(user);
   assert.equal(verifyToken(tokens.accessToken, 'access').sub, user.id);

@@ -72,10 +72,20 @@ Kebutuhan: Node.js, PostgreSQL, dan Python 3 (untuk layanan AI).
    uvicorn api.app:app --port 8000
    ```
 5. **Aplikasi**
+
    ```bash
    npm start
    ```
+
    Perintah ini membangun frontend lalu menjalankan backend di http://127.0.0.1:3001. Masuk dengan akun supervisor untuk fitur operasional; akun admin untuk pengelolaan akun.
+
+   Akun demo fiktif bawaan `backend/.env.example` (sama dengan video tutorial):
+
+   | Peran      | Halaman masuk                                | Email                         | Password             |
+   | ---------- | -------------------------------------------- | ----------------------------- | -------------------- |
+   | Supervisor | http://127.0.0.1:3001, tab Employee          | `supervisor.demo@example.com` | `SupervisorDemo2026` |
+   | Customer   | http://127.0.0.1:3001/customer, tab Customer | `customer.demo@example.com`   | `CustomerDemo2026`   |
+   | Admin      | http://127.0.0.1:3001, tab Employee          | `admin.demo@example.com`      | `AdminDemo2026`      |
 
 ## Mencoba Generative AI (draft pesan Gemini)
 

@@ -340,7 +340,7 @@ const seed = async () => {
 
     // Akun portal customer yang sudah aktif, agar demo tidak bergantung pada email aktivasi.
     const demoEmail = (
-      process.env.DEMO_CUSTOMER_EMAIL || 'demo.customer@example.com'
+      process.env.DEMO_CUSTOMER_EMAIL || 'customer.demo@example.com'
     ).toLowerCase();
     const demoPassword = process.env.DEMO_CUSTOMER_PASSWORD || '';
     if (demoPassword.length < 10) {
